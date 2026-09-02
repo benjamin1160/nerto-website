@@ -1,0 +1,42 @@
+{
+  "daisy": {
+    "sourceSlug": "daisy",
+    "scenes": { "exterior": 1, "porch": 2, "kitchen": 5, "living": 9, "bedroom": 13, "bath": 11 }
+  },
+  "palm-coast": {
+    "sourceSlug": "palm-coast",
+    "scenes": { "exterior": 0, "kitchen": 3, "living": 5, "bedroom": 7, "bath": 8, "porch": 10 }
+  },
+  "captiva": {
+    "sourceSlug": "captiva",
+    "scenes": { "exterior": 11, "living": 0, "kitchen": 3, "bedroom": 5, "bath": 7 }
+  },
+  "tater-tot": {
+    "sourceSlug": "tater-tot",
+    "scenes": { "exterior": 12, "living": 0, "kitchen": 1, "bedroom": 6, "bath": 8 }
+  },
+  "manning": {
+    "sourceSlug": "manning",
+    "scenes": { "exterior": 14, "living": 1, "kitchen": 5, "bedroom": 10, "bath": 13, "porch": 7 }
+  },
+  "nitro-quatro": {
+    "sourceSlug": "nitro-quatro",
+    "scenes": { "exterior": 23, "living": 1, "kitchen": 4, "bedroom": 19, "bath": 14 }
+  },
+  "horizon": {
+    "sourceSlug": "horizon",
+    "scenes": { "exterior": 19, "living": 1, "kitchen": 2, "bedroom": 13, "bath": 11 }
+  },
+  "big-mullet": {
+    "sourceSlug": "big-mullet",
+    "scenes": { "exterior": 15, "living": 1, "kitchen": 2, "bedroom": 7, "bath": 9 }
+  },
+  "annabelle": {
+    "sourceSlug": "annabelle",
+    "scenes": { "exterior": 17, "living": 1, "kitchen": 3, "bedroom": 11, "bath": 14 }
+  },
+  "key-largo": {
+    "sourceSlug": "key-largo",
+    "scenes": { "exterior": 0, "living": 1, "kitchen": 5, "bedroom": 9, "bath": 11 }
+  }
+}

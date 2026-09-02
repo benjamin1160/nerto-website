@@ -1,0 +1,379 @@
+@import "tailwindcss";
+
+/* Class-based dark mode, toggled by the inline theme script in app/layout.tsx */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ------------------------------------------------------------------ *
+ * Brand tokens — Hearthline Home Co.
+ * A warm, editorial palette: limestone paper, ink, ember, deep moss.
+ * ------------------------------------------------------------------ */
+:root {
+  /* Hearthline's values, and the fallback for every skin. `lib/skin.ts`
+     overrides whichever of these the active skin names — see `skinStyles`,
+     which is inlined by `app/layout.tsx` with doubled selectors so it always
+     wins here regardless of stylesheet order. Editing this block restyles a
+     single deployment; editing the skin restyles every deployment wearing
+     it. Both are supported. */
+
+  /* The primary button. A skin may override these; left alone the button is
+     ink that turns ember on hover, which is Hearthline's behaviour. They are
+     defined in terms of other tokens, so they follow the light/dark swap
+     without needing a second definition below. */
+  --btn-bg: var(--ink);
+  --btn-fg: var(--paper);
+  --btn-hover-bg: var(--ember);
+  --btn-hover-fg: var(--on-ember);
+  /* Layered over `--btn-bg`, so a skin with no gradient keeps its flat fill
+     and a skin with one gets it without every button changing shape. */
+  --btn-gradient: none;
+  --btn-gradient-hover: none;
+
+  /* Corner radii. A skin sets these; components read them through the
+     `rounded-button` / `rounded-card` Tailwind utilities below. */
+  --corner-button: 9999px;
+  --corner-card: 1.25rem;
+
+  /* Height of the fixed chrome, so nothing has to guess it.
+     `--header-h` is the nav bar itself. `--callbar-h` is the phone strip
+     above it, which `components/call-bar.tsx` sets to its own height when
+     `callBar` in `lib/page-config.ts` is on and leaves undefined when it is
+     off. `--chrome-h` is the sum, and it is what pages offset against —
+     sticky filter rails, `scroll-margin`, and the top padding of any hero
+     that starts under the bar rather than behind it. */
+  --header-h: 4.5rem;
+  --callbar-h: 0rem;
+  --chrome-h: calc(var(--header-h) + var(--callbar-h));
+
+  /* Typefaces. The families are loaded in `app/layout.tsx`; the active skin
+     decides which of them these three point at. */
+  --font-family-display: var(--font-display-serif), ui-serif, Georgia, serif;
+  --font-family-sans: var(--font-ui-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-family-mono: var(--font-mono-face), ui-monospace, monospace;
+
+  --paper: #f7f4ef;
+  --surface: #fffdfa;
+  --surface-2: #f0ebe3;
+  --ink: #17140f;
+  --ink-soft: #3b342c;
+  --muted: #6d6459;
+  --line: #e0d8cc;
+  --line-strong: #cabfae;
+
+  --ember: #b8461c;
+  --ember-soft: #e07a45;
+  --ember-wash: #f8ece5;
+  --accent: #b58436;
+  --accent-soft: #d0a45c;
+  --moss: #2f4a3c;
+  --moss-soft: #5d8a71;
+  --sky: #2b5f7e;
+  --gold: #b58436;
+
+  --on-ember: #fffaf6;
+  --shadow-color: 28 22 16;
+
+  /* The brand gradient and the shadows the things wearing it cast. A skin
+     that names none of these gets a flat `ember` primary, which is what
+     Hearthline wants — so the fallbacks below are the flat colour twice. */
+  --gradient: linear-gradient(135deg, var(--ember) 0%, var(--ember) 100%);
+  --gradient-hover: linear-gradient(135deg, var(--ember-soft) 0%, var(--ember-soft) 100%);
+  --button-shadow: 0 10px 25px -5px rgb(var(--shadow-color) / 0.35);
+  --card-shadow: 0 4px 6px -1px rgb(var(--shadow-color) / 0.1);
+
+  /* The land-deals map. Counties are shaded by starting payment on a five-step
+     moss ramp, weighted toward the cheapest band — the counties a shopper can
+     afford are the ones that should carry weight. On paper the ramp runs dark
+     to pale; in the dark theme it runs the other way, so "cheapest" is the
+     loudest step in both. `lib/land/static-map.ts` carries the dark values as
+     literals for the social image, which cannot read custom properties. */
+  --land-water: #e4eae7;
+  --land-unserved: #ded6c9;
+  --land-outside: #d3cbbd;
+  --land-over-budget: #e8e3da;
+  --land-stroke: #f7f4ef;
+  --land-price: #7c5a1e;
+  --land-tier-1: #2f4a3c;
+  --land-tier-2: #47695a;
+  --land-tier-3: #648878;
+  --land-tier-4: #8caa9a;
+  --land-tier-5: #b4c9bd;
+}
+
+.dark {
+  --paper: #100e0c;
+  --surface: #191613;
+  --surface-2: #221e19;
+  --ink: #f4efe7;
+  --ink-soft: #d9d1c5;
+  --muted: #9c9285;
+  --line: #2c2721;
+  --line-strong: #453d34;
+
+  --ember: #e9853f;
+  --ember-soft: #f2a66e;
+  --ember-wash: #2a1d13;
+  --accent: #d8ac5f;
+  --accent-soft: #e6c68d;
+  --moss: #86b598;
+  --moss-soft: #5d8a71;
+  --sky: #7fb4d1;
+  --gold: #d8ac5f;
+
+  --on-ember: #17120d;
+  --shadow-color: 0 0 0;
+
+  --land-water: #0a100e;
+  --land-unserved: #221e19;
+  --land-outside: #1b1815;
+  --land-over-budget: #1a1714;
+  --land-stroke: #100e0c;
+  --land-price: #d8ac5f;
+  --land-tier-1: #8fbca2;
+  --land-tier-2: #6d9d82;
+  --land-tier-3: #4f7f66;
+  --land-tier-4: #3a634f;
+  --land-tier-5: #2a4a3b;
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --header-h: 5rem;
+  }
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ember: var(--ember);
+  --color-ember-soft: var(--ember-soft);
+  --color-ember-wash: var(--ember-wash);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --color-moss: var(--moss);
+  --color-moss-soft: var(--moss-soft);
+  --color-sky: var(--sky);
+  --color-gold: var(--gold);
+  --color-on-ember: var(--on-ember);
+
+  --font-sans: var(--font-family-sans);
+  --font-mono: var(--font-family-mono);
+  --font-display: var(--font-family-display);
+
+  --radius-button: var(--corner-button);
+  --radius-card: var(--corner-card);
+
+  --text-display: clamp(2.75rem, 7.5vw, 6.5rem);
+  --text-display--line-height: 0.94;
+  --text-display--letter-spacing: -0.035em;
+
+  --text-headline: clamp(2rem, 4.6vw, 3.75rem);
+  --text-headline--line-height: 1.02;
+  --text-headline--letter-spacing: -0.028em;
+
+  --text-title: clamp(1.5rem, 2.6vw, 2.25rem);
+  --text-title--line-height: 1.12;
+  --text-title--letter-spacing: -0.02em;
+
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: cubic-bezier(0.34, 1.3, 0.5, 1);
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-synthesis-weight: none;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--ember);
+    color: var(--on-ember);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ember);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* A quieter, brand-tinted scrollbar */
+  @supports (scrollbar-color: auto) {
+    html {
+      scrollbar-color: var(--line-strong) transparent;
+    }
+  }
+}
+
+@layer components {
+  /* Small-caps mono label used to index every section: `01 — THE MYTH` */
+  .eyebrow {
+    font-family: var(--font-mono), monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* Editorial rule that fades out to the right */
+  .hairline {
+    height: 1px;
+    background-image: linear-gradient(
+      to right,
+      var(--line-strong),
+      var(--line-strong) 55%,
+      transparent
+    );
+  }
+
+  /* Paper grain — layered over hero art so flat vectors read as photography */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.42;
+    mix-blend-mode: soft-light;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  .dark .grain::after {
+    opacity: 0.3;
+    mix-blend-mode: overlay;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Motion
+ * ------------------------------------------------------------------ */
+@keyframes hl-rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes hl-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes hl-sheen {
+  from {
+    transform: translate3d(-120%, 0, 0) skewX(-16deg);
+  }
+  to {
+    transform: translate3d(320%, 0, 0) skewX(-16deg);
+  }
+}
+
+.animate-marquee {
+  animation: hl-marquee 42s linear infinite;
+}
+
+/* The pulse on the selected county, on /land-deals */
+@keyframes hl-ping {
+  0% {
+    transform: scale(0.85);
+    opacity: 0.85;
+  }
+  70%,
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.animate-ping-slow {
+  animation: hl-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Budget slider on /land-deals. A range thumb has to be styled per engine. */
+.land-slider::-webkit-slider-thumb {
+  appearance: none;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 9999px;
+  background: var(--ember);
+  border: 3px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--ember);
+  cursor: pointer;
+}
+
+.land-slider::-moz-range-thumb {
+  height: 1rem;
+  width: 1rem;
+  border-radius: 9999px;
+  background: var(--ember);
+  border: 3px solid var(--surface);
+  cursor: pointer;
+}
+
+/* Reveal-on-scroll, driven by components/reveal.tsx */
+[data-reveal] {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+}
+
+[data-reveal="in"] {
+  animation: hl-rise 0.85s var(--ease-out-expo) forwards;
+  animation-delay: var(--reveal-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * View transitions (React <ViewTransition>) — listing card art morphs
+ * into the detail-page hero on navigation.
+ * ------------------------------------------------------------------ */
+::view-transition-group(.hl-morph) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-image-pair(.hl-morph) {
+  animation-name: hl-morph-blur;
+  animation-duration: 520ms;
+}
+
+@keyframes hl-morph-blur {
+  35% {
+    filter: blur(4px) saturate(1.15);
+  }
+}
