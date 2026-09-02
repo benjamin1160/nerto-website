@@ -96,35 +96,53 @@ export const company: Company = {
   /* Shown in the trust row under the hero, exactly as NERTO publishes it. */
   licenseId: "452769500",
   badges: ["Financing available", "Delivery included"],
+  /* The four models standing on River Road, open to walk through. Keep this
+     in step with `onLot` in `lotState` (lib/homes.ts) — they are the same
+     fact, and a visitor who finds them disagreeing will believe neither. */
+  homesOpenOnLot: 4,
   /* The Google place NERTO's own site links its reviews to. */
   reviewsUrl: "https://search.google.com/local/reviews?placeid=ChIJLR4eJnwCskwRZU1grVk6HLk",
   reviewsLabel: "Google",
 
+  /* NERTO's own mission statement, as the business writes it today. It
+     deliberately replaces the rent-to-own storage story the company started
+     from: the homes side of the business is the business now, and the shed
+     history was reading as the headline. Every sentence below is NERTO's own
+     words — do not embroider it. */
   story: {
-    eyebrow: "Our story",
-    heading: "The first rent-to-own storage company in Maine.",
+    eyebrow: "Our mission",
+    heading: "Built on hard work. Focused on Maine families.",
     paragraphs: [
-      "NERTO — New England Rent To Own — started as the first rent-to-own storage solution company located in Maine, and was the first to bring rent to own to the New England market. The mission was a plain one: deliver a real heavy-duty Maine-made building, with more durability and more storage area, to our own community.",
-      "It started from the back of a truck. It now serves all of New England with a product that will outlast any shed built by a manufacturing plant or a regular shed builder, because the models are built with a new-home construction mentality — which is what makes them appeal to homeowners right across the region. We specialise in customised sheds, horse runs, wood sheds and mini-camps, and we sell mobile and modular homes out of the same yard on River Road.",
-      "We are committed to a complete line of building structures above industry standards that will outperform the rest; all at a fair price and built the way it should be. Call and one of our sales staff will customise the right building — or the right home — for what you actually need.",
+      "At NERTO Homes, our mission is to make quality homeownership more attainable for families throughout Maine. We understand that purchasing and building a new home can feel complicated and overwhelming, especially when trying to coordinate land, financing, permits, site work and multiple contractors.",
+      "That is why we provide a complete turnkey homebuilding experience. Whether you already own property or need help finding the right piece of land, our team will help guide you through the entire process. We coordinate permitting, code requirements, surveys, septic design, earthwork, driveways, foundations or slabs, wells, septic systems, electrical work, utility connections, home delivery, setup and finishing work.",
+      "Our customers do not have to figure everything out on their own. We work closely with lenders, real estate professionals, town officials, manufacturers, and trusted contractors to bring every part of the project together and keep it moving forward.",
+      "Our company is built on hard work, determination, quality, and a commitment to doing everything we can to help our customers succeed. When challenges arise, we work to find solutions, overcome obstacles, and help families reach the finish line.",
+      "At NERTO Homes, we are not just delivering houses. We are helping Maine families navigate the entire journey and create a place they can proudly call home.",
     ],
   },
 
+  /* Drawn from the mission above rather than written fresh, so the page says
+     one thing in two lengths instead of two things. */
   principles: [
     {
-      icon: "Shield",
-      title: "Quality homes",
-      body: "We offer carefully selected manufactured homes built to the highest standards.",
-    },
-    {
       icon: "Plan",
-      title: "Expert team",
-      body: "Our knowledgeable team is here to guide you through every step of the home buying process.",
+      title: "Turnkey, start to finish",
+      body: "Permitting, code requirements, surveys, septic design, earthwork, driveways, foundations, wells, utilities, delivery and setup — coordinated by us, not handed to you as a list of contractors to chase.",
     },
     {
       icon: "Pin",
-      title: "Always available",
-      body: "Have questions? We're just a phone call away and ready to help.",
+      title: "With land or without",
+      body: "Already own property, or still looking for the right piece? Either way our team guides you through the whole process from where you actually are.",
+    },
+    {
+      icon: "Wrench",
+      title: "We keep it moving",
+      body: "We work closely with lenders, real estate professionals, town officials, manufacturers and trusted contractors to bring every part of a project together and keep it going forward.",
+    },
+    {
+      icon: "Shield",
+      title: "We get you to the finish line",
+      body: "When challenges arise we work to find solutions and overcome obstacles. Hard work, determination and quality are what this company is built on.",
     },
   ],
 

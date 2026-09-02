@@ -3,6 +3,7 @@ import { publishedPosts } from "@/lib/blog";
 import { publishedCustomPages } from "@/lib/custom-pages";
 import { listings } from "@/lib/homes";
 import { pages, type OptionalPage } from "@/lib/page-config";
+import { publishedProjects } from "@/lib/projects";
 import { livePromotions } from "@/lib/promotions";
 import { site } from "@/lib/site";
 
@@ -20,6 +21,8 @@ const STATIC_ROUTES: { path: string; priority: number; page?: OptionalPage }[] =
   { path: "/financing", priority: 0.7, page: "financing" },
   { path: "/prequalify", priority: 0.75, page: "prequalify" },
   { path: "/faq", priority: 0.7, page: "faq" },
+  { path: "/projects", priority: 0.8, page: "projects" },
+  { path: "/videos", priority: 0.7, page: "videos" },
   { path: "/blog", priority: 0.6, page: "blog" },
   { path: "/promotions", priority: 0.6, page: "promotions" },
   { path: "/address", priority: 0.6, page: "address" },
@@ -47,9 +50,15 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const notes = pages.blog ? publishedPosts().map((p) => entry(`/blog/${p.slug}`, 0.5)) : [];
 
+  /* A project page is evidence a search engine should see, so it ranks above
+     a note. Both vanish with their switch, same as every other route. */
+  const work = pages.projects
+    ? publishedProjects().map((p) => entry(`/projects/${p.slug}`, 0.7))
+    : [];
+
   const custom = publishedCustomPages()
     .filter((page) => listings.some((l) => l.series === page.series))
     .map((page) => entry(`/p/${page.slug}`, 0.7));
 
-  return [...staticRoutes, ...homes, ...notes, ...custom];
+  return [...staticRoutes, ...homes, ...work, ...notes, ...custom];
 }

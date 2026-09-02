@@ -7,7 +7,7 @@ import {
 } from "@/lib/homes";
 
 /**
- * The four buckets a buyer shops by — tiny, single, double, triple — as a row
+ * The buckets a buyer shops by — tiny, single, double, triple, mods — as a row
  * of big obvious buttons. This is the primary way into the catalogue on both
  * the landing page and `/listings`.
  *
@@ -45,7 +45,11 @@ export function SizeCategories({
     <div
       className={cx(
         "grid grid-cols-2 gap-3 md:gap-4",
-        facets.length >= 4 ? "md:grid-cols-4" : "md:grid-cols-3",
+        facets.length >= 5
+          ? "md:grid-cols-5"
+          : facets.length >= 4
+            ? "md:grid-cols-4"
+            : "md:grid-cols-3",
         className,
       )}
     >

@@ -49,6 +49,8 @@ const PRIMARY: NavItem[] = [
 /** Drawer and footer only — the bar has no room, and these are second visits. */
 const SECONDARY: NavItem[] = [
   { href: "/new-home", label: "Build a home", page: "buildAHome", icon: "Plan" },
+  { href: "/projects", label: "Past projects", page: "projects", icon: "Grid" },
+  { href: "/videos", label: "Videos", page: "videos", icon: "Info" },
   { href: "/communities", label: "Communities", page: "communities", icon: "Grid" },
   { href: "/start-here", label: "No land? Start here", page: "startHere" },
   { href: "/why-manufactured", label: "Why manufactured", page: "whyManufactured" },

@@ -17,9 +17,10 @@
  * from `components/landing.tsx` is not, because the next deployment wants it
  * back.
  *
- * Two of the sections are data-gated as well as switched: `meetTeam` needs
- * `company.team` to hold somebody, and `videoShowcase` needs `videoShowcase`
- * below to hold a URL. A switch turned on with nothing behind it stays
+ * Three of the sections are data-gated as well as switched: `meetTeam` needs
+ * `company.team` to hold somebody, `videoShowcase` needs `videoShowcase`
+ * below to hold a URL, and `projects` needs `lib/projects.ts` to hold a
+ * project. A switch turned on with nothing behind it stays
  * hidden — same rule as everywhere else in this template. An absent fact is
  * a shorter page, never an invented one.
  */
@@ -31,6 +32,7 @@ export type LandingSection =
   | "socialProof"
   | "howItWorks"
   | "listings"
+  | "projects"
   | "homeOnLand"
   | "meetTeam"
   | "videoShowcase"
@@ -68,6 +70,9 @@ export const sections: Record<LandingSection, boolean> = {
   howItWorks: true,
   /** The catalogue, entered by size. */
   listings: true,
+  /** Three recent projects, from `lib/projects.ts`. Data-gated: it needs both
+      this switch and a project in that file, and `pages.projects` on. */
+  projects: true,
   /** Closing band: the call on one side, the enquiry form on the other. */
   contact: true,
   /** Where the lot is, when it is open, and how to reach it. */
@@ -98,6 +103,8 @@ export const sections: Record<LandingSection, boolean> = {
 
 export type OptionalPage =
   | "listings"
+  | "projects"
+  | "videos"
   | "communities"
   | "landDeals"
   | "startHere"
@@ -123,6 +130,14 @@ export type OptionalPage =
  */
 export const pages: Record<OptionalPage, boolean> = {
   listings: true,
+  /* Off because `lib/projects.ts` is empty. Past projects are the evidence
+     behind the turnkey claim, so this is worth filling first: add a project
+     and turn this on, and `/projects`, the nav links and the landing band all
+     appear together. */
+  projects: false,
+  /* Off because `lib/videos.ts` is empty. Turn on once the explainers — the
+     process, construction loan versus end loan — are up. */
+  videos: false,
   /* Off because `lib/communities.ts` is empty — NERTO publishes no
      communities. Write real properties into that file, then turn this on. */
   communities: false,

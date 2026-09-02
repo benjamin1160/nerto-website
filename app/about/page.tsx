@@ -23,7 +23,6 @@ import { pages } from "@/lib/page-config";
    its founding year gets a shorter page, not an invented one — see the note
    at the top of that file. */
 
-const where = `${site.address.city}, ${site.address.region}`;
 
 const sentenceCase = (s: string) => s.replace(/^./, (c) => c.toUpperCase());
 
@@ -31,9 +30,9 @@ export const metadata: Metadata = {
   title: "About",
   description: [
     company.founded
-      ? `${site.name} has been setting manufactured homes since ${company.founded}.`
-      : `${site.name} sets manufactured homes across ${where}.`,
-    "What we do, what we refuse to do, and who does it.",
+      ? `${site.name} has been setting manufactured and modular homes since ${company.founded}.`
+      : `${site.name} sets manufactured and modular homes for families across ${site.stateName}.`,
+    "A complete turnkey homebuilding experience — land, permitting, site work, delivery and setup.",
   ].join(" "),
 };
 
@@ -53,9 +52,16 @@ export default function AboutPage() {
      rather than printed — the same rule the rest of this page follows about
      an absent fact. With an empty catalogue that leaves the row empty, and
      the row hides itself. */
+  const onLot = listings.filter((l) => l.onLot).length;
+
   const stats = [
     ...(years ? [{ v: <CountUp to={years} />, k: "Years" }] : []),
-    ...(listings.length ? [{ v: <CountUp to={listings.length} />, k: "Homes on the lot" }] : []),
+    /* "Plans we build", not "homes on the lot": the catalogue is what NERTO
+       can order, and only the handful flagged `onLot` are standing on River
+       Road. Counting the catalogue as lot stock would be a lie a visitor
+       finds out on arrival. */
+    ...(listings.length ? [{ v: <CountUp to={listings.length} />, k: "Plans we build" }] : []),
+    ...(onLot ? [{ v: <CountUp to={onLot} />, k: "Open to walk through" }] : []),
     ...(seriesList.length ? [{ v: <CountUp to={seriesList.length} />, k: "Series" }] : []),
     ...(communities.length ? [{ v: <CountUp to={communities.length} />, k: "Communities" }] : []),
   ];
@@ -65,7 +71,9 @@ export default function AboutPage() {
       <PageHero
         photoKey="page/about"
         index={index()}
-        eyebrow={[company.founded && `Since ${company.founded}`, where]
+        /* The state, not the town — NERTO works throughout Maine, and the lot
+           address is on `/address` where somebody actually wants it. */
+        eyebrow={[company.founded && `Since ${company.founded}`, `Throughout ${site.stateName}`]
           .filter(Boolean)
           .join(" · ")}
         title={
@@ -73,13 +81,20 @@ export default function AboutPage() {
             <>
               {sentenceCase(company.homesSoldWords)} homes,
               <br />
-              one argument.
+              one job.
             </>
           ) : (
-            <>One argument.</>
+            /* Not the mission heading — that is `company.story.heading` and
+               it lands two screens down. A hero that repeats the next
+               headline verbatim reads as a page that stuttered. */
+            <>
+              We are not just
+              <br />
+              delivering houses.
+            </>
           )
         }
-        lede="That a house assembled indoors by people who do it every day is better than one assembled outdoors by people who do it once."
+        lede="Buying and building a home means coordinating land, financing, permits, site work and a stack of contractors. We do that part, so you do not have to."
         kind="exterior"
         size="tall"
         breadcrumb={[

@@ -1,0 +1,187 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { notFound, redirect } from "next/navigation";
+import { ContactBand } from "@/components/contact-band";
+import { Badge, Container, Eyebrow, Icon, SpecRow } from "@/components/ui";
+import { getListing } from "@/lib/homes";
+import { pages } from "@/lib/page-config";
+import { projectBySlug, projects } from "@/lib/projects";
+import { site } from "@/lib/site";
+
+export function generateStaticParams() {
+  return projects.map((p) => ({ slug: p.slug }));
+}
+
+const completed = new Intl.DateTimeFormat("en-US", {
+  month: "long",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+function completedLabel(value?: string): string | undefined {
+  if (!value) return undefined;
+  const iso = value.length === 7 ? `${value}-01` : value;
+  return completed.format(new Date(`${iso}T00:00:00Z`));
+}
+
+export async function generateMetadata(
+  props: PageProps<"/projects/[slug]">,
+): Promise<Metadata> {
+  const { slug } = await props.params;
+  const project = projectBySlug(slug);
+  if (!project) return {};
+  return {
+    title: project.title,
+    description: project.summary,
+  };
+}
+
+export default async function ProjectPage(props: PageProps<"/projects/[slug]">) {
+  if (!pages.projects) redirect("/");
+
+  const { slug } = await props.params;
+  const project = projectBySlug(slug);
+  if (!project) notFound();
+
+  const when = completedLabel(project.completedOn);
+  /* The plan that was set, where it is still one we carry. A project outlives
+     a catalogue, so a home that has been discontinued simply loses the link
+     rather than breaking the page. */
+  const home = project.homeSlug ? getListing(project.homeSlug) : undefined;
+  const [cover, ...rest] = project.photos ?? [];
+
+  return (
+    <>
+      <Container className="pb-16 pt-10 sm:pt-12">
+        <nav aria-label="Breadcrumb" className="mb-8">
+          <ol className="flex flex-wrap items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted">
+            {[
+              { href: "/", label: "Home" },
+              { href: "/projects", label: "Past projects" },
+              { href: `/projects/${project.slug}`, label: project.title },
+            ].map((b, i) => (
+              <li key={b.href} className="flex items-center gap-2">
+                {i > 0 && <Icon.Chevron className="size-3" />}
+                <Link href={b.href} className="transition-colors hover:text-ink">
+                  {b.label}
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </nav>
+
+        <div className="max-w-3xl">
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge tone="ember">Delivered by {site.name}</Badge>
+            {when && <Badge tone="muted">{when}</Badge>}
+          </div>
+          <h1 className="mt-6 font-display text-display text-balance text-ink">
+            {project.title}
+          </h1>
+          <p className="mt-5 text-lg leading-relaxed text-muted">{project.summary}</p>
+        </div>
+
+        {cover && (
+          <div className="grain relative mt-12 aspect-[16/9] overflow-hidden rounded-card bg-surface-2">
+            <Image
+              src={cover}
+              alt={project.title}
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover"
+            />
+          </div>
+        )}
+
+        <div className="mt-14 grid gap-14 lg:grid-cols-[1.4fr_1fr] lg:gap-20">
+          <div>
+            {project.body && project.body.length > 0 && (
+              <div className="space-y-6 text-lg leading-relaxed text-muted">
+                {project.body.map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            )}
+
+            {project.testimonial && (
+              <blockquote className="mt-12 rounded-card border border-line bg-surface p-8">
+                <p className="font-display text-2xl leading-snug tracking-tight text-ink">
+                  &ldquo;{project.testimonial.quote}&rdquo;
+                </p>
+                <footer className="mt-5 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted">
+                  {project.testimonial.attribution}
+                </footer>
+              </blockquote>
+            )}
+
+            {rest.length > 0 && (
+              <div className="mt-14">
+                <Eyebrow index="02">On site</Eyebrow>
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  {rest.map((photo) => (
+                    <div
+                      key={photo}
+                      className="grain relative aspect-[4/3] overflow-hidden rounded-card bg-surface-2"
+                    >
+                      <Image
+                        src={photo}
+                        alt={project.title}
+                        fill
+                        sizes="(min-width: 640px) 50vw, 100vw"
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <aside>
+            <div className="rounded-card border border-line bg-surface p-7 lg:sticky lg:top-28">
+              <p className="eyebrow">The job</p>
+              <dl className="mt-5 space-y-1">
+                {project.location && <SpecRow label="Where" value={project.location} />}
+                {when && <SpecRow label="Completed" value={when} />}
+                {home && <SpecRow label="Home set" value={home.name} />}
+              </dl>
+
+              {project.scope && project.scope.length > 0 && (
+                <>
+                  <p className="eyebrow mt-8">What we handled</p>
+                  <ul className="mt-4 space-y-2.5">
+                    {project.scope.map((item) => (
+                      <li key={item} className="flex items-start gap-2.5 leading-relaxed text-muted">
+                        <Icon.Check className="mt-1 size-4 shrink-0 text-ember" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+
+              {home && (
+                <Link
+                  href={`/listings/${home.slug}`}
+                  className="group mt-8 flex items-center justify-between gap-3 rounded-card border border-line bg-paper p-5 transition-colors hover:border-line-strong"
+                >
+                  <span>
+                    <span className="eyebrow">The plan</span>
+                    <span className="mt-2 block font-display text-xl tracking-tight text-ink">
+                      {home.name}
+                    </span>
+                  </span>
+                  <Icon.Arrow className="size-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+              )}
+            </div>
+          </aside>
+        </div>
+      </Container>
+
+      <ContactBand />
+    </>
+  );
+}
