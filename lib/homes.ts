@@ -252,6 +252,32 @@ export function seriesLabel(series: string): string {
   return SERIES_TAKING_SUFFIX.has(series) ? `${series} Series` : series;
 }
 
+/**
+ * How the home is built and inspected, as a buyer would pick it off a filter.
+ *
+ * This is the "home type" question, and it is not the width question: a
+ * modular can be as wide as a double-section manufactured home and is still a
+ * different animal — state code rather than HUD code, inspected by the state,
+ * appraised and titled as real property.
+ */
+export const constructionLabels: Record<Construction, string> = {
+  manufactured: "Manufactured",
+  modular: "Modular",
+};
+
+export const constructionOrder: Construction[] = ["manufactured", "modular"];
+
+export const sectionsOrder: Sections[] = ["single", "double", "triple"];
+
+export const styleOrder: ArchStyle[] = [
+  "farmhouse",
+  "craftsman",
+  "modern",
+  "coastal",
+  "lodge",
+  "ranch",
+];
+
 export const styleLabels: Record<ArchStyle, string> = {
   farmhouse: "Modern farmhouse",
   craftsman: "Craftsman",

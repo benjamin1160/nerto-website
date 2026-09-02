@@ -18,6 +18,12 @@ standing on River Road (`onLot`), what is featured, what is sold or pending.
 It is applied over the generated file, so it survives a re-import. This is
 where almost every human request lands.
 
+Every facet on /listings — home type, series, sections, style — is built from
+the values the catalogue actually carries, and each pill shows how many homes
+sit behind it. A value no plan uses gets no pill, so nothing on the rail can
+be pressed to an empty page; add homes carrying a new style or a triple
+section and its pill appears on its own.
+
 `listings`, exported from `lib/homes.ts`, is the two composed, and everything
 else on the site derives from it — detail pages, filter facets, sitemap,
 related-homes scoring, the homepage figures. Change the data, never the
@@ -59,7 +65,8 @@ rows, no zeroes, no placeholder prices.
 - `model`, `year`, `daysListed` (≤ 10 shows a "Just listed" badge)
 - `sections` — `single` | `double` | `triple`
 - `construction` — `manufactured` (HUD code) | `modular` (state code). Drives
-  the **Mods** size bucket, which is checked before any width rule.
+  the **Mods** size bucket, which is checked before any width rule, and the
+  **Home type** filter on /listings.
 - `builder` — "Pine Grove Homes", "Pleasant Valley Homes"
 - `dimensions` — the manufacturer's own box size, e.g. `26'8" × 52'`. Shown in
   preference to the nominal `widthFt × lengthFt`.
