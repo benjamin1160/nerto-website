@@ -5,6 +5,7 @@ import { SaveButton } from "./saved-homes";
 import { Badge, cx, Icon } from "./ui";
 import { money, num, priceText } from "@/lib/format";
 import { getCommunity } from "@/lib/communities";
+import { photoFor } from "@/lib/photos";
 import { site } from "@/lib/site";
 import {
   sectionLabels,
@@ -39,6 +40,18 @@ function metaLine(listing: Listing, ...extra: (string | undefined)[]): string {
 /** The card image: a home's first scene, which is not always an exterior. */
 function coverKind(listing: Listing) {
   return listing.scenes[0]?.kind ?? "exterior";
+}
+
+/**
+ * Whether the card is showing a photograph rather than a floor-plan drawing.
+ *
+ * The caption strip and the scrim under it are drawn for a photograph — white
+ * type over a darkened bottom edge. Over a drawing, which is white paper, they
+ * are illegible and cover the plan, so both are dropped and the drawing gets
+ * the frame to itself. `Scene` labels it "Floor plan" on its own.
+ */
+function hasPhoto(listing: Listing) {
+  return Boolean(photoFor(`${listing.slug}/${coverKind(listing)}`));
 }
 
 /**
@@ -107,6 +120,7 @@ export function ListingCard({
 }) {
   const community = listing.communitySlug ? getCommunity(listing.communitySlug) : undefined;
   const cover = coverKind(listing);
+  const photo = hasPhoto(listing);
 
   return (
     <article
@@ -121,6 +135,11 @@ export function ListingCard({
           <Scene
             kind={cover}
             photoKey={`${listing.slug}/${cover}`}
+            /* Most of the catalogue is plans nobody has photographed. Rather
+               than a grey plate, the card falls back to the manufacturer's
+               drawing, labelled as one — which is how Pine Grove leads its
+               own model pages. */
+            plan={listing.planImage}
             sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
             label={`${listing.name} — front elevation`}
             className="size-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
@@ -134,15 +153,19 @@ export function ListingCard({
           </div>
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/55 to-transparent" />
-        <p className="pointer-events-none absolute bottom-4 left-4 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-white/85">
-          {[
-            listing.sections && sectionLabels[listing.sections],
-            listing.style && styleLabels[listing.style],
-          ]
-            .filter(Boolean)
-            .join(" · ") || `${num(listing.sqft)} sq ft`}
-        </p>
+        {photo && (
+          <>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/55 to-transparent" />
+            <p className="pointer-events-none absolute bottom-4 left-4 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-white/85">
+              {[
+                listing.sections && sectionLabels[listing.sections],
+                listing.style && styleLabels[listing.style],
+              ]
+                .filter(Boolean)
+                .join(" · ") || `${num(listing.sqft)} sq ft`}
+            </p>
+          </>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col p-6">
@@ -216,6 +239,7 @@ export function ListingRow({ listing }: { listing: Listing }) {
         <Scene
           kind={cover}
           photoKey={`${listing.slug}/${cover}`}
+          plan={listing.planImage}
           sizes="(min-width: 768px) 33vw, 100vw"
           label={`${listing.name} — front elevation`}
           className="size-full object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.05]"
