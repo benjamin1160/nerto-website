@@ -4,15 +4,19 @@
 This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
 <!-- END:nextjs-agent-rules -->
 
-# Hearthline — where things live
+# NERTO Homes — where things live
 
-This is a manufactured-home dealership site. Almost every change is a data
+This is the NERTO Homes site (New England Rent To Own, LLC, Chelsea, Maine). Almost every change is a data
 change; routes derive from the data and should rarely be edited directly.
 
 ```
 lib/homes.ts        The catalogue. Prices, specs, copy, features, scenes.
+                    Currently EMPTY: NERTO publishes no inventory, so
+                    `/listings` reads honestly at zero and the landing
+                    page's listings band hides itself.
 lib/floor-plans.ts  Room geometry in feet. Rooms must tile the footprint.
-lib/communities.ts  Communities, tenure, lot rents, amenities.
+lib/communities.ts  Communities, tenure, lot rents, amenities. Currently
+                    EMPTY, and `/communities` is switched off to match.
 lib/photos.ts       Every photograph on the site, by key. Absent key =
                     an empty plate; the site shows photographs only.
 lib/site.ts         Business name, phone, address, canonical URL.
@@ -42,7 +46,10 @@ lib/land/           Everything behind /land-deals: `areas.ts` prices each
                     county in the delivery radius, `geo.ts` holds the lot's
                     coordinates and the projection, and the generated file
                     holds the county boundaries. Market data in the sense
-                    above — true of one radius and of no other.
+                    above — true of one radius and of no other. `geo.ts`
+                    points at the yard in Chelsea and the boundaries are
+                    Maine and its neighbours, but `areas.ts` prices nothing,
+                    so `/land-deals` is switched off until it does.
 lib/skin.ts         Skins: the whole palette, the brand gradient, the
                     typeface pairing, the corner radii and the primary
                     button, as data. Two ship — `hearthline` (warm and

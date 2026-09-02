@@ -16,12 +16,14 @@ import {
 import { communities } from "@/lib/communities";
 import { listings } from "@/lib/homes";
 import { money, num } from "@/lib/format";
+import { market } from "@/lib/market";
 import { pages } from "@/lib/page-config";
+import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Communities",
   description:
-    "Five manufactured-home communities in Knox and Blount counties, Tennessee — what each one is like, who runs it, and why the tenure on the ground decides whether your home appreciates.",
+    "The manufactured-home communities we place homes into — what each one is like, who runs it, and why the tenure on the ground decides whether your home appreciates.",
 };
 
 const TENURES = [
@@ -58,7 +60,7 @@ export default function CommunitiesPage() {
       <PageHero
         photoKey="page/communities"
         index="01"
-        eyebrow="Five communities · East Tennessee"
+        eyebrow={`${communities.length} communities · ${market.regionName ?? site.address.region}`}
         title={
           <>
             The home matters.

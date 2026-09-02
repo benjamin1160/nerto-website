@@ -4,8 +4,13 @@
  * Coastlines and the state line used to be hand-traced here; they now come for
  * free from the real county polygons in `county-shapes.generated.ts`, which
  * outline the coast far more accurately than a hand trace could. What is left is
- * the interstate network, traced roughly through its major exits — enough for a
+ * the road network, traced roughly through its major exits — enough for a
  * local to orient themselves, not survey data.
+ *
+ * These are the three roads a buyer in Central Maine actually navigates by:
+ * I-95 up the spine from Portland through Augusta to Bangor, I-295 along the
+ * coast from Portland to Gardiner, and US 1 up the Midcoast. Retrace them if
+ * the map ever moves.
  */
 
 type Coord = readonly [number, number];
@@ -17,50 +22,49 @@ export const HIGHWAYS: readonly {
   path: readonly Coord[];
 }[] = [
   {
-    id: "i75",
-    label: "75",
-    labelAt: [29.95, -82.48],
-    path: [
-      [28.36, -82.19],
-      [28.66, -82.11],
-      [29.05, -82.16],
-      [29.19, -82.19],
-      [29.4, -82.28],
-      [29.65, -82.38],
-      [29.9, -82.5],
-      [30.19, -82.66],
-      [30.5, -83.0],
-      [30.75, -83.28],
-    ],
-  },
-  {
-    id: "i10",
-    label: "10",
-    labelAt: [30.24, -82.15],
-    path: [
-      [30.5, -84.3],
-      [30.44, -83.6],
-      [30.4, -83.2],
-      [30.19, -82.64],
-      [30.22, -82.35],
-      [30.28, -81.9],
-      [30.33, -81.66],
-    ],
-  },
-  {
     id: "i95",
     label: "95",
-    labelAt: [29.75, -81.45],
+    labelAt: [44.62, -69.55],
     path: [
-      [30.79, -81.6],
-      [30.5, -81.66],
-      [30.33, -81.66],
-      [30.05, -81.45],
-      [29.9, -81.4],
-      [29.66, -81.28],
-      [29.47, -81.2],
-      [29.2, -81.05],
-      [28.8, -80.85],
+      [43.09, -70.83],
+      [43.36, -70.72],
+      [43.55, -70.53],
+      [43.7, -70.32],
+      [43.9, -70.06],
+      [44.09, -69.94],
+      [44.31, -69.78],
+      [44.55, -69.62],
+      [44.79, -69.28],
+      [44.93, -68.96],
+      [45.19, -68.6],
+    ],
+  },
+  {
+    id: "i295",
+    label: "295",
+    labelAt: [43.95, -69.98],
+    path: [
+      [43.63, -70.29],
+      [43.75, -70.19],
+      [43.88, -70.08],
+      [43.99, -69.94],
+      [44.09, -69.79],
+      [44.19, -69.76],
+    ],
+  },
+  {
+    id: "us1",
+    label: "1",
+    labelAt: [44.06, -69.35],
+    path: [
+      [43.55, -70.35],
+      [43.79, -70.09],
+      [43.91, -69.82],
+      [43.98, -69.53],
+      [44.1, -69.11],
+      [44.31, -68.81],
+      [44.55, -68.77],
+      [44.8, -68.77],
     ],
   },
 ];

@@ -42,9 +42,14 @@ that presents one as an offer to lend or a quote.
 
 ## Moving to another market
 
-The counties that ship are North Florida, drawn from Gainesville. They are
-market data in exactly the sense of `lib/market.ts`: true of one delivery
-radius and of no other. Selling this site into another market means all of:
+`HQ` is the NERTO lot on River Road in Chelsea, Maine, and the boundaries in
+`county-shapes.generated.ts` are Maine, New Hampshire, Vermont and
+Massachusetts. No county is priced, so `landDeals` is `false` in
+`lib/page-config.ts` — add areas below and flip it.
+
+County pricing is market data in exactly the sense of `lib/market.ts`: true
+of one delivery radius and of no other. Moving this site to another market
+means all of:
 
 1. Move `HQ` in `lib/land/geo.ts` to the dealership's actual lot — it must be
    the address in `lib/site.ts`.

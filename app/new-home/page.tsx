@@ -6,7 +6,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Build a home",
-  description: `Four questions and ${site.name} narrows twenty plans down to the ones that fit your bedrooms, your ground and your budget. Nothing to sign, no credit pull.`,
+  description: `Four questions and ${site.name} narrows the catalogue down to the homes that fit your bedrooms, your ground and your budget. Nothing to sign, no credit pull.`,
   robots: { index: true, follow: true },
 };
 

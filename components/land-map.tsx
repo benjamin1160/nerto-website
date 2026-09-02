@@ -151,7 +151,7 @@ export function LandMap() {
                 <path
                   key={`${c.state}-${c.name}`}
                   d={c.d}
-                  style={{ fill: c.state === "GA" ? OUTSIDE_FILL : UNSERVED_FILL }}
+                  style={{ fill: c.state === HQ.state ? UNSERVED_FILL : OUTSIDE_FILL }}
                 />
               ))}
             </g>

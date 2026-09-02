@@ -11,14 +11,14 @@ import { pages } from "@/lib/page-config";
 export const metadata: Metadata = {
   title: "Book a walkthrough",
   description:
-    "Walk twenty Clayton-built plans in an afternoon on the lot in Maryville, Tennessee. No appointment needed, but booking gets you a home unskirted so you can get underneath it.",
+    "Come down to the yard on River Road in Chelsea, Maine. No appointment needed, but booking gets you a home unskirted so you can get underneath it.",
 };
 
 const REASONS = [
   {
     icon: Icon.Plan,
-    title: "See four plans in an hour",
-    body: "Twenty plans on the lot, several of them open and furnished at any time. Walking them back to back is the fastest way to work out what you actually want.",
+    title: "See them back to back",
+    body: "Walking homes one after another is the fastest way to work out what you actually want. Ring ahead and we will have the ones worth your afternoon open when you get here.",
   },
   {
     icon: Icon.Wrench,

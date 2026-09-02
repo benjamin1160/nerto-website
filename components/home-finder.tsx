@@ -11,7 +11,7 @@ import { site } from "@/lib/site";
 /**
  * The Build-A-Home wizard behind `/new-home`.
  *
- * It asks the four questions that actually narrow twenty plans down to three
+ * It asks the four questions that actually narrow a catalogue down to three
  * — how many bedrooms, how wide the ground will take, what the money looks
  * like, and where the home is going — and then shows the matches. Nothing is
  * submitted anywhere: the answers filter the catalogue in the browser and the

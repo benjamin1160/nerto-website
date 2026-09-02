@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { SizeCategories } from "./size-categories";
@@ -247,6 +248,26 @@ export function ListingsBrowser({ listings }: { listings: Listing[] }) {
 
   const count = activeCount(filters);
 
+  /* An empty catalogue is not an over-tight filter, so it does not get the
+     filter rail and a "reset filters" button that cannot help. Every hook
+     above this line runs either way. */
+  if (listings.length === 0) {
+    return (
+      <div className="rounded-2xl border border-dashed border-line-strong px-8 py-24 text-center">
+        <p className="font-display text-3xl tracking-tight text-ink">
+          Nothing listed online yet.
+        </p>
+        <p className="mx-auto mt-4 max-w-md text-muted">
+          We are not publishing inventory on this site at the moment. Tell us the size, the
+          budget and where the home is going, and we will tell you what we can put on it.
+        </p>
+        <Link href="/contact" className={cx(buttonStyles.primary, "mt-8")}>
+          Tell us what you&apos;re after
+        </Link>
+      </div>
+    );
+  }
+
   const panel = (
     <div>
       <FilterGroup title="Search">
@@ -489,7 +510,7 @@ export function ListingsBrowser({ listings }: { listings: Listing[] }) {
               Nothing matches that yet.
             </p>
             <p className="mx-auto mt-4 max-w-md text-muted">
-              We build to order too — if the plan you want isn&apos;t on the lot it can be in
+              We build to order too — if the home you want isn&apos;t on the lot it can be in
               the plant in a fortnight. Loosen a filter, or tell us what you&apos;re after.
             </p>
             <button

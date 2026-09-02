@@ -110,8 +110,8 @@ export const terms: LegalSection[] = [
   {
     heading: "Prices",
     body: [
-      "Listed prices cover the home, transport within the radius we publish, the set, the marriage-line finish, skirting and utility connections to the stub, unless the listing says otherwise.",
-      "They do not cover land, site work, permits, taxes or title fees. Those are quoted separately because they genuinely vary by parcel, and a quoted figure is good for the period stated on the quote.",
+      "What a quoted price covers is set out on the quote itself and nowhere else. Ask before you assume: transport distance, the set, skirting, utility connections and any allowance for options are each either in a given quote or they are not, and we would rather say so up front than let a number do the talking.",
+      "Land, site work, permits, taxes and title fees are quoted separately, because they genuinely vary by parcel. A quoted figure is good for the period stated on the quote.",
     ],
   },
   {

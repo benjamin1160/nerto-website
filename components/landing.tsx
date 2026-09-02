@@ -62,8 +62,8 @@ const TICKER = [
   "Set in one morning",
   "Skirted and tied down",
   "Walk it before you buy it",
-  "Clayton-built, plant-inspected",
-  "Twenty plans on the lot",
+  "Financing available",
+  "Delivery and setup included",
 ];
 
 /**
@@ -103,7 +103,7 @@ const MYTHS = [
   },
   {
     myth: "“You can hear everything through the walls.”",
-    fact: "Solid-core interior doors, insulated interior partitions at the bedrooms, and a floor system that doesn't transmit footfall. The quietest house most of our buyers have lived in was the one they were sceptical about.",
+    fact: "Solid-core interior doors, insulated interior partitions at the bedrooms, and a floor system that doesn't transmit footfall are all available and worth asking for by name. Stand in the back bedroom with the door shut while somebody runs a tap — that is the test, and it is the one people are surprised by.",
   },
   {
     myth: "“You can't get a real mortgage.”",
@@ -111,7 +111,7 @@ const MYTHS = [
   },
   {
     myth: "“They all look the same.”",
-    fact: "Scroll up. Or down. That's twenty plans, from a 408-square-foot single section to a 2,280-square-foot four bedroom, and the elevations are the least of what separates them.",
+    fact: "Single sections, double sections, triple sections; one bedroom to five; a mini-camp footprint up past two thousand square feet. Ask us what a plan can be moved on — cabinetry, ceiling height, siding, where the wall between the kitchen and the living room actually goes — and the elevations turn out to be the least of what separates one from another.",
   },
 ];
 
@@ -148,7 +148,7 @@ const NO_LAND_PATHS = [
   {
     icon: Icon.Pin,
     title: "Lease a pad",
-    body: "You own the home, the community owns the ground under it. Lowest cost to get in, fastest to close, and the five communities we work with are all within half an hour of the lot.",
+    body: "You own the home, the community owns the ground under it. Lowest cost to get in and fastest to close. Tell us which park you are looking at and we will tell you what it will take to set a home on that pad.",
   },
   {
     icon: Icon.Shield,
@@ -162,26 +162,19 @@ const NO_LAND_PATHS = [
   },
 ];
 
-const TESTIMONIALS = [
-  {
-    quote:
-      "My brother-in-law is a framer. He walked the Breeze, went quiet, got down on the floor with a flashlight, came back up and said “this is better than what I build.” He has not mentioned it since.",
-    name: "Dana R.",
-    detail: "The Breeze · Blount County",
-  },
-  {
-    quote:
-      "We came in expecting to compromise on something. Two years later I still can't tell you what we compromised on. The gas bill in January was sixty-one dollars.",
-    name: "Marcus & Anne T.",
-    detail: "Haven · Knox County",
-  },
-  {
-    quote:
-      "A pipe let go under the kitchen. I was under the house in four minutes with a wrench and a bucket. My sister's slab house flooded for two days waiting on a jackhammer.",
-    name: "Priya S.",
-    detail: "Crockett · Louisville, TN",
-  },
-];
+/**
+ * Customer quotes, and they have to be real ones.
+ *
+ * Empty, because NERTO's reviews live on its Google listing and we do not
+ * have signed-off quotes to reproduce here. A written testimonial is a claim
+ * that a named customer said a specific thing, so it is never drafted to fill
+ * the band — with none, the band shows its heading and the link to Google,
+ * which is the source a sceptic would want anyway.
+ *
+ * To add one: take it verbatim from a review the customer published, or with
+ * their permission, and put the home and the town in `detail`.
+ */
+const TESTIMONIALS: { quote: string; name: string; detail: string }[] = [];
 
 export type LandingProps = {
   /** Show only this series in the listings band. Omitted: the featured slice. */
@@ -238,12 +231,12 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
                 </p>
 
                 <h1 className="mb-4 text-4xl font-bold uppercase leading-tight text-white md:text-5xl lg:text-6xl">
-                  The top choice for manufactured homes in{" "}
+                  The top choice for mobile and modular homes in{" "}
                   {market.regionName ?? site.address.region}
                 </h1>
 
                 <p className="mx-auto mb-8 max-w-xl text-lg text-white/85 md:mx-0 md:text-xl">
-                  Quality manufactured homes at prices that work. We make
+                  Quality manufactured homes at unbeatable prices. We make
                   homeownership affordable.
                 </p>
 
@@ -342,7 +335,9 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
     },
     {
       key: "socialProof",
-      show: sections.socialProof,
+      /* With no quotes and no reviews link there is nothing in this band but
+         its own heading, so it hides rather than announcing an empty shelf. */
+      show: sections.socialProof && (TESTIMONIALS.length > 0 || !!company.reviewsUrl),
       render: () => (
         <section id="social-proof" className="relative overflow-hidden">
           <div className="absolute inset-0 -z-10">
@@ -366,6 +361,7 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
               </h2>
             </div>
 
+            {TESTIMONIALS.length > 0 && (
             <div className="grid gap-6 md:grid-cols-3">
               {TESTIMONIALS.map((t, i) => (
                 <Reveal
@@ -385,6 +381,7 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
                 </Reveal>
               ))}
             </div>
+            )}
 
             {/* The link is the point of the band: three quotes we chose
                 ourselves prove nothing, and a source we do not control proves
@@ -451,7 +448,7 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
               </h2>
               <p className="mx-auto max-w-2xl text-lg text-muted">
                 {listingsLede ??
-                  `Find the right home for your family. Filter by size and features — every one of them is standing on the lot in ${site.address.city}.`}
+                  `Find the right home for your family. Filter by size and features, or ring us and we will do it with you.`}
               </p>
             </div>
 
@@ -633,7 +630,7 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
                 index={index}
                 eyebrow="Where they go"
                 title="Five communities within half an hour of the lot."
-                lede="Real, independently operated communities in Knox and Blount counties. All five are land-lease, which keeps the entry cost down and makes the titling conversation the one worth having early."
+                lede="Independently operated communities we place homes into. A land-lease pad keeps the entry cost down and makes the titling conversation the one worth having early — ask us which way round your situation works out."
                 action={
                   <ButtonLink href="/communities" variant="outline">
                     All communities

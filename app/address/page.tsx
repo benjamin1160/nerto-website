@@ -118,7 +118,7 @@ export default function AddressPage() {
                 index="02"
                 eyebrow="Also worth the drive"
                 title="The communities we place homes into."
-                lede={`All of them within reach of the lot in ${site.address.city}. We will meet you at any of them.`}
+                lede={`All of them within reach of the yard in ${site.address.city}. We will meet you at any of them.`}
                 action={
                   <ButtonLink href="/communities" variant="outline">
                     See all
