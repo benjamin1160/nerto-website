@@ -4,6 +4,10 @@
  *   node scripts/import-manufacturers.mjs fetch    # cache the source JSON
  *   node scripts/import-manufacturers.mjs homes    # write lib/catalogue.generated.ts
  *   node scripts/import-manufacturers.mjs photos   # download + resize model imagery
+ *   node scripts/import-manufacturers.mjs manifest # write lib/photos.generated.ts
+ *
+ * Add `--sheets` to `photos` to also cache every gallery shoot small, which
+ * is what you read when re-tagging scenes by eye.
  *
  * Both sites are Squarespace, so every collection answers `?format=json` with
  * structured records rather than markup. That is what this reads: the model
@@ -26,12 +30,18 @@
  *
  * Imagery differs by source and is treated differently because of it:
  *   Pine Grove leads each model with its floor-plan DRAWING. That is imported
- *   as `planImage` — a labelled drawing, never as a photograph.
+ *   as `planImage` — a labelled drawing, never passed off as a photograph.
  *   Pleasant Valley leads each model with an exterior RENDERING. That is
- *   imported as the home's exterior scene.
- *   Real photographs exist only in Pine Grove's per-model gallery pages, and
- *   only the homes standing on NERTO's own lot have those imported (see
- *   ON_LOT_GALLERIES) — a rendering is not a photograph of a house.
+ *   imported as the home's exterior scene. A rendering is a drawing of a
+ *   house that has not been built yet, and the site says so in its footer.
+ *   Real PHOTOGRAPHS exist only in Pine Grove's per-model gallery pages —
+ *   about 150 of them, of which 88 belong to plans still in the catalogue.
+ *   Those are matched, verified against the model number in their own
+ *   filenames, and scene-tagged; see `galleries` at the foot of this file.
+ *
+ * Which leaves most of the catalogue with a drawing and no photograph, and
+ * that is fine: `components/artwork/scene.tsx` falls back to the drawing,
+ * captioned as one, exactly as Pine Grove's own model pages do.
  */
 import { mkdir, writeFile, readFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
@@ -42,6 +52,9 @@ const CACHE = ".cache/manufacturers";
 const OUT_PHOTOS = "public/photos/homes";
 const OUT_PLANS = "public/photos/plans";
 const OUT_TS = "lib/catalogue.generated.ts";
+
+/** `photos --sheets` also caches each shoot small, for hand re-tagging. */
+const WANT_SHEETS = process.argv.includes("--sheets");
 
 /** Every source collection, and what is true of every home in it. */
 const SOURCES = [
@@ -98,34 +111,121 @@ const SOURCES = [
 const isLakeSeries = (title) => /^lake\s/i.test(title);
 
 /**
- * Pine Grove gallery pages for the homes standing on NERTO's lot. These are
- * the only real photographs in the import; every other model carries a
- * drawing or a rendering, and says so.
+ * Pine Grove photographs its model homes and publishes each shoot as its own
+ * gallery page — around 150 of them, one per model, some with a shoot per
+ * show year. These are the only real photographs in the import; the rest of
+ * the catalogue carries a drawing or a rendering, and says so.
  *
  * They are Pine Grove's photographs of that model, not photographs of the
- * particular house on River Road, so the captions stay generic and the
+ * particular house standing on River Road, so captions stay generic and the
  * photography note in `components/site-footer.tsx` still applies. Replace
  * them with NERTO's own shots of its own homes when there are some.
  *
- * NETR G-3465 is absent because Pine Grove publishes no gallery for it —
- * see the note beside `lotState` in `lib/homes.ts` about which 3465 this is.
+ * Galleries are discovered from Pine Grove's sitemap rather than listed here,
+ * because the naming is not consistent enough to construct: `g3002-gallery`,
+ * `g-1883-gallery`, `netr-g3157-gallery`, `netrg3465-gallery-2025` and
+ * `netr3157-gallery-2025` are all real. `galleryKey` below normalises both
+ * sides of the match; `verifyGallery` then checks the photographs actually
+ * belong to the model before any of them is used.
  */
-const ON_LOT_GALLERIES = {
-  "netr-g-3157": "https://www.pinegrovehomes.com/netr-g3157-gallery",
-  "zk-1100": "https://www.pinegrovehomes.com/zk1100-gallery",
-  "g-3002": "https://www.pinegrovehomes.com/g3002-gallery",
-};
+const SITEMAP = "https://www.pinegrovehomes.com/sitemap.xml";
 
 /**
- * Which gallery image fills which scene, read off the contact sheets the
- * `photos` command writes into `.cache/`. Indices are into the ordered image
- * list for that gallery.
+ * A comparable key for a gallery slug or a listing slug.
  *
- * A scene is listed only where a photograph of it exists: NETR G-3157's
- * gallery has no bedroom in it, so that home has no bedroom scene and the
- * site shows one fewer picture rather than a bedroom from another house.
- * ZK-1100's exterior is index 2 — a plain photograph of the home — in
- * preference to the dusk shot at index 0, which is a rendering.
+ * Returns `{ netr, prefix, digits }`. The NETR flag is kept separate and is
+ * never ignored: `g3465-gallery` and `netrg3465-gallery-2025` are two
+ * different houses, and conflating them would put one model's photographs on
+ * the other's page.
+ *
+ * Only the `-gallery…` tail is stripped, and that removes the show year with
+ * it, because every year suffix Pine Grove uses sits after it
+ * (`netrg3465-gallery-2025`). Do NOT also strip a trailing `-19xx`/`-20xx`:
+ * a great many model codes ARE those numbers — G-1941, G-2088, GH-2017 — and
+ * treating them as years silently erases the model.
+ */
+function galleryKey(slug) {
+  const bare = slug.replace(/-gallery.*$/, "").toLowerCase();
+  const netr = /netr/.test(bare);
+  const rest = bare.replace(/netr/, "");
+  /* Every digit run, joined: Pine Grove writes the same model as `G-16-624`
+     in its catalogue and `g16624` in its gallery slug, so reading only the
+     first run would compare "16" against "16624" and match nothing. */
+  const digits = (rest.match(/\d+/g) ?? []).join("");
+  if (!digits) return undefined;
+  return { netr, prefix: rest.match(/[a-z]+/)?.[0] ?? "", digits };
+}
+
+/** The show year in a gallery slug, for preferring the most recent shoot. */
+function galleryYear(slug) {
+  return Number(slug.match(/-((?:19|20)\d{2})\d*(?:-gallery)?/)?.[1] ?? 0);
+}
+
+/**
+ * Does this gallery's own filenames agree that it is the model we matched it
+ * to?
+ *
+ * Many of Pine Grove's photographs are named after the model — `3463-01.JPG`,
+ * `G-3002 Kitchen.JPG` — which is a free check on the slug matching above. If
+ * the filenames name a *different* model number, the match is rejected; if
+ * they name no model at all (`DSC_0015.JPG`), there is nothing to contradict
+ * and the match stands on the slug alone.
+ *
+ * Camera date stamps are stripped first. Plenty of these shoots are named
+ * `2013-03-21 14.24.24.jpg`, and reading "2013" as a model number rejects a
+ * perfectly good gallery — which it did, for four of them, until this did.
+ */
+function modelNumbersIn(alt) {
+  const withoutTimestamps = alt
+    .replace(/\b(?:19|20)\d{2}[-_.]\d{2}[-_.]\d{2}\b/g, " ")
+    .replace(/\b\d{2}[.:_-]\d{2}[.:_-]\d{2}\b/g, " ");
+  return [...withoutTimestamps.matchAll(/\b(\d{3,5})\b/g)].map((m) => m[1]);
+}
+
+/**
+ * `digits` is every digit run in the model code joined up — G-16-630 becomes
+ * "16630" — while a filename may carry only part of it (`16-630-01.JPG`
+ * yields "630"). So the comparison is containment either way, which still
+ * rejects a genuinely different model (3465 neither contains nor is contained
+ * by 3557) without rejecting a model written with a separator.
+ */
+function verifyGallery(images, digits) {
+  const named = images.flatMap((i) => modelNumbersIn(i.alt));
+  if (named.length === 0) return true;
+  return named.some((n) => digits.includes(n) || n.includes(digits));
+}
+
+/**
+ * Which scene a photograph is of, read from its filename.
+ *
+ * Pine Grove's better shoots name the room — `03-Living Room.jpg`,
+ * `G-3002 Kitchen.JPG` — and those are classified exactly. The rest are
+ * camera filenames (`DSC_0015.JPG`) carrying nothing, and get no scene: for
+ * those galleries only the first photograph is used, as an exterior, because
+ * every shoot in this catalogue opens on the front of the house.
+ */
+const SCENE_PATTERNS = [
+  ["exterior", /\b(front|exterior|elevation|ext)\b/i],
+  ["porch", /\b(porch|deck|patio)\b/i],
+  ["kitchen", /\b(kitchen|dining)\b/i],
+  ["living", /\b(living|family|great ?room|entry|foyer)\b/i],
+  ["bedroom", /\b(bed ?room|bedroom|master|primary suite)\b/i],
+  ["bath", /\b(bath|shower|vanity|ensuite|en-suite)\b/i],
+];
+
+function sceneOf(alt) {
+  return SCENE_PATTERNS.find(([, re]) => re.test(alt))?.[0];
+}
+
+/**
+ * Hand-tagged scenes, which beat anything derived from a filename.
+ *
+ * Indices are into the gallery's ordered image list and were read off the
+ * contact sheets `photos` writes into `.cache/`. These three galleries carry
+ * camera filenames with no room in them, and they are the homes standing on
+ * the lot, so they were worth tagging by eye. ZK-1100's exterior is index 2 —
+ * a plain photograph of the home — in preference to the dusk shot at index 0,
+ * which is a rendering.
  */
 const ON_LOT_SCENES = {
   "netr-g-3157": { exterior: 0, living: 4, kitchen: 8, bath: 12 },
@@ -153,7 +253,7 @@ async function cached(name, fetcher) {
   const file = path.join(CACHE, name);
   if (existsSync(file)) return JSON.parse(await readFile(file, "utf8"));
   const data = await fetcher();
-  await mkdir(CACHE, { recursive: true });
+  await mkdir(path.dirname(file), { recursive: true });
   await writeFile(file, JSON.stringify(data));
   return data;
 }
@@ -293,6 +393,22 @@ function styleFor(source, item) {
   return source.collection === "Ranch" ? "ranch" : undefined;
 }
 
+/**
+ * The image URL to actually download for an item.
+ *
+ * Squarespace gives some products an `assetUrl` on `static1.squarespace.com`
+ * with no filename on the end. That URL resolves — with a 200, which is the
+ * trap — to a blank white placeholder rather than the product image, and it
+ * silently produced 89 empty floor plans before this existed. The real file
+ * is on `images.squarespace-cdn.com`, either as the main asset or on the
+ * item's first child.
+ */
+function pickAsset(item) {
+  const cdn = (u) => typeof u === "string" && u.includes("images.squarespace-cdn.com");
+  if (cdn(item.assetUrl)) return item.assetUrl;
+  return (item.items ?? []).map((i) => i.assetUrl).find(cdn) ?? item.assetUrl;
+}
+
 const slugify = (s) =>
   s
     .toLowerCase()
@@ -337,7 +453,7 @@ function toEntry(source, item) {
     story: prose.length > 80 ? [prose] : undefined,
     sourceUrl: new URL(item.fullUrl, source.url).href,
     /* Carried for the photos command, stripped before the file is written. */
-    _asset: item.assetUrl,
+    _asset: pickAsset(item),
     _sourceKey: source.key,
   };
 }
@@ -376,29 +492,27 @@ async function entries() {
 const lit = (v) => JSON.stringify(v);
 
 /**
- * The scenes a listing declares.
+ * The scenes a listing declares, read from the photographs really on disk.
  *
- * A lot home declares the scenes its gallery actually has photographs for.
- * Everything else declares one exterior, which resolves to the "photograph to
- * come" plate — the honest state for a plan nobody has photographed yet.
+ * Derived rather than declared, because a scene without a photograph behind
+ * it renders as the "photograph to come" plate — so declaring five scenes for
+ * a home with one picture would print four apologies. A home with no
+ * photographs at all still declares a single exterior, which is that one
+ * honest plate.
  */
-function scenesFor(entry, hasExterior) {
-  const curated = ON_LOT_SCENES[entry.slug];
-  if (curated) {
-    return SCENE_ORDER.filter((k) => k in curated).map((kind) => ({
-      kind,
-      caption: SCENE_CAPTIONS[kind],
-    }));
+function scenesFor(entry) {
+  const dir = path.join(OUT_PHOTOS, entry.slug);
+  const found = existsSync(dir)
+    ? SCENE_ORDER.filter((kind) => existsSync(path.join(dir, `${kind}.webp`)))
+    : [];
+
+  if (found.length === 0) {
+    return [{ kind: "exterior", caption: `${entry.name} — front elevation` }];
   }
-  return [
-    {
-      kind: "exterior",
-      caption: hasExterior ? "Front elevation" : `${entry.name} — front elevation`,
-    },
-  ];
+  return found.map((kind) => ({ kind, caption: SCENE_CAPTIONS[kind] }));
 }
 
-function serialise(e, hasPlan, hasExterior) {
+function serialise(e, hasPlan) {
   const rows = [
     `slug: ${lit(e.slug)}`,
     `name: ${lit(e.name)}`,
@@ -416,7 +530,7 @@ function serialise(e, hasPlan, hasExterior) {
     e.style && `style: ${lit(e.style)}`,
     hasPlan && `planImage: ${lit(`/photos/plans/${e.slug}.webp`)}`,
     e.story && `story: [${e.story.map(lit).join(", ")}]`,
-    `scenes: [${scenesFor(e, hasExterior)
+    `scenes: [${scenesFor(e)
       .map((s) => `{ kind: ${lit(s.kind)}, caption: ${lit(s.caption)} }`)
       .join(", ")}]`,
     `sourceUrl: ${lit(e.sourceUrl)}`,
@@ -454,11 +568,7 @@ export const catalogue: CatalogueEntry[] = [
 
   const body = list
     .map((e) =>
-      serialise(
-        e,
-        e._sourceKey !== "pv" && existsSync(path.join(OUT_PLANS, `${e.slug}.webp`)),
-        e._sourceKey === "pv" && existsSync(path.join(OUT_PHOTOS, e.slug, "exterior.webp")),
-      ),
+      serialise(e, e._sourceKey !== "pv" && existsSync(path.join(OUT_PLANS, `${e.slug}.webp`))),
     )
     .join("\n");
 
@@ -493,17 +603,73 @@ async function writePlan(buf, file) {
     .toFile(file);
 }
 
+/**
+ * Every photograph on a gallery page, in page order, with its filename.
+ *
+ * Squarespace emits each gallery image twice (once for the lightbox), so the
+ * list is de-duplicated on URL while keeping first-seen order — order is the
+ * only signal in a shoot whose filenames are camera serials.
+ */
 async function galleryImages(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const html = await res.text();
-  return [
-    ...new Set(
-      [...html.matchAll(/https:\/\/images\.squarespace-cdn\.com\/content\/v1\/[^"?\s]+/g)]
-        .map((m) => m[0])
-        .filter((u) => !/favicon|logo/i.test(u)),
-    ),
-  ];
+
+  const seen = new Map();
+  for (const m of html.matchAll(
+    /<img\b[^>]*?(?:data-src|src)="(https:\/\/images\.squarespace-cdn\.com\/content\/v1\/[^"?]+)"[^>]*>/g,
+  )) {
+    const url = m[1];
+    if (/favicon|logo/i.test(url)) continue;
+    const alt = m[0].match(/\balt="([^"]*)"/)?.[1] ?? "";
+    /* Keep the richer alt if the second copy of the image carries one. */
+    if (!seen.has(url) || (!seen.get(url).alt && alt)) seen.set(url, { url, alt });
+  }
+  return [...seen.values()];
+}
+
+/** Gallery pages on Pine Grove's site, from its sitemap. */
+async function galleryUrls() {
+  return cached("galleries.json", async () => {
+    const res = await fetch(SITEMAP);
+    if (!res.ok) throw new Error(`sitemap: HTTP ${res.status}`);
+    const xml = await res.text();
+    return [...xml.matchAll(/<loc>([^<]*gallery[^<]*)<\/loc>/gi)].map((m) => m[1]);
+  });
+}
+
+/**
+ * Pair each Pine Grove listing with its gallery, newest shoot first.
+ *
+ * A gallery that matches no listing is ignored rather than forced onto the
+ * nearest model — Pine Grove keeps shoots for plans it has since dropped, and
+ * those are not homes NERTO can sell.
+ */
+async function matchGalleries(list) {
+  const byKey = new Map();
+  for (const url of await galleryUrls()) {
+    const slug = url.split("/").pop();
+    const key = galleryKey(slug);
+    if (!key) continue;
+    const id = `${key.netr}:${key.prefix}:${key.digits}`;
+    const year = galleryYear(slug);
+    if (!byKey.has(id) || byKey.get(id).year < year) byKey.set(id, { url, year });
+  }
+
+  const pairs = [];
+  for (const entry of list) {
+    if (entry._sourceKey === "pv") continue;
+    const key = galleryKey(entry.slug);
+    if (!key) continue;
+    /* Exact prefix first; then allow a gallery that omitted the letter
+       prefix ("netr3157" for "netr-g-3157"), which Pine Grove sometimes does.
+       The NETR flag is never relaxed. */
+    const hit =
+      byKey.get(`${key.netr}:${key.prefix}:${key.digits}`) ??
+      byKey.get(`${key.netr}::${key.digits}`);
+    if (hit) pairs.push({ entry, url: hit.url, digits: key.digits });
+  }
+  return pairs;
 }
 
 async function photos() {
@@ -541,38 +707,98 @@ async function photos() {
   }
   console.log(`${exteriors} exterior renderings, ${plans} floor-plan drawings`);
 
-  /* The lot homes, whose galleries hold real photographs of the real house. */
-  for (const [slug, url] of Object.entries(ON_LOT_GALLERIES)) {
+  await galleries(list);
+}
+
+/**
+ * Pine Grove's model-home photography, matched to the plans NERTO sells.
+ *
+ * Three grades of source, handled differently because they carry different
+ * amounts of truth:
+ *
+ *   Hand-tagged (`ON_LOT_SCENES`) wins outright.
+ *   Named rooms in the filename are classified exactly, one photograph per
+ *   scene, first match wins so the opening shot of a room is the one used.
+ *   Camera serials say nothing about the room, so only the first photograph
+ *   is taken, as the exterior — every shoot in this catalogue opens on the
+ *   front of the house, and inventing a caption for the rest would be
+ *   labelling a picture we have not looked at.
+ */
+async function galleries(list) {
+  const pairs = await matchGalleries(list);
+  console.log(`${pairs.length} of ${list.length} plans have a Pine Grove gallery`);
+
+  let tagged = 0;
+  let firstOnly = 0;
+  let rejected = 0;
+  let written = 0;
+
+  for (const { entry, url, digits } of pairs) {
     try {
-      const images = await galleryImages(url);
-      await mkdir(path.join(CACHE, "gallery"), { recursive: true });
-      await writeFile(
-        path.join(CACHE, "gallery", `${slug}.json`),
-        JSON.stringify(images, null, 2),
+      const images = await cached(
+        `gallery/${entry.slug}.json`,
+        async () => await galleryImages(url),
       );
-      for (const [i, img] of images.slice(0, 24).entries()) {
-        const file = path.join(CACHE, "gallery", slug, `${String(i).padStart(2, "0")}.webp`);
-        await mkdir(path.dirname(file), { recursive: true });
-        if (!existsSync(file)) {
-          await sharp(await download(img)).resize(900).webp({ quality: 70 }).toFile(file);
+      if (images.length === 0) continue;
+
+      if (!verifyGallery(images, digits)) {
+        console.warn(`  ! ${entry.slug}: ${url} pictures another model — skipped`);
+        rejected++;
+        continue;
+      }
+
+      /* Which image fills which scene. */
+      const chosen = {};
+      const manual = ON_LOT_SCENES[entry.slug];
+      if (manual) {
+        for (const [kind, i] of Object.entries(manual)) if (images[i]) chosen[kind] = images[i];
+        tagged++;
+      } else {
+        for (const image of images) {
+          const kind = sceneOf(image.alt);
+          if (kind && !chosen[kind]) chosen[kind] = image;
+        }
+        if (Object.keys(chosen).length > 0) {
+          tagged++;
+        } else {
+          chosen.exterior = images[0];
+          firstOnly++;
         }
       }
-      console.log(`  gallery ${slug}: ${images.length} images cached for scene tagging`);
 
-      /* Install the tagged scenes. Until a slug appears in ON_LOT_SCENES the
-         cache is all that is written, which is what the tagging pass reads. */
-      for (const [kind, index] of Object.entries(ON_LOT_SCENES[slug] ?? {})) {
-        const source = images[index];
-        if (!source) {
-          console.warn(`  ! ${slug}/${kind}: no image at index ${index}`);
-          continue;
+      for (const [kind, image] of Object.entries(chosen)) {
+        const file = path.join(OUT_PHOTOS, entry.slug, `${kind}.webp`);
+        if (existsSync(file)) continue;
+        await writePhoto(await download(image.url), file);
+        written++;
+      }
+
+      /* The whole shoot, cached small, so a human can re-tag it by eye and
+         write the result into ON_LOT_SCENES. Opt-in (`photos --sheets`)
+         because it is another ~1,800 downloads for something only wanted
+         when somebody is actually re-tagging. */
+      if (WANT_SHEETS) {
+        for (const [i, image] of images.slice(0, 24).entries()) {
+          const file = path.join(
+            CACHE,
+            "gallery",
+            entry.slug,
+            `${String(i).padStart(2, "0")}.webp`,
+          );
+          if (existsSync(file)) continue;
+          await mkdir(path.dirname(file), { recursive: true });
+          await sharp(await download(image.url)).resize(900).webp({ quality: 70 }).toFile(file);
         }
-        await writePhoto(await download(source), path.join(OUT_PHOTOS, slug, `${kind}.webp`));
       }
     } catch (err) {
-      console.warn(`  ! gallery ${slug}: ${err.message}`);
+      console.warn(`  ! gallery ${entry.slug}: ${err.message}`);
     }
   }
+
+  console.log(
+    `  ${tagged} galleries scene-tagged, ${firstOnly} exterior-only, ` +
+      `${rejected} rejected as another model, ${written} photographs written`,
+  );
 }
 
 /* ------------------------------------------------------------------ */

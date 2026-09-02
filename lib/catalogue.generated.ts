@@ -54,7 +54,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "26'8\" × 52'",
     style: "ranch",
     planImage: "/photos/plans/netr-g-4002.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-4002 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/netr-g-4002",
   },
   {
@@ -92,7 +92,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 56'",
     style: "ranch",
     planImage: "/photos/plans/netr-g-3549.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3549 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/netr-g-3549",
   },
   {
@@ -111,7 +111,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 52'",
     style: "ranch",
     planImage: "/photos/plans/netr-g-3371.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3371 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/netr-g-3371",
   },
   {
@@ -165,7 +165,7 @@ export const catalogue: CatalogueEntry[] = [
     sections: "double",
     style: "ranch",
     planImage: "/photos/plans/netr-g-3468.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3468 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/netr-g-3468",
   },
   {
@@ -184,7 +184,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "26'8\" × 56'",
     style: "ranch",
     planImage: "/photos/plans/netr-g-3465.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3465 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }, { kind: "living", caption: "Living room" }, { kind: "kitchen", caption: "Kitchen" }, { kind: "bedroom", caption: "Primary bedroom" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/netr-g-3465",
   },
   {
@@ -222,7 +222,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "26'8\" × 60'",
     style: "ranch",
     planImage: "/photos/plans/netr-g-3569.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3569 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/netr-g-3569",
   },
   {
@@ -393,7 +393,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 56'",
     style: "ranch",
     planImage: "/photos/plans/g-1799.webp",
-    scenes: [{ kind: "exterior", caption: "G-1799 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-1799",
   },
   {
@@ -412,7 +412,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 56'",
     style: "ranch",
     planImage: "/photos/plans/g-3450.webp",
-    scenes: [{ kind: "exterior", caption: "G-3450 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }, { kind: "living", caption: "Living room" }, { kind: "kitchen", caption: "Kitchen" }, { kind: "bedroom", caption: "Primary bedroom" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3450",
   },
   {
@@ -431,7 +431,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 56'",
     style: "ranch",
     planImage: "/photos/plans/g-3462.webp",
-    scenes: [{ kind: "exterior", caption: "G-3462 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3462",
   },
   {
@@ -450,7 +450,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 56'",
     style: "ranch",
     planImage: "/photos/plans/g-3465.webp",
-    scenes: [{ kind: "exterior", caption: "G-3465 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3465",
   },
   {
@@ -469,7 +469,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 60'",
     style: "ranch",
     planImage: "/photos/plans/g-3557.webp",
-    scenes: [{ kind: "exterior", caption: "G-3557 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3557",
   },
   {
@@ -488,7 +488,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 60'",
     style: "ranch",
     planImage: "/photos/plans/g-1941.webp",
-    scenes: [{ kind: "exterior", caption: "G-1941 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-1941",
   },
   {
@@ -507,7 +507,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 60'",
     style: "ranch",
     planImage: "/photos/plans/g-3554.webp",
-    scenes: [{ kind: "exterior", caption: "G-3554 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3554",
   },
   {
@@ -526,7 +526,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 60'",
     style: "ranch",
     planImage: "/photos/plans/g-3564.webp",
-    scenes: [{ kind: "exterior", caption: "G-3564 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3564",
   },
   {
@@ -583,7 +583,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 56'",
     style: "ranch",
     planImage: "/photos/plans/g-3452.webp",
-    scenes: [{ kind: "exterior", caption: "G-3452 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3452",
   },
   {
@@ -697,7 +697,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "26'8\" × 64'",
     style: "ranch",
     planImage: "/photos/plans/netr-g-3644.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3644 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/netr-g-3644",
   },
   {
@@ -716,7 +716,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 64'",
     style: "ranch",
     planImage: "/photos/plans/g-3647.webp",
-    scenes: [{ kind: "exterior", caption: "G-3647 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3647",
   },
   {
@@ -754,7 +754,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 60'",
     style: "ranch",
     planImage: "/photos/plans/g-3561.webp",
-    scenes: [{ kind: "exterior", caption: "G-3561 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3561",
   },
   {
@@ -773,7 +773,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 52'",
     style: "ranch",
     planImage: "/photos/plans/g-3356.webp",
-    scenes: [{ kind: "exterior", caption: "G-3356 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3356",
   },
   {
@@ -792,7 +792,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 52'",
     style: "ranch",
     planImage: "/photos/plans/g-3361.webp",
-    scenes: [{ kind: "exterior", caption: "G-3361 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3361",
   },
   {
@@ -811,7 +811,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 52'",
     style: "ranch",
     planImage: "/photos/plans/gh-1788.webp",
-    scenes: [{ kind: "exterior", caption: "GH-1788 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/gh-1788",
   },
   {
@@ -849,7 +849,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 52'",
     style: "ranch",
     planImage: "/photos/plans/g-1785.webp",
-    scenes: [{ kind: "exterior", caption: "G-1785 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-1785",
   },
   {
@@ -868,7 +868,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 52'",
     style: "ranch",
     planImage: "/photos/plans/g-1787.webp",
-    scenes: [{ kind: "exterior", caption: "G-1787 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-1787",
   },
   {
@@ -887,7 +887,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 52'",
     style: "ranch",
     planImage: "/photos/plans/gh-1772.webp",
-    scenes: [{ kind: "exterior", caption: "GH-1772 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/gh-1772",
   },
   {
@@ -925,7 +925,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 48'",
     style: "ranch",
     planImage: "/photos/plans/g-4000.webp",
-    scenes: [{ kind: "exterior", caption: "G-4000 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-4000",
   },
   {
@@ -944,7 +944,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 52'",
     style: "ranch",
     planImage: "/photos/plans/g-4001.webp",
-    scenes: [{ kind: "exterior", caption: "G-4001 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-4001",
   },
   {
@@ -982,7 +982,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 48'",
     style: "ranch",
     planImage: "/photos/plans/g-1753.webp",
-    scenes: [{ kind: "exterior", caption: "G-1753 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-1753",
   },
   {
@@ -1020,7 +1020,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 44'",
     style: "ranch",
     planImage: "/photos/plans/g-3126.webp",
-    scenes: [{ kind: "exterior", caption: "G-3126 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3126",
   },
   {
@@ -1115,7 +1115,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "28' × 64'",
     style: "ranch",
     planImage: "/photos/plans/g-3653.webp",
-    scenes: [{ kind: "exterior", caption: "G-3653 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-3653",
   },
   {
@@ -1305,7 +1305,7 @@ export const catalogue: CatalogueEntry[] = [
     dimensions: "24' × 40'",
     style: "ranch",
     planImage: "/photos/plans/g-200.webp",
-    scenes: [{ kind: "exterior", caption: "G-200 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/ranch-homes/g-200",
   },
   {
@@ -1622,7 +1622,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "26'8\" × 60'",
     planImage: "/photos/plans/netr-g-3570.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3570 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/netr-g-3570",
   },
   {
@@ -1658,7 +1658,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 62,
     dimensions: "26'8\" × 60'/62'",
     planImage: "/photos/plans/netr-g-3600.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3600 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/netr-g-3600",
   },
   {
@@ -1676,7 +1676,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 62,
     dimensions: "26'8\" × 60'/62'",
     planImage: "/photos/plans/netr-g-3601.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3601 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/netr-g-3601",
   },
   {
@@ -1694,7 +1694,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "26'8\" × 66'",
     planImage: "/photos/plans/netr-g-3655.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3655 — front elevation" }],
+    scenes: [{ kind: "living", caption: "Living room" }, { kind: "kitchen", caption: "Kitchen" }, { kind: "bedroom", caption: "Primary bedroom" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/netr-g-3655",
   },
   {
@@ -1748,7 +1748,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 58,
     dimensions: "26'8\" × 58'",
     planImage: "/photos/plans/netr-g-3461.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3461 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/netr-g-3461",
   },
   {
@@ -1766,7 +1766,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 52,
     dimensions: "26'8\" × 52'",
     planImage: "/photos/plans/netr-g-3365.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-3365 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/netr-g-3365",
   },
   {
@@ -1838,7 +1838,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 52,
     dimensions: "28' × 52'",
     planImage: "/photos/plans/g-1780.webp",
-    scenes: [{ kind: "exterior", caption: "G-1780 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-1780",
   },
   {
@@ -1856,7 +1856,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 56,
     dimensions: "28' × 56'",
     planImage: "/photos/plans/g-3459.webp",
-    scenes: [{ kind: "exterior", caption: "G-3459 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3459",
   },
   {
@@ -1874,7 +1874,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 56,
     dimensions: "28' × 56'",
     planImage: "/photos/plans/g-3460.webp",
-    scenes: [{ kind: "exterior", caption: "G-3460 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3460",
   },
   {
@@ -1892,7 +1892,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 64,
     dimensions: "28' × 64'",
     planImage: "/photos/plans/pg-1491.webp",
-    scenes: [{ kind: "exterior", caption: "PG-1491 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/pg-1491",
   },
   {
@@ -1910,7 +1910,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 65,
     dimensions: "28' × 65'/63'",
     planImage: "/photos/plans/g-3602.webp",
-    scenes: [{ kind: "exterior", caption: "G-3602 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3602-4",
   },
   {
@@ -1928,7 +1928,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "28' × 60'",
     planImage: "/photos/plans/g-3566.webp",
-    scenes: [{ kind: "exterior", caption: "G-3566 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3566",
   },
   {
@@ -1946,7 +1946,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 64,
     dimensions: "28' × 64'",
     planImage: "/photos/plans/g-3645.webp",
-    scenes: [{ kind: "exterior", caption: "G-3645 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3646-8sary",
   },
   {
@@ -1964,7 +1964,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 64,
     dimensions: "28' × 64'",
     planImage: "/photos/plans/g-3646.webp",
-    scenes: [{ kind: "exterior", caption: "G-3646 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3646",
   },
   {
@@ -1982,7 +1982,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "28' × 66'/64'",
     planImage: "/photos/plans/g-3660.webp",
-    scenes: [{ kind: "exterior", caption: "G-3660 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3660",
   },
   {
@@ -2000,7 +2000,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "28' × 68'",
     planImage: "/photos/plans/g-3661.webp",
-    scenes: [{ kind: "exterior", caption: "G-3661 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3661",
   },
   {
@@ -2018,7 +2018,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 64,
     dimensions: "28' × 64'/62'",
     planImage: "/photos/plans/g-3603.webp",
-    scenes: [{ kind: "exterior", caption: "G-3603 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3603",
   },
   {
@@ -2054,7 +2054,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 52,
     dimensions: "28' × 52'",
     planImage: "/photos/plans/g-3358.webp",
-    scenes: [{ kind: "exterior", caption: "G-3358 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3358",
   },
   {
@@ -2072,7 +2072,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 52,
     dimensions: "28' × 52'",
     planImage: "/photos/plans/g-3365.webp",
-    scenes: [{ kind: "exterior", caption: "G-3365 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3365",
   },
   {
@@ -2231,7 +2231,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 48,
     dimensions: "28' × 48'",
     planImage: "/photos/plans/g-3154.webp",
-    scenes: [{ kind: "exterior", caption: "G-3154 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3154",
   },
   {
@@ -2267,7 +2267,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 44,
     dimensions: "28' × 44'",
     planImage: "/photos/plans/g-1740.webp",
-    scenes: [{ kind: "exterior", caption: "G-1740 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-1740",
   },
   {
@@ -2339,7 +2339,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "28' × 60'",
     planImage: "/photos/plans/g-3556.webp",
-    scenes: [{ kind: "exterior", caption: "G-3556 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3556",
   },
   {
@@ -2411,7 +2411,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "28' × 60'",
     planImage: "/photos/plans/g-3552.webp",
-    scenes: [{ kind: "exterior", caption: "G-3552 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3552",
   },
   {
@@ -2429,7 +2429,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "28' × 60'",
     planImage: "/photos/plans/g-1836.webp",
-    scenes: [{ kind: "exterior", caption: "G-1836 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-1836",
   },
   {
@@ -2483,7 +2483,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 61,
     dimensions: "28' × 61'/60'",
     planImage: "/photos/plans/g-3553.webp",
-    scenes: [{ kind: "exterior", caption: "G-3553 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3553",
   },
   {
@@ -2609,7 +2609,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 64,
     dimensions: "28' × 64'",
     planImage: "/photos/plans/g-1892.webp",
-    scenes: [{ kind: "exterior", caption: "G-1892 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-1892",
   },
   {
@@ -2681,7 +2681,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 64,
     dimensions: "28' × 64'",
     planImage: "/photos/plans/g-3649.webp",
-    scenes: [{ kind: "exterior", caption: "G-3649 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3649",
   },
   {
@@ -2717,7 +2717,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "28' × 68'/50'",
     planImage: "/photos/plans/g-1802.webp",
-    scenes: [{ kind: "exterior", caption: "G-1802 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-1802",
   },
   {
@@ -2735,7 +2735,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "28' × 66'/64'",
     planImage: "/photos/plans/g-3658.webp",
-    scenes: [{ kind: "exterior", caption: "G-3658 — front elevation" }],
+    scenes: [{ kind: "living", caption: "Living room" }, { kind: "kitchen", caption: "Kitchen" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-3658",
   },
   {
@@ -2825,7 +2825,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 52,
     dimensions: "24' × 52'",
     planImage: "/photos/plans/g-294.webp",
-    scenes: [{ kind: "exterior", caption: "G-294 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-294",
   },
   {
@@ -2843,7 +2843,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 48,
     dimensions: "24' × 48'",
     planImage: "/photos/plans/g-215.webp",
-    scenes: [{ kind: "exterior", caption: "G-215 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-215",
   },
   {
@@ -2897,7 +2897,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 48,
     dimensions: "24' × 48'",
     planImage: "/photos/plans/g-217.webp",
-    scenes: [{ kind: "exterior", caption: "G-217 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-217",
   },
   {
@@ -2915,7 +2915,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "24' × 60'/58'",
     planImage: "/photos/plans/g-289.webp",
-    scenes: [{ kind: "exterior", caption: "G-289 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-289",
   },
   {
@@ -2933,7 +2933,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 52,
     dimensions: "24' × 44'/52'",
     planImage: "/photos/plans/g-237.webp",
-    scenes: [{ kind: "exterior", caption: "G-237 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-237",
   },
   {
@@ -2951,7 +2951,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 56,
     dimensions: "24' × 56'",
     planImage: "/photos/plans/g-254.webp",
-    scenes: [{ kind: "exterior", caption: "G-254 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/community-homes/g-254",
   },
   {
@@ -3293,7 +3293,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "13'4\" × 66'",
     planImage: "/photos/plans/netr-g-679.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-679 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-679",
   },
   {
@@ -3311,7 +3311,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "13'4\" × 68'",
     planImage: "/photos/plans/netr-g-652.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-652 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-652",
   },
   {
@@ -3329,7 +3329,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "14' × 68'",
     planImage: "/photos/plans/g-632.webp",
-    scenes: [{ kind: "exterior", caption: "G-632 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-632",
   },
   {
@@ -3383,7 +3383,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "14' × 66'",
     planImage: "/photos/plans/g-618.webp",
-    scenes: [{ kind: "exterior", caption: "G-618 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-618",
   },
   {
@@ -3419,7 +3419,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "14' × 68'",
     planImage: "/photos/plans/gh-577.webp",
-    scenes: [{ kind: "exterior", caption: "GH-577 — front elevation" }],
+    scenes: [{ kind: "living", caption: "Living room" }, { kind: "kitchen", caption: "Kitchen" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/gh-577",
   },
   {
@@ -3437,7 +3437,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "14' × 68'",
     planImage: "/photos/plans/g-613.webp",
-    scenes: [{ kind: "exterior", caption: "G-613 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-613",
   },
   {
@@ -3563,7 +3563,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "14' × 60'",
     planImage: "/photos/plans/gh-491.webp",
-    scenes: [{ kind: "exterior", caption: "GH-491 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/gh-491",
   },
   {
@@ -3599,7 +3599,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "14' × 60'",
     planImage: "/photos/plans/g-598.webp",
-    scenes: [{ kind: "exterior", caption: "G-598 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-598",
   },
   {
@@ -3617,7 +3617,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 56,
     dimensions: "14' × 56'",
     planImage: "/photos/plans/g-489.webp",
-    scenes: [{ kind: "exterior", caption: "G-489 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-489",
   },
   {
@@ -3689,7 +3689,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 56,
     dimensions: "14' × 56'",
     planImage: "/photos/plans/g-608.webp",
-    scenes: [{ kind: "exterior", caption: "G-608 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-608",
   },
   {
@@ -3725,7 +3725,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 52,
     dimensions: "14' × 52'",
     planImage: "/photos/plans/g-557.webp",
-    scenes: [{ kind: "exterior", caption: "G-557 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-557",
   },
   {
@@ -3923,7 +3923,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 76,
     dimensions: "14' × 76'",
     planImage: "/photos/plans/g-503.webp",
-    scenes: [{ kind: "exterior", caption: "G-503 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-503",
   },
   {
@@ -3977,7 +3977,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "13'4\" × 60'",
     planImage: "/photos/plans/netr-g-633.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-633 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-633",
   },
   {
@@ -3995,7 +3995,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "13'4\" × 60'",
     planImage: "/photos/plans/netr-g-635.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-635 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-635",
   },
   {
@@ -4067,7 +4067,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "13'4\" × 66'",
     planImage: "/photos/plans/netr-g-624.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-624 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-624",
   },
   {
@@ -4085,7 +4085,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "13'4\" × 60'",
     planImage: "/photos/plans/netr-g-598.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-598 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-598",
   },
   {
@@ -4103,7 +4103,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "13'4\" × 68'",
     planImage: "/photos/plans/netr-g-634.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-634 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-634",
   },
   {
@@ -4121,7 +4121,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "13'4\" × 68'",
     planImage: "/photos/plans/netr-g-636.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-636 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-636",
   },
   {
@@ -4229,7 +4229,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "13'4\" × 68'",
     planImage: "/photos/plans/netr-g-613.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-613 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-613",
   },
   {
@@ -4247,7 +4247,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "13'4\" × 66'",
     planImage: "/photos/plans/netr-g-618.webp",
-    scenes: [{ kind: "exterior", caption: "NETR G-618 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/netr-g-618",
   },
   {
@@ -4301,7 +4301,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "16' × 66'",
     planImage: "/photos/plans/g-16-678.webp",
-    scenes: [{ kind: "exterior", caption: "G-16-678 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-16-678",
   },
   {
@@ -4337,7 +4337,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "16' × 66'",
     planImage: "/photos/plans/g-16-624.webp",
-    scenes: [{ kind: "exterior", caption: "G-16-624 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-16-624",
   },
   {
@@ -4355,7 +4355,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "16' × 66'",
     planImage: "/photos/plans/g-16-625.webp",
-    scenes: [{ kind: "exterior", caption: "G-16-625 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-16-625",
   },
   {
@@ -4373,7 +4373,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "16' × 66'",
     planImage: "/photos/plans/gh-16-496.webp",
-    scenes: [{ kind: "exterior", caption: "GH-16-496 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/gh-16-496",
   },
   {
@@ -4427,7 +4427,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "16' × 68'",
     planImage: "/photos/plans/g-16-631.webp",
-    scenes: [{ kind: "exterior", caption: "G-16-631 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-16-631",
   },
   {
@@ -4445,7 +4445,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 68,
     dimensions: "16' × 68'",
     planImage: "/photos/plans/g-16-634.webp",
-    scenes: [{ kind: "exterior", caption: "G-16-634 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-16-634",
   },
   {
@@ -4463,7 +4463,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 60,
     dimensions: "16' × 60'",
     planImage: "/photos/plans/g-16-628.webp",
-    scenes: [{ kind: "exterior", caption: "G-16-628 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-16-628",
   },
   {
@@ -4481,7 +4481,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "16' × 66'",
     planImage: "/photos/plans/g-16-630.webp",
-    scenes: [{ kind: "exterior", caption: "G-16-630 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-16-630",
   },
   {
@@ -4499,7 +4499,7 @@ export const catalogue: CatalogueEntry[] = [
     lengthFt: 66,
     dimensions: "16' × 66'",
     planImage: "/photos/plans/g-16-606.webp",
-    scenes: [{ kind: "exterior", caption: "G-16-606 — front elevation" }],
+    scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://www.pinegrovehomes.com/single-section-homes/g-16-606",
   },
   {

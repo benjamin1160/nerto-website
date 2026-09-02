@@ -32,6 +32,7 @@ import {
   statusLabels,
   styleLabels,
 } from "@/lib/homes";
+import { photoFor } from "@/lib/photos";
 import { site } from "@/lib/site";
 
 export function generateStaticParams() {
@@ -73,6 +74,9 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
   if (!listing) notFound();
 
   const plan = getPlan(listing);
+  const hasPhotos = listing.scenes.some((scene) =>
+    photoFor(`${listing.slug}/${scene.kind}`),
+  );
   /* Section numbering has to survive a missing section. Most homes in this
      catalogue carry no floor-plan geometry and no feature list, so hardcoded
      eyebrows would read 01, 04, 05 down the page. This counts as the page
@@ -234,11 +238,17 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
         {/* ---------------- Gallery + rail ---------------- */}
         <div className="mt-12 grid gap-10 lg:grid-cols-[minmax(0,1.62fr)_minmax(0,1fr)] lg:gap-14">
           <div className="min-w-0">
-            <Gallery
-              scenes={listing.scenes}
-              name={listing.name}
-              slug={listing.slug}
-            />
+            {/* The gallery only earns its space when there are photographs.
+                Most plans in this catalogue have none, and for those the
+                floor-plan section below leads instead — one labelled drawing
+                rather than a grey plate above a drawing. */}
+            {hasPhotos && (
+              <Gallery
+                scenes={listing.scenes}
+                name={listing.name}
+                slug={listing.slug}
+              />
+            )}
 
             {/* Story */}
             {listing.story && listing.story.length > 0 && (
