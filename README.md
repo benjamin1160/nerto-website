@@ -1,10 +1,29 @@
-# Hearthline — a manufactured-home dealership template
+# NERTO Homes — newenglandrenttoown.com
 
-A production-ready Next.js 16 template for a manufactured / modular home
-dealership: a filterable listing catalogue, scale floor plans, a financing
-calculator that tells the truth about chattel loans, and an editorial content
-layer built to dismantle the "trailer park" stereotype rather than tiptoe
-around it.
+The website for NERTO Homes (New England Rent To Own, LLC), 65 River Road,
+Chelsea, Maine — mobile and modular homes, sheds, camps and horse barns.
+
+Built on a Next.js 16 dealership template: a filterable listing catalogue,
+scale floor plans, a financing calculator that tells the truth about chattel
+loans, and an editorial content layer built to dismantle the "trailer park"
+stereotype rather than tiptoe around it.
+
+Two things ship deliberately empty, because NERTO publishes neither and a
+listing or a community is a claim about something real:
+
+- **`lib/homes.ts`** — no inventory. `/listings` says so plainly, and the
+  landing page's listings band and the size buttons hide themselves.
+- **`lib/communities.ts`** — no communities, so `/communities` is switched
+  off in `lib/page-config.ts`.
+
+`/land-deals` is switched off for the same reason: it is nothing but priced
+counties, and `lib/land/areas.ts` carries none. The geography under it is
+real and points at Chelsea — moving the page from "off" to "on" is a matter
+of pricing the delivery radius, not of rebuilding anything.
+
+The page heroes are still stock photographs of manufactured homes rather than
+pictures of this lot; the footer says so, and the head of `lib/photos.ts`
+explains what to replace.
 
 Every image on the site is a photograph, served from `public/photos` — no CDN
 calls, no third-party image host. Anything without a photograph yet holds its

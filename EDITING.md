@@ -23,7 +23,7 @@ picks itself up. Typing `/homes`, `/photos`, `/brand`, `/land-deals` or
 ## The look
 
 Two whole looks ship in `lib/skin.ts` and one line switches between them:
-`hearthline` is warm and editorial, `nerto` is the white, blue-and-green
+`hearthline` is warm and editorial, `nerto` is the white, blue-and-orange
 conversion layout. Ask for either by name, or ask for a new one.
 
 > Switch the site to the Direct skin.
@@ -107,14 +107,14 @@ Every figure on it comes from `lib/land/areas.ts`.
 > Rates moved. Re-estimate every county at 25% down and update the
 > assumptions line under the map to match.
 
-> We're not in Florida — we're in Maryville, Tennessee. Redraw the map for
-> the counties we actually deliver to, and here are our numbers for each.
+> Here are our numbers for Kennebec, Somerset, Waldo and Lincoln. Put them on
+> the map and switch `/land-deals` back on.
 
-That last one is the big one: the map ships with one dealership's market on
-it, and a map centred on a town you do not trade from is worse than no map.
-Expect a session to move the lot's coordinates, replace the counties and
-regenerate the boundaries from the census data, and to ask you for prices
-rather than inventing them.
+That last one is the big one, and it is the state this site is in: the map's
+geography is already Chelsea and the county boundaries are already Maine and
+its neighbours, but no county is priced, so the page is switched off. It
+comes back on the moment you supply real payments and lot prices. Nobody will
+invent them for you.
 
 > Send the pre-approval form to our CRM.
 
@@ -144,6 +144,14 @@ is exactly what must not survive to a real one. Published unchanged, those
 lines are not merely generic; they are false statements about your staff,
 your trading history and what your price includes.
 
+**This deployment is past that point.** `lib/site.ts` and `lib/company.ts`
+carry NERTO's own published details — the licence number, the two promises in
+the hero, the New England Rent To Own story, the three service cards from the
+About page, and the Google listing the reviews live on. Everything NERTO does
+not publish is deleted rather than guessed at: no founding year, no
+headcount, no named staff, no warranty term, no deposit schedule. Add one
+only from something the business has actually put in writing.
+
 Everything of that kind lives in `lib/company.ts`, and every field in it is
 optional. Whatever you can fill in from what the business already says about
 itself, fill in. Everything else, delete — the page hides the section rather
@@ -162,11 +170,17 @@ itself and reads fine.
 Run `npm run check:placeholders` to see what is still Hearthline. It lists
 findings and passes while you are working locally, and fails the build once
 `NEXT_PUBLIC_SITE_URL` points at a real domain, so a site cannot go out with
-the fiction still on it.
+the fiction still on it. It currently reports clean.
 
 One thing on `/land-deals` belongs in this list too: the counties, the
 payments and the lot prices on that map are one dealership's market. They are
-not placeholders you can leave in — see the section above.
+not placeholders you can leave in — which is why there are none, and why the
+page is off.
+
+The photographs are the outstanding item. The page heroes are stock pictures
+of manufactured homes, not of the yard on River Road, and the footer says so
+in as many words. Photograph the lot, drop the files under `public/photos`,
+repoint the keys in `lib/photos.ts` and delete that footer paragraph.
 
 What does *not* need *correcting*: the HUD Code history, the chattel-versus-
 mortgage numbers, the titling explanation and the buyer's order of operations

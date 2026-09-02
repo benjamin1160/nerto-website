@@ -49,11 +49,15 @@ export default function AboutPage() {
   let n = 1;
   const index = () => String(n++).padStart(2, "0");
 
+  /* A stat that would read zero is a stat we do not have, so it is dropped
+     rather than printed — the same rule the rest of this page follows about
+     an absent fact. With an empty catalogue that leaves the row empty, and
+     the row hides itself. */
   const stats = [
     ...(years ? [{ v: <CountUp to={years} />, k: "Years" }] : []),
-    { v: <CountUp to={listings.length} />, k: "Plans on the lot" },
-    { v: <CountUp to={seriesList.length} />, k: "Series" },
-    { v: <CountUp to={communities.length} />, k: "Communities" },
+    ...(listings.length ? [{ v: <CountUp to={listings.length} />, k: "Homes on the lot" }] : []),
+    ...(seriesList.length ? [{ v: <CountUp to={seriesList.length} />, k: "Series" }] : []),
+    ...(communities.length ? [{ v: <CountUp to={communities.length} />, k: "Communities" }] : []),
   ];
 
   return (
@@ -102,16 +106,18 @@ export default function AboutPage() {
                 ))}
               </div>
 
-              <dl className="mt-12 grid grid-cols-2 gap-x-8 gap-y-10 border-t border-line pt-10 sm:grid-cols-4">
-                {stats.map((s) => (
-                  <div key={s.k}>
-                    <dd className="font-display text-4xl leading-none tracking-tight text-ink">
-                      {s.v}
-                    </dd>
-                    <dt className="eyebrow mt-3">{s.k}</dt>
-                  </div>
-                ))}
-              </dl>
+              {stats.length > 0 && (
+                <dl className="mt-12 grid grid-cols-2 gap-x-8 gap-y-10 border-t border-line pt-10 sm:grid-cols-4">
+                  {stats.map((s) => (
+                    <div key={s.k}>
+                      <dd className="font-display text-4xl leading-none tracking-tight text-ink">
+                        {s.v}
+                      </dd>
+                      <dt className="eyebrow mt-3">{s.k}</dt>
+                    </div>
+                  ))}
+                </dl>
+              )}
             </Reveal>
           </div>
         </Section>

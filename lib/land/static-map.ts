@@ -1,6 +1,6 @@
 import { AREAS, tierOf } from "./areas";
 import { COUNTY_SHAPES } from "./county-shapes.generated";
-import { SERVICE_RADIUS_MI, project, starPath, windowFor } from "./geo";
+import { HQ, SERVICE_RADIUS_MI, project, starPath, windowFor } from "./geo";
 
 /**
  * The service-area map as a flat SVG string, for the social preview image.
@@ -38,9 +38,9 @@ export function serviceAreaSvg(width: number, height: number): string {
     const fill =
       payment !== undefined
         ? OG.tiers[tierOf(payment)]
-        : c.state === "GA"
-          ? OG.outside
-          : OG.unserved;
+        : c.state === HQ.state
+          ? OG.unserved
+          : OG.outside;
     return `<path d="${c.d}" fill="${fill}" stroke="${OG.stroke}" stroke-width="0.35"/>`;
   }).join("");
 

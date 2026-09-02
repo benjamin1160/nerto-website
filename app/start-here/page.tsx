@@ -71,7 +71,7 @@ const STEPS = [
   {
     n: "04",
     title: "Match the plan to the pad",
-    body: "A 32-foot-wide home will not go on every community lot or down every road. Once we know where it is going, we can tell you which of the twenty plans on the lot can actually be set there — before you fall for one that cannot.",
+    body: "A 32-foot-wide home will not go on every community lot or down every road. Once we know where it is going, we can tell you which homes can actually be set there — before you fall for one that cannot.",
   },
   {
     n: "05",
@@ -175,7 +175,7 @@ const FAQ = [
         A HUD-code home built to a specification that lets it appraise against site-built
         houses: permanent foundation, a porch, drywall throughout, higher roof pitch. It
         is the category that closes the gap between manufactured and site-built lending.
-        We keep one on the lot to show what it looks like in person.
+        Ask us whether one makes sense for the ground you are looking at.
       </p>
     ),
   },
@@ -221,7 +221,8 @@ export default function StartHerePage() {
      than 404ing — an indexed link or a printed card outlives the switch. */
   if (!pages.startHere) redirect("/");
 
-  const smallest = Math.min(...listings.map((l) => l.sqft));
+  /* Absent when the catalogue is empty, which is what it is today. */
+  const smallest = listings.length ? Math.min(...listings.map((l) => l.sqft)) : undefined;
 
   return (
     <>
@@ -276,16 +277,25 @@ export default function StartHerePage() {
 
         <Reveal delay={120}>
           <p className="mt-10 max-w-3xl text-lg leading-relaxed text-muted">
-            All {communities.length} communities we work with are land-lease properties
-            within about half an hour of the lot in {site.address.city}.{" "}
-            <Link
-              href="/communities"
-              className="text-ember underline-offset-4 hover:underline"
-            >
-              See what each one is like
-            </Link>
-            , or send us a parcel number and we will tell you what it takes to set a home
-            on it.
+            {communities.length > 0 ? (
+              <>
+                All {communities.length} communities we work with are land-lease properties
+                within reach of the yard in {site.address.city}.{" "}
+                <Link
+                  href="/communities"
+                  className="text-ember underline-offset-4 hover:underline"
+                >
+                  See what each one is like
+                </Link>
+                , or send us a parcel number and we will tell you what it takes to set a
+                home on it.
+              </>
+            ) : (
+              <>
+                Tell us which park you are looking at, or send us a parcel number, and we
+                will tell you what it takes to set a home on it.
+              </>
+            )}
           </p>
         </Reveal>
       </Section>
@@ -401,9 +411,16 @@ export default function StartHerePage() {
               Come and ask the awkward questions.
             </h2>
             <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted">
-              Twenty plans are standing on the lot in {site.address.city}, from{" "}
-              {smallest} square feet up. Bring a parcel number, a community name, or
-              neither — we will start wherever you are.
+              {smallest !== undefined ? (
+                <>
+                  Homes are standing on the lot in {site.address.city}, from {smallest} square
+                  feet up.{" "}
+                </>
+              ) : (
+                <>Come down to the yard on {site.address.street} in {site.address.city}. </>
+              )}
+              Bring a parcel number, a community name, or neither — we will start wherever
+              you are.
             </p>
             <div className="mt-9 flex flex-wrap justify-center gap-3">
               <ButtonLink href="/contact" className="!px-7 !py-4 !text-base">
@@ -411,7 +428,7 @@ export default function StartHerePage() {
                 <Icon.Arrow className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
               </ButtonLink>
               <ButtonLink href="/listings" variant="outline" className="!px-7 !py-4 !text-base">
-                See every plan
+                See what we sell
               </ButtonLink>
             </div>
           </div>

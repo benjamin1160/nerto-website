@@ -5,7 +5,9 @@ import { HQ, SERVICE_RADIUS_MI, starPath } from "@/lib/land/geo";
 import { OG_PALETTE, pixelFor, serviceAreaDataUri } from "@/lib/land/static-map";
 import { site } from "@/lib/site";
 
-export const alt = `Map of ${AREAS.length} counties within ${SERVICE_RADIUS_MI} miles of ${HQ.city}, with starting monthly payments for land-and-home packages`;
+export const alt = AREAS.length
+  ? `Map of ${AREAS.length} counties within ${SERVICE_RADIUS_MI} miles of ${HQ.city}, with starting monthly payments for land-and-home packages`
+  : `Map of the delivery area within ${SERVICE_RADIUS_MI} miles of ${HQ.city}`;
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -16,17 +18,15 @@ const { bone: BONE, ember: EMBER, gold: GOLD } = OG_PALETTE;
 const MUTED = "#9c9285";
 const PAPER = "#100e0c";
 
-/** Counties called out by name on the preview, and where their label sits. */
-const CALLOUTS: { slug: string; as?: string; place: "above" | "below"; dy?: number }[] = [
-  { slug: "taylor", place: "above" },
-  { slug: "suwannee", place: "above", dy: -28 },
-  { slug: "dixie", place: "below" },
-  { slug: "alachua", as: HQ.city, place: "above" },
-  { slug: "marion", place: "above" },
-  { slug: "citrus", place: "below" },
-  { slug: "st-johns", place: "above" },
-  { slug: "flagler", place: "below" },
-];
+/**
+ * Counties called out by name on the preview, and where their label sits.
+ *
+ * Empty while `lib/land/areas.ts` is: a callout names a county we price, and
+ * we price none yet. Add one entry per headline county — `slug` has to match
+ * an `Area` slug or the callout is silently dropped — when the radius is
+ * priced.
+ */
+const CALLOUTS: { slug: string; as?: string; place: "above" | "below"; dy?: number }[] = [];
 
 const starMark = `data:image/svg+xml;utf8,${encodeURIComponent(
   `<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="-11 -11 22 22"><path d="${starPath(
@@ -97,25 +97,28 @@ export default function Image() {
                 maxWidth: 480,
               }}
             >
-              What it takes to get into a home on your own land — {AREAS.length} counties inside{" "}
-              {SERVICE_RADIUS_MI} miles of {HQ.city}.
+              What it takes to get into a home on your own land
+              {AREAS.length > 0 && ` — ${AREAS.length} counties`} inside {SERVICE_RADIUS_MI}{" "}
+              miles of {HQ.city}.
             </div>
           </div>
 
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-              <div style={{ display: "flex", fontSize: 20, letterSpacing: 3, color: MUTED }}>
-                FROM
+          {CHEAPEST && (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+                <div style={{ display: "flex", fontSize: 20, letterSpacing: 3, color: MUTED }}>
+                  FROM
+                </div>
+                <div style={{ display: "flex", fontFamily: "serif", fontSize: 72, color: GOLD }}>
+                  {money(CHEAPEST.startingPayment)}
+                </div>
+                <div style={{ display: "flex", fontSize: 26, color: MUTED }}>/mo</div>
               </div>
-              <div style={{ display: "flex", fontFamily: "serif", fontSize: 72, color: GOLD }}>
-                {money(CHEAPEST.startingPayment)}
+              <div style={{ display: "flex", fontSize: 20, color: MUTED }}>
+                {CHEAPEST.county} County · land and home in one payment
               </div>
-              <div style={{ display: "flex", fontSize: 26, color: MUTED }}>/mo</div>
             </div>
-            <div style={{ display: "flex", fontSize: 20, color: MUTED }}>
-              {CHEAPEST.county} County · land and home in one payment
-            </div>
-          </div>
+          )}
 
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <div style={{ display: "flex", width: 46, height: 4, backgroundColor: EMBER }} />

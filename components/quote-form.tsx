@@ -10,17 +10,18 @@ import { site } from "@/lib/site";
    card stops being a thing somebody fills in on the way past. */
 const BUYER_TYPES = [
   { value: "", label: "What best describes you? *" },
-  { value: "own", label: "I already own land" },
-  { value: "looking", label: "Still looking for land" },
-  { value: "community", label: "Going into a community" },
-  { value: "no-idea", label: "Just starting to look" },
+  { value: "self", label: "Buying for myself" },
+  { value: "land-owner", label: "Land owner" },
+  { value: "investor", label: "Investor" },
+  { value: "exploring", label: "Just exploring" },
 ];
 
 const BUDGETS = [
   { value: "", label: "Budget" },
-  { value: "under-80k", label: "Under $80,000" },
-  { value: "80-140k", label: "$80,000 – $140,000" },
-  { value: "140-200k", label: "$140,000 – $200,000" },
+  { value: "under-50k", label: "Under $50,000" },
+  { value: "50-100k", label: "$50,000 – $100,000" },
+  { value: "100-150k", label: "$100,000 – $150,000" },
+  { value: "150-200k", label: "$150,000 – $200,000" },
   { value: "200k-plus", label: "$200,000+" },
 ];
 

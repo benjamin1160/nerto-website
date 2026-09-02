@@ -3,8 +3,8 @@ import { Container, Icon } from "./ui";
 import { legalNav } from "@/lib/navigation";
 import { site } from "@/lib/site";
 
-/* "Hearthline Home Co." already ends in a full stop, so a sentence that ends
-   with the business name must not add a second one. */
+/* A business name that already ends in a full stop must not take a second one
+   when a sentence ends with it. */
 const nameSentence = site.name.replace(/\.$/, "");
 
 const mapQuery = encodeURIComponent(
@@ -68,16 +68,15 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* The template demonstrating itself. Delete this paragraph when the
-            site goes live for a real dealership — `npm run check:placeholders`
-            lists the other values that have to go with it. */}
+        {/* Photography note. The page heroes are still stock pictures of
+            manufactured homes rather than pictures of this lot — say so here
+            until they are replaced, then delete this paragraph. See the head
+            of `lib/photos.ts`. */}
         <p className="mx-auto mt-6 max-w-3xl text-center leading-relaxed text-muted/80">
-          Demonstration site. {nameSentence} is a fictional dealership; Clayton, the
-          plan names shown and YES! Communities are the marks of their respective owners and
-          are not affiliated with it. Half the galleries are the manufacturer&rsquo;s own
-          photographs of the plan named; the rest are photographs of the same type of home
-          rather than of that plan. Contact details are placeholders, lot state is
-          illustrative, and nothing here is an offer to sell.
+          Photographs on this site show manufactured homes of the type {nameSentence} sells
+          and are not photographs of a specific home for sale. Specifications, availability
+          and pricing come from the manufacturer and from us on request; nothing on this site
+          is an offer to sell.
         </p>
       </Container>
     </footer>

@@ -68,8 +68,8 @@ export default function PromotionsPage() {
                 <Icon.Tag className="size-6" />
               </span>
               <p className="max-w-xl text-lg leading-relaxed text-muted">
-                No promotion is running. The homes on the lot are priced as listed, and the
-                fastest way to know when something changes is to ask a person.
+                No promotion is running. The fastest way to know when something changes is
+                to ask a person.
               </p>
               <div className="flex flex-wrap gap-3">
                 <ButtonLink href="/listings">

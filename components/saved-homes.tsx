@@ -3,7 +3,7 @@
 import { useCallback, useSyncExternalStore, type ReactNode } from "react";
 import { cx, Icon } from "./ui";
 
-const KEY = "hearthline:saved";
+const KEY = "nerto:saved";
 const EMPTY: string[] = [];
 
 /**

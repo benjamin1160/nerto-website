@@ -32,7 +32,7 @@ const PATHS = [
     down: "5% down",
     tone: "ember" as const,
     needs: "Owned land · permanent foundation · real-property title",
-    body: "Fannie Mae's MH Advantage and Freddie's CHOICEHome both price manufactured homes at or near site-built rates when the home meets the eligibility criteria. Our CrossMod homes are built to that specification on purpose.",
+    body: "Fannie Mae's MH Advantage and Freddie's CHOICEHome both price manufactured homes at or near site-built rates when the home meets the eligibility criteria. Ask whether the home you are looking at is built to that specification — it is worth a great deal at closing.",
   },
   {
     name: "FHA Title II",
@@ -41,7 +41,7 @@ const PATHS = [
     down: "3.5% down",
     tone: "moss" as const,
     needs: "Owned land · permanent foundation · 400+ sq ft",
-    body: "The most forgiving credit profile of any real-property option, and the lowest down payment. Requires an engineer's foundation certification, which we schedule as part of the set.",
+    body: "The most forgiving credit profile of any real-property option, and the lowest down payment. It requires an engineer's foundation certification, so build that into the schedule rather than discovering it at the end.",
   },
   {
     name: "VA",
@@ -50,7 +50,7 @@ const PATHS = [
     down: "0% down",
     tone: "moss" as const,
     needs: "Eligible service · owned land · permanent foundation",
-    body: "No down payment and no mortgage insurance. Fewer lenders write VA on manufactured homes, so the shortlist is short — we keep a current one.",
+    body: "No down payment and no mortgage insurance. Fewer lenders write VA on manufactured homes, so the shortlist is short — ask us who is writing them in Maine this month before you spend six weeks with the wrong originator.",
   },
   {
     name: "USDA Rural",
@@ -135,10 +135,11 @@ const FAQ = [
     title: "Do you make money on the financing?",
     body: (
       <p>
-        No. We are not a licensed originator and we do not take a referral fee from the
-        lenders on our list. We keep the list because a dealer who sends you to a lender
-        that cannot close on a HUD-code home wastes six weeks of your life and one of
-        ours.
+        Ask us directly and we will tell you plainly how we are paid on any deal in front
+        of you — you are entitled to that answer before you sign anything. What we will
+        say up front is that a dealer who sends you to a lender that cannot close on a
+        HUD-code home wastes six weeks of your life and one of ours, which is reason
+        enough to keep the list current.
       </p>
     ),
   },
@@ -157,11 +158,12 @@ const FAQ = [
     title: "What does the set actually cost?",
     body: (
       <p>
-        On a prepared pad in one of our communities: $12,000–$19,000 for a double-section,
-        including transport, crane-free set, marriage-line finish, anchoring, skirting and
-        utility connections. On raw land, add site work — which can be anything from
-        $8,000 to $60,000 depending on access, septic and power distance. This is exactly
-        why we survey before you order.
+        It depends on the home, the distance and what is already on the ground. On a
+        prepared pad in an established park it is a much smaller number than on raw land,
+        where the pad, the drive, the well, the septic and the power run are all in play
+        and the spread between an easy parcel and a hard one is enormous. This is exactly
+        why we look at the ground before you order, and why we quote site work separately
+        rather than folding a guess into a headline price.
       </p>
     ),
   },
@@ -203,8 +205,8 @@ export default function FinancingPage() {
           <SectionHeading
             index="02"
             eyebrow="The six paths"
-            title="Rates as of this quarter, plainly."
-            lede="Ranges are what our buyers actually closed at in the last ninety days, not teaser rates. Your number depends on credit, term and how the home is titled."
+            title="How the paths differ, plainly."
+            lede="Indicative ranges for comparing the paths against each other, not quotes and not an offer of credit. Your number comes from a lender after underwriting, and depends on credit, term, down payment and how the home is titled."
           />
         </Reveal>
 

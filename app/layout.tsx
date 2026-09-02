@@ -65,8 +65,8 @@ export const metadata: Metadata = {
   applicationName: site.name,
   keywords: [
     "manufactured homes",
-    "Clayton homes",
-    "Knoxville manufactured homes",
+    "modular homes Maine",
+    "Augusta manufactured homes",
     "modular homes",
     "mobile homes",
     "factory-built housing",
@@ -98,7 +98,7 @@ export const viewport: Viewport = {
  * Applies the stored theme before first paint. Kept tiny and inline so there
  * is no flash of the wrong palette on a cold load.
  */
-const THEME_BOOT = `(function(){try{var s=localStorage.getItem("hearthline:theme");var d=s?s==="dark":matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.classList.toggle("dark",d);}catch(e){}})();`;
+const THEME_BOOT = `(function(){try{var s=localStorage.getItem("nerto:theme");var d=s?s==="dark":matchMedia("(prefers-color-scheme: dark)").matches;document.documentElement.classList.toggle("dark",d);}catch(e){}})();`;
 
 export default function RootLayout({
   children,

@@ -8,9 +8,10 @@ import { site } from "@/lib/site";
 
 const BUDGETS = [
   { value: "", label: "Select a range" },
-  { value: "under-80k", label: "Under $80,000" },
-  { value: "80-140k", label: "$80,000 – $140,000" },
-  { value: "140-200k", label: "$140,000 – $200,000" },
+  { value: "under-50k", label: "Under $50,000" },
+  { value: "50-100k", label: "$50,000 – $100,000" },
+  { value: "100-150k", label: "$100,000 – $150,000" },
+  { value: "150-200k", label: "$150,000 – $200,000" },
   { value: "200k-plus", label: "$200,000+" },
 ];
 
@@ -73,7 +74,7 @@ export function ContactBand() {
       <div>
         <h3 className="text-xl font-semibold text-ink">Contact us</h3>
         <p className="mt-1 text-sm text-muted">
-          We&apos;ll get back to you within one working day.
+          We&apos;ll get back to you within 24 hours.
         </p>
       </div>
 

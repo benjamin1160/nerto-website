@@ -17,17 +17,17 @@
  * regenerating the county boundaries; see `scripts/generate-county-shapes.py`.
  */
 export const HQ = {
-  lat: 29.6516,
-  lon: -82.3248,
-  city: "Gainesville",
-  state: "FL",
+  lat: 44.2896,
+  lon: -69.7736,
+  city: "Chelsea",
+  state: "ME",
 } as const;
 
 /** Radius of the service area, in miles. */
 export const SERVICE_RADIUS_MI = 100;
 
 const MI_PER_DEG_LAT = 69.0;
-const MI_PER_DEG_LON = 69.172 * Math.cos((HQ.lat * Math.PI) / 180); // ≈ 60.11 at HQ
+const MI_PER_DEG_LON = 69.172 * Math.cos((HQ.lat * Math.PI) / 180); // ≈ 49.51 at HQ
 
 export type Point = { x: number; y: number };
 

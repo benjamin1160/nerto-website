@@ -118,8 +118,13 @@ export type OptionalPage =
  */
 export const pages: Record<OptionalPage, boolean> = {
   listings: true,
-  communities: true,
-  landDeals: true,
+  /* Off because `lib/communities.ts` is empty — NERTO publishes no
+     communities. Write real properties into that file, then turn this on. */
+  communities: false,
+  /* Off because `lib/land/areas.ts` carries no county pricing — NERTO
+     publishes none, and the page is nothing but priced counties. Price the
+     delivery radius, then turn this on. */
+  landDeals: false,
   startHere: true,
   financing: true,
   whyManufactured: true,

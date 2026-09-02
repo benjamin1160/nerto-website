@@ -20,14 +20,23 @@ import { HQ, SERVICE_RADIUS_MI } from "@/lib/land/geo";
 import { site } from "@/lib/site";
 import { pages } from "@/lib/page-config";
 
-const CHEAPEST_LAND = [...AREAS].sort((a, b) => a.land.low - b.land.low)[0];
-const DEAREST_LAND = Math.max(...AREAS.map((a) => a.land.high));
+/* Every figure on this page comes from `lib/land/areas.ts`, which is empty
+   until the delivery radius is priced — so each one is optional here and the
+   sentence around it changes rather than printing a hole. The route itself is
+   switched off while that is true, but these constants evaluate at import,
+   so they have to survive it. */
+const CHEAPEST_LAND = [...AREAS].sort((a, b) => a.land.low - b.land.low)[0] as
+  | (typeof AREAS)[number]
+  | undefined;
+const DEAREST_LAND = AREAS.length ? Math.max(...AREAS.map((a) => a.land.high)) : undefined;
 
 export const metadata: Metadata = {
   title: `Land + home prices near ${HQ.city}, county by county`,
-  description: `What it takes to get into a home on land you own, in ${AREAS.length} counties within ${SERVICE_RADIUS_MI} miles of ${HQ.city}. Land and home financed as one loan, from ${money(
-    CHEAPEST.startingPayment,
-  )}/mo in ${CHEAPEST.county} County.`,
+  description: CHEAPEST
+    ? `What it takes to get into a home on land you own, in ${AREAS.length} counties within ${SERVICE_RADIUS_MI} miles of ${HQ.city}. Land and home financed as one loan, from ${money(
+        CHEAPEST.startingPayment,
+      )}/mo in ${CHEAPEST.county} County.`
+    : `What it takes to get into a home on land you own, within ${SERVICE_RADIUS_MI} miles of ${HQ.city}.`,
   alternates: { canonical: "/land-deals" },
 };
 
@@ -94,11 +103,14 @@ const FAQ = [
   },
   {
     title: "What does the land itself cost out there?",
-    body: `It swings hard by county. Buildable lots start around ${shortMoney(
-      CHEAPEST_LAND.land.low,
-    )} in ${CHEAPEST_LAND.county} County and run past ${shortMoney(
-      DEAREST_LAND,
-    )} at the top of the map. Every county card above shows its own range.`,
+    body:
+      CHEAPEST_LAND && DEAREST_LAND
+        ? `It swings hard by county. Buildable lots start around ${shortMoney(
+            CHEAPEST_LAND.land.low,
+          )} in ${CHEAPEST_LAND.county} County and run past ${shortMoney(
+            DEAREST_LAND,
+          )} at the top of the map. Every county card above shows its own range.`
+        : "It swings hard by county, and by what is on the lot already. Send us the parcel you are looking at and we will tell you what the ground is worth and what it will cost to make it buildable.",
   },
   {
     title: "How long does the whole thing take?",
@@ -118,7 +130,9 @@ const jsonLd = {
       "@type": "LocalBusiness",
       "@id": `${site.url}#business`,
       name: site.name,
-      description: `Land and home packages financed as one loan across ${AREAS.length} counties within ${SERVICE_RADIUS_MI} miles of ${HQ.city}.`,
+      description: `Land and home packages financed as one loan${
+        AREAS.length ? ` across ${AREAS.length} counties` : ""
+      } within ${SERVICE_RADIUS_MI} miles of ${HQ.city}.`,
       url: `${site.url}/land-deals`,
       telephone: site.phone,
       email: site.email,
@@ -178,7 +192,9 @@ export default function LandDealsPage() {
       <section className="pb-16 pt-12 sm:pt-16">
         <Container>
           <Eyebrow index="01">
-            {HQ.city}, {HQ.state} · {AREAS.length} counties · {SERVICE_RADIUS_MI}-mile radius
+            {HQ.city}, {HQ.state}
+            {AREAS.length > 0 && ` · ${AREAS.length} counties`} · {SERVICE_RADIUS_MI}-mile
+            radius
           </Eyebrow>
 
           <div className="mt-6 grid gap-x-14 gap-y-8 lg:grid-cols-[1.05fr_1fr] lg:items-end">
@@ -189,9 +205,19 @@ export default function LandDealsPage() {
             <div>
               <p className="text-lg leading-relaxed text-muted text-pretty">
                 No land yet? Fine. Tap any county and that number is what it takes to get in
-                there, <span className="text-ink">land payment included</span> — from{" "}
-                <span className="font-mono text-ink">{money(CHEAPEST.startingPayment)}/mo</span>{" "}
-                in {CHEAPEST.county} County.
+                there, <span className="text-ink">land payment included</span>
+                {CHEAPEST ? (
+                  <>
+                    {" "}
+                    — from{" "}
+                    <span className="font-mono text-ink">
+                      {money(CHEAPEST.startingPayment)}/mo
+                    </span>{" "}
+                    in {CHEAPEST.county} County.
+                  </>
+                ) : (
+                  "."
+                )}
               </p>
 
               <div className="mt-7 flex flex-col gap-3 sm:flex-row">
@@ -363,14 +389,27 @@ export default function LandDealsPage() {
 
       {/* ── Closing ── */}
       <Section className="border-t border-line bg-surface text-center">
-        <h2 className="mx-auto max-w-4xl font-display text-headline text-balance text-ink">
-          The cheapest way in right now is {money(BY_PRICE[0].startingPayment)}/mo in{" "}
-          {BY_PRICE[0].county} County
-        </h2>
-        <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted">
-          Land and home, one loan, {BY_PRICE[0].miles} miles from {HQ.city}. Find out what you
-          qualify for before somebody else buys the lot.
-        </p>
+        {BY_PRICE[0] ? (
+          <>
+            <h2 className="mx-auto max-w-4xl font-display text-headline text-balance text-ink">
+              The cheapest way in right now is {money(BY_PRICE[0].startingPayment)}/mo in{" "}
+              {BY_PRICE[0].county} County
+            </h2>
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted">
+              Land and home, one loan, {BY_PRICE[0].miles} miles from {HQ.city}. Find out what
+              you qualify for before somebody else buys the lot.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="mx-auto max-w-4xl font-display text-headline text-balance text-ink">
+              Land and home, one loan
+            </h2>
+            <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-muted">
+              Find out what you qualify for before somebody else buys the lot.
+            </p>
+          </>
+        )}
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
           <ButtonLink href="#pre-approval">Get pre-approved</ButtonLink>
           <ButtonLink href="/listings" variant="outline">

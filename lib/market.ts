@@ -18,7 +18,7 @@
  */
 export type Market = {
   /** Counties the dealership actually sells into, for USDA and permitting copy. */
-  /** What people here call the area — "East Tennessee", "Central Maine".
+  /** What people here call the area — "Central Maine", "the Midcoast".
       Used in the headline. Absent, the headline says the state instead. */
   regionName?: string;
   countiesServed?: string[];
@@ -42,18 +42,28 @@ export type Market = {
 };
 
 export const market: Market = {
-  regionName: "East Tennessee",
-  countiesServed: ["Blount", "Knox", "Loudon", "Sevier"],
+  regionName: "Central Maine",
+  /* The towns NERTO names on its own site are Chelsea, Augusta and Portland,
+     which is Kennebec and Cumberland. Rent-to-own buildings go further —
+     "throughout New England" — but that is a different product from a home
+     on a lot, so it does not widen this list. Add a county here only when
+     the business says it delivers homes there. */
+  countiesServed: ["Kennebec", "Cumberland"],
+  /* Inland Maine is HUD Wind Zone I; only the coast reaches Zone II. */
   windZone: "I",
-  thermalZone: 2,
+  /* Maine is the coldest HUD insulation zone, which is why an envelope
+     specified for a southern market is the wrong home to buy here. */
+  thermalZone: 3,
   realPropertyConversion:
-    "Tennessee retires the vehicle title and the home becomes part of the realty once it is permanently affixed and the affidavit of affixation is recorded with the register of deeds.",
+    "Maine issues a manufactured home its own certificate of title. Once the home is permanently affixed to land the owner also owns, that title is cancelled and the home is conveyed with the real estate — which is the step that makes a mortgage, rather than a chattel loan, possible.",
   usdaNote:
-    "Much of Blount and Knox county outside the city limits sits inside USDA-eligible tracts, and the map surprises people. Worth ten minutes with it before you assume you don't qualify — note that it applies to land you own, not a leased pad.",
-  frostDepthInches: 12,
+    "Most of Kennebec County outside the Augusta and Gardiner city limits sits inside USDA-eligible tracts, and so does a great deal of the ground between here and the coast. It is worth ten minutes with the eligibility map before you assume you do not qualify — and note it applies to land you own, not a leased pad.",
+  /* Central Maine builds to a 48-inch frost line; the northern counties go
+     deeper. Confirm with the code officer for the town you are setting in. */
+  frostDepthInches: 48,
 };
 
-/** "Blount, Knox and Loudon" — for prose that lists the service area. */
+/** "Kennebec and Cumberland" — for prose that lists the service area. */
 export function countyList(): string | undefined {
   const c = market.countiesServed;
   if (!c || c.length === 0) return undefined;

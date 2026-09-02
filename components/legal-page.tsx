@@ -15,7 +15,7 @@ const TOKENS: Record<string, string | undefined> = {
   "{name}": site.name,
   "{email}": site.email,
   "{phone}": site.phone,
-  "{state}": site.address.region,
+  "{state}": site.stateName,
 };
 
 /** Substitutes the business's own details. A clause whose token has no value
