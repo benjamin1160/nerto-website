@@ -8,15 +8,16 @@ import { ListingCard, ListingRow } from "./listing-card";
 import { buttonStyles, cx, Icon } from "./ui";
 import { money } from "@/lib/format";
 import {
+  constructionLabels,
+  constructionOrder,
   hasPrices,
   priceBounds,
   sectionLabels,
-  seriesList,
+  sectionsOrder,
   sizeCategoryOf,
   styleLabels,
-  type ArchStyle,
+  styleOrder,
   type Listing,
-  type Sections,
   type SizeCategory,
 } from "@/lib/homes";
 
@@ -33,10 +34,7 @@ type SortId = (typeof ALL_SORTS)[number]["id"];
 /* Sorting and filtering by price only make sense once something is priced. */
 const SORTS = ALL_SORTS.filter((s) => hasPrices || !s.id.startsWith("price"));
 
-const SERIES = seriesList;
-const SECTIONS: Sections[] = ["single", "double", "triple"];
 const SIZES: SizeCategory[] = ["tiny", "single", "double", "triple", "modular"];
-const STYLES = Object.keys(styleLabels) as ArchStyle[];
 
 const STEP = 2500;
 const FLOOR = hasPrices ? Math.floor(priceBounds.min / STEP) * STEP : 0;
@@ -46,6 +44,8 @@ type Filters = {
   q: string;
   /** The primary facet: tiny / single / double / triple. Null is "any". */
   size: SizeCategory | null;
+  /** How it is built — manufactured or modular. A `construction` value. */
+  types: string[];
   series: string[];
   sections: string[];
   styles: string[];
@@ -60,6 +60,7 @@ type Filters = {
 const EMPTY: Filters = {
   q: "",
   size: null,
+  types: [],
   series: [],
   sections: [],
   styles: [],
@@ -84,6 +85,7 @@ function fromParams(params: URLSearchParams): Filters {
     size: SIZES.includes(params.get("size") as SizeCategory)
       ? (params.get("size") as SizeCategory)
       : null,
+    types: list("type"),
     series: list("series"),
     sections: list("sections"),
     styles: list("style"),
@@ -100,6 +102,7 @@ function toParams(f: Filters): string {
   const p = new URLSearchParams();
   if (f.q) p.set("q", f.q);
   if (f.size) p.set("size", f.size);
+  if (f.types.length) p.set("type", f.types.join(","));
   if (f.series.length) p.set("series", f.series.join(","));
   if (f.sections.length) p.set("sections", f.sections.join(","));
   if (f.styles.length) p.set("style", f.styles.join(","));
@@ -116,6 +119,7 @@ function activeCount(f: Filters) {
   return (
     (f.q ? 1 : 0) +
     (f.size ? 1 : 0) +
+    f.types.length +
     f.series.length +
     f.sections.length +
     f.styles.length +
@@ -126,10 +130,80 @@ function activeCount(f: Filters) {
   );
 }
 
-function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+/** The multi-select facets, each of which can be lifted out when counting. */
+type FacetId = "types" | "series" | "sections" | "styles";
+
+/**
+ * Whether a home survives the filters.
+ *
+ * `except` lifts one facet out. That is what makes the count on each pill
+ * mean "how many homes you would get if you pressed this" rather than "how
+ * many there are in the whole catalogue" — a facet is counted against every
+ * other filter but not against itself, so pressing a second value inside one
+ * group widens the result the way the numbers say it will.
+ */
+function matches(l: Listing, f: Filters, except?: FacetId): boolean {
+  if (f.availableOnly && l.status !== "available") return false;
+  if (f.size && sizeCategoryOf(l) !== f.size) return false;
+  if (except !== "types" && f.types.length && !(l.construction && f.types.includes(l.construction)))
+    return false;
+  if (except !== "series" && f.series.length && !(l.series && f.series.includes(l.series)))
+    return false;
+  if (except !== "sections" && f.sections.length && !(l.sections && f.sections.includes(l.sections)))
+    return false;
+  if (except !== "styles" && f.styles.length && !(l.style && f.styles.includes(l.style)))
+    return false;
+  if (l.beds < f.beds) return false;
+  if (l.baths < f.baths) return false;
+  /* A home with no published price is not excluded by the price range — it
+     has no price to fall outside it. */
+  if (l.price !== undefined && (l.price < f.min || l.price > f.max)) return false;
+  const q = f.q.trim().toLowerCase();
+  if (q) {
+    const hay = [l.name, l.series, l.model, l.tagline, l.style && styleLabels[l.style]]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+    if (!hay.includes(q)) return false;
+  }
+  return true;
+}
+
+type Facet = { value: string; label: string };
+
+/**
+ * The options in one group, in the given order, minus the values no home in
+ * the catalogue carries.
+ *
+ * A pill nothing can match is worse than no pill: it reads as a working
+ * filter, and pressing it empties the page. This lot has no triple-section
+ * plans and only two of the six architectural styles, so five of the nine
+ * pills at the foot of the rail did nothing but that.
+ */
+function facetsPresent<T extends string>(
+  from: Listing[],
+  pick: (l: Listing) => T | undefined,
+  order: readonly T[],
+  label: (v: T) => string,
+): Facet[] {
+  const present = new Set(from.map(pick).filter(Boolean) as T[]);
+  return order.filter((v) => present.has(v)).map((v) => ({ value: v, label: label(v) }));
+}
+
+function FilterGroup({
+  title,
+  hint,
+  children,
+}: {
+  title: string;
+  /** One short line under the title, where the group needs a caveat. */
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="border-t border-line py-6 first:border-t-0 first:pt-0">
       <h3 className="eyebrow">{title}</h3>
+      {hint && <p className="mt-1.5 text-[0.76rem] leading-snug text-muted">{hint}</p>}
       <div className="mt-4">{children}</div>
     </div>
   );
@@ -137,26 +211,42 @@ function FilterGroup({ title, children }: { title: string; children: React.React
 
 function Pill({
   active,
+  count,
   onClick,
   children,
 }: {
   active: boolean;
+  /** How many homes this pill would leave. Omitted where it means nothing. */
+  count?: number;
   onClick: () => void;
   children: React.ReactNode;
 }) {
+  /* Nothing to select. It stays on the page — losing a pill as you filter is
+     disorienting — but it says zero and cannot be pressed. */
+  const dead = count === 0 && !active;
   return (
     <button
       type="button"
       onClick={onClick}
+      disabled={dead}
       aria-pressed={active}
       className={cx(
-        "rounded-full border px-3.5 py-1.5 text-[0.8rem] transition-all duration-200",
+        "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[0.8rem] transition-all duration-200",
         active
           ? "border-ink bg-ink text-paper"
-          : "border-line-strong text-ink-soft hover:border-ink hover:text-ink",
+          : dead
+            ? "cursor-not-allowed border-line text-muted opacity-55"
+            : "border-line-strong text-ink-soft hover:border-ink hover:text-ink",
       )}
     >
       {children}
+      {count !== undefined && (
+        <span
+          className={cx("font-mono text-[0.68rem]", active ? "text-paper/70" : "text-muted")}
+        >
+          {count}
+        </span>
+      )}
     </button>
   );
 }
@@ -185,38 +275,77 @@ export function ListingsBrowser({ listings }: { listings: Listing[] }) {
   const set = <K extends keyof Filters>(key: K, value: Filters[K]) =>
     setFilters((f) => ({ ...f, [key]: value }));
 
-  const toggleIn = (key: "series" | "sections" | "styles", value: string) =>
+  const toggleIn = (key: FacetId, value: string) =>
     setFilters((f) => ({
       ...f,
       [key]: f[key].includes(value) ? f[key].filter((v) => v !== value) : [...f[key], value],
     }));
 
-  const results = useMemo(() => {
-    const q = filters.q.trim().toLowerCase();
+  /* The options each group offers, taken from the catalogue rather than from
+     the type — see `facetsPresent`. */
+  const facets = useMemo(
+    () => ({
+      types: facetsPresent(
+        listings,
+        (l) => l.construction,
+        constructionOrder,
+        (v) => constructionLabels[v],
+      ),
+      series: facetsPresent(
+        listings,
+        (l) => l.series,
+        [...new Set(listings.map((l) => l.series).filter(Boolean) as string[])].sort(),
+        (v) => v,
+      ),
+      sections: facetsPresent(
+        listings,
+        (l) => l.sections,
+        sectionsOrder,
+        (v) => sectionLabels[v].replace("-section", ""),
+      ),
+      styles: facetsPresent(listings, (l) => l.style, styleOrder, (v) => styleLabels[v]),
+    }),
+    [listings],
+  );
 
-    const filtered = listings.filter((l) => {
-      if (filters.availableOnly && l.status !== "available") return false;
-      if (filters.size && sizeCategoryOf(l) !== filters.size) return false;
-      if (filters.series.length && !(l.series && filters.series.includes(l.series))) return false;
-      if (filters.sections.length && !(l.sections && filters.sections.includes(l.sections)))
-        return false;
-      if (filters.styles.length && !(l.style && filters.styles.includes(l.style))) return false;
-      if (l.beds < filters.beds) return false;
-      if (l.baths < filters.baths) return false;
-      /* A home with no published price is not excluded by the price range —
-         it has no price to fall outside it. */
-      if (l.price !== undefined && (l.price < filters.min || l.price > filters.max)) return false;
-      if (q) {
-        const hay = [l.name, l.series, l.model, l.tagline, l.style && styleLabels[l.style]]
-          .filter(Boolean)
-          .join(" ")
-          .toLowerCase();
-        if (!hay.includes(q)) return false;
+  /* Two of these groups filter on a field not every plan carries — the
+     modulars publish no section count, and only some plans are filed by
+     style. Say so under the title rather than letting the numbers look
+     broken. */
+  const [sectionsHint, stylesHint] = useMemo(() => {
+    const outside = (missing: number, what: string) =>
+      missing === 0
+        ? undefined
+        : `${missing} plan${missing === 1 ? "" : "s"} in the catalogue ${
+            missing === 1 ? "has" : "have"
+          } no ${what} and ${missing === 1 ? "sits" : "sit"} outside this filter.`;
+    return [
+      outside(listings.filter((l) => !l.sections).length, "published section count"),
+      outside(listings.filter((l) => !l.style).length, "style on file"),
+    ];
+  }, [listings]);
+
+  /* How many homes sit behind each pill, given everything else selected. */
+  const counts = useMemo(() => {
+    const tally = (facet: FacetId, pick: (l: Listing) => string | undefined) => {
+      const out = new Map<string, number>();
+      for (const l of listings) {
+        const value = pick(l);
+        if (!value || !matches(l, filters, facet)) continue;
+        out.set(value, (out.get(value) ?? 0) + 1);
       }
-      return true;
-    });
+      return out;
+    };
+    return {
+      types: tally("types", (l) => l.construction),
+      series: tally("series", (l) => l.series),
+      sections: tally("sections", (l) => l.sections),
+      styles: tally("styles", (l) => l.style),
+    };
+  }, [listings, filters]);
 
-    const order = [...filtered];
+  const results = useMemo(() => {
+    const order = listings.filter((l) => matches(l, filters));
     /* Unknowns sort last in every order rather than sorting as zero, which
        would float unpriced homes to the top of "price: low to high". */
     const byPrice = (dir: 1 | -1) => (a: Listing, b: Listing) => {
@@ -315,6 +444,26 @@ export function ListingsBrowser({ listings }: { listings: Listing[] }) {
       </FilterGroup>
       )}
 
+      {facets.types.length > 1 && (
+        <FilterGroup
+          title="Home type"
+          hint="How it is built and inspected — not how wide it is. Modulars are built to the same state code as a site-built house."
+        >
+          <div className="flex flex-wrap gap-2">
+            {facets.types.map((t) => (
+              <Pill
+                key={t.value}
+                active={filters.types.includes(t.value)}
+                count={counts.types.get(t.value) ?? 0}
+                onClick={() => toggleIn("types", t.value)}
+              >
+                {t.label}
+              </Pill>
+            ))}
+          </div>
+        </FilterGroup>
+      )}
+
       <FilterGroup title="Bedrooms">
         <div className="flex flex-wrap gap-2">
           {[0, 2, 3, 4].map((n) => (
@@ -335,41 +484,56 @@ export function ListingsBrowser({ listings }: { listings: Listing[] }) {
         </div>
       </FilterGroup>
 
-      {SERIES.length > 0 && (
-      <FilterGroup title="Series">
-        <div className="flex flex-wrap gap-2">
-          {SERIES.map((s) => (
-            <Pill key={s} active={filters.series.includes(s)} onClick={() => toggleIn("series", s)}>
-              {s}
-            </Pill>
-          ))}
-        </div>
-      </FilterGroup>
+      {facets.series.length > 1 && (
+        <FilterGroup title="Series">
+          <div className="flex flex-wrap gap-2">
+            {facets.series.map((f) => (
+              <Pill
+                key={f.value}
+                active={filters.series.includes(f.value)}
+                count={counts.series.get(f.value) ?? 0}
+                onClick={() => toggleIn("series", f.value)}
+              >
+                {f.label}
+              </Pill>
+            ))}
+          </div>
+        </FilterGroup>
       )}
 
-      <FilterGroup title="Sections">
-        <div className="flex flex-wrap gap-2">
-          {SECTIONS.map((s) => (
-            <Pill
-              key={s}
-              active={filters.sections.includes(s)}
-              onClick={() => toggleIn("sections", s)}
-            >
-              {sectionLabels[s].replace("-section", "")}
-            </Pill>
-          ))}
-        </div>
-      </FilterGroup>
+      {facets.sections.length > 1 && (
+        <FilterGroup title="Sections" hint={sectionsHint}>
+          <div className="flex flex-wrap gap-2">
+            {facets.sections.map((f) => (
+              <Pill
+                key={f.value}
+                active={filters.sections.includes(f.value)}
+                count={counts.sections.get(f.value) ?? 0}
+                onClick={() => toggleIn("sections", f.value)}
+              >
+                {f.label}
+              </Pill>
+            ))}
+          </div>
+        </FilterGroup>
+      )}
 
-      <FilterGroup title="Style">
-        <div className="flex flex-wrap gap-2">
-          {STYLES.map((s) => (
-            <Pill key={s} active={filters.styles.includes(s)} onClick={() => toggleIn("styles", s)}>
-              {styleLabels[s]}
-            </Pill>
-          ))}
-        </div>
-      </FilterGroup>
+      {facets.styles.length > 1 && (
+        <FilterGroup title="Style" hint={stylesHint}>
+          <div className="flex flex-wrap gap-2">
+            {facets.styles.map((f) => (
+              <Pill
+                key={f.value}
+                active={filters.styles.includes(f.value)}
+                count={counts.styles.get(f.value) ?? 0}
+                onClick={() => toggleIn("styles", f.value)}
+              >
+                {f.label}
+              </Pill>
+            ))}
+          </div>
+        </FilterGroup>
+      )}
 
       <FilterGroup title="Availability">
         <label className="flex cursor-pointer items-center gap-3 text-sm text-ink-soft">
