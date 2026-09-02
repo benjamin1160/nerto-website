@@ -11,9 +11,11 @@ change; routes derive from the data and should rarely be edited directly.
 
 ```
 lib/homes.ts        The catalogue. Prices, specs, copy, features, scenes.
-                    Currently EMPTY: NERTO publishes no inventory, so
-                    `/listings` reads honestly at zero and the landing
-                    page's listings band hides itself.
+                    Twenty real, sourced manufacturer plans, no prices —
+                    every one carries the `sourceUrl` it was read from.
+                    They are Clayton-built; confirm NERTO's own line-up
+                    and swap what it does not order. Empty the array and
+                    the whole site reads honestly at zero instead.
 lib/floor-plans.ts  Room geometry in feet. Rooms must tile the footprint.
 lib/communities.ts  Communities, tenure, lot rents, amenities. Currently
                     EMPTY, and `/communities` is switched off to match.

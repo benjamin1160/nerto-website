@@ -6,6 +6,9 @@ import { Icon } from "./ui";
  * Stateless by design: the inline boot script in app/layout.tsx owns the
  * `dark` class, and CSS decides which icon shows. Nothing to hydrate, so
  * there is no flash and no mismatch.
+ *
+ * The site defaults to light whatever the reader's system is set to, so this
+ * is the only way into dark, and the choice is remembered from here on.
  */
 export function ThemeToggle({ className }: { className?: string }) {
   function toggle() {

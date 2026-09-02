@@ -8,13 +8,15 @@ scale floor plans, a financing calculator that tells the truth about chattel
 loans, and an editorial content layer built to dismantle the "trailer park"
 stereotype rather than tiptoe around it.
 
-Two things ship deliberately empty, because NERTO publishes neither and a
-listing or a community is a claim about something real:
+`lib/homes.ts` carries twenty real, published plans, browsed by size —
+tiny, single, double, triple. Each names its `sourceUrl`, none carries a
+price, and they are Clayton-built rather than confirmed against NERTO's own
+line-up: check which of them the business actually orders before quoting
+anybody. Empty the array and the whole site reads honestly at zero — the
+listings band, the size buttons and `/listings` all handle it.
 
-- **`lib/homes.ts`** — no inventory. `/listings` says so plainly, and the
-  landing page's listings band and the size buttons hide themselves.
-- **`lib/communities.ts`** — no communities, so `/communities` is switched
-  off in `lib/page-config.ts`.
+`lib/communities.ts` ships empty, because NERTO publishes no communities, so
+`/communities` is switched off in `lib/page-config.ts`.
 
 `/land-deals` is switched off for the same reason: it is nothing but priced
 counties, and `lib/land/areas.ts` carries none. The geography under it is
