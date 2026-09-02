@@ -57,6 +57,54 @@ header, the drawer, the footer and the sitemap together.
 
 ## Homes
 
+The catalogue is every plan Pine Grove Homes and Pleasant Valley Homes
+publish — 348 of them, imported straight from the manufacturers' own sites,
+so every spec on this site can be checked against the page it came from.
+Almost all of them read "Available to order", because that is what they are:
+homes NERTO builds for you. The four standing on River Road read "On our
+lot".
+
+> The G-3465 on the lot is the standard one, not the NETR. Fix it.
+
+> We have taken delivery of a second G-3002. Put it on the lot too.
+
+> Mark ZK-1100 as sale pending.
+
+> Pine Grove has added new plans. Re-import the catalogue.
+
+> We have stopped carrying the Pleasant Valley ADUs. Drop them.
+
+If a spec looks wrong, say so and it gets checked against the manufacturer's
+own page rather than patched — if their sheet says something different, the
+importer is fixed so the correction survives the next re-import.
+
+## Past projects
+
+Homes NERTO has actually delivered and set, as against plans it could build.
+This is the evidence behind the turnkey claim, and it ships empty — nothing
+appears until there is something real to show.
+
+> Here are photos from the Windsor job. Make it a project: 2025, we found the
+> land, pulled the permits, did the septic and the foundation, set a NETR
+> G-3157. Write it up.
+
+> Add the Litchfield project and quote the Hargreaves on it.
+
+> Put past projects in the main header, not the drawer.
+
+## Videos
+
+The explainers — how the process works, construction loan versus end loan,
+what site work involves. Also ships empty. YouTube and Vimeo links both work,
+and nothing loads from either until a visitor presses play.
+
+> Add these four YouTube videos. The first two are about our process, the
+> third is construction loans versus the end loan, the fourth is site work.
+
+> Turn the videos page on and put it in the header.
+
+## Prices and copy
+
 > Drop The Alder to $179,900 and show the old price struck through.
 
 > Mark The Juniper as sale pending.

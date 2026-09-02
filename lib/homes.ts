@@ -1,7 +1,29 @@
 import { floorPlans, type FloorPlan } from "./floor-plans";
+import { catalogue } from "./catalogue.generated";
 
-export type ListingStatus = "available" | "pending" | "sold" | "coming-soon";
+export type ListingStatus =
+  | "available"
+  | "to-order"
+  | "pending"
+  | "sold"
+  | "coming-soon";
 export type Sections = "single" | "double" | "triple";
+
+/**
+ * How the home is built and inspected, which is a different question from how
+ * wide it is.
+ *
+ * `manufactured` is HUD-code — built to the federal standard, titled and
+ * financed as such. `modular` is built to the same state and local building
+ * code as a site-built house, inspected by the state, and appraised and
+ * titled as real property. NERTO retails both: Pine Grove builds the
+ * manufactured homes, Pleasant Valley the modulars.
+ *
+ * This drives its own bucket in the size categories below — "Mods" — because
+ * a buyer shopping for a modular is not shopping by width at all.
+ */
+export type Construction = "manufactured" | "modular";
+
 export type ArchStyle =
   | "farmhouse"
   | "craftsman"
@@ -40,7 +62,11 @@ export type Listing = {
   status: ListingStatus;
   scenes: Scene[];
 
-  /** Product line, e.g. "Elite". Free text — the facet list derives from it. */
+  /** Who builds it — "Pine Grove Homes", "Pleasant Valley Homes". */
+  builder?: string;
+  /** HUD-code or state-code. Drives the "Mods" bucket. */
+  construction?: Construction;
+  /** Product line, e.g. "NETR". Free text — the facet list derives from it. */
   series?: string;
   /** Manufacturer's model code. */
   model?: string;
@@ -49,9 +75,16 @@ export type Listing = {
   /** Optional pre-discount price; renders as a strikethrough. */
   wasPrice?: number;
   sections?: Sections;
-  /** Transport dimensions in feet, e.g. 28 × 60. */
+  /** Nominal transport dimensions in feet, e.g. 28 × 60. */
   widthFt?: number;
   lengthFt?: number;
+  /**
+   * The manufacturer's own dimension string, e.g. `26'8" × 52'`. Box
+   * dimensions run a few inches under the nominal width everyone says out
+   * loud — a 26'8" home is a 27-wide — so both are kept: this one is what the
+   * spec strip shows, `widthFt` is what the filters count.
+   */
+  dimensions?: string;
   year?: number;
   communitySlug?: string;
   style?: ArchStyle;
@@ -60,9 +93,21 @@ export type Listing = {
   highlights?: string[];
   features?: FeatureGroup[];
   planId?: keyof typeof floorPlans;
+  /**
+   * The manufacturer's floor-plan DRAWING, as an image under `public/`. It is
+   * a drawing and is labelled as one wherever it renders — it is never shown
+   * as a photograph and never fills a photograph's slot.
+   */
+  planImage?: string;
   /** HERS index — lower is better. A new stick-built home scores ~100. */
   hers?: number;
   featured?: boolean;
+  /**
+   * Standing on the lot on River Road, skirted and open to walk through.
+   * Everything else in the catalogue is a plan NERTO orders in, which is a
+   * different promise and gets a different badge.
+   */
+  onLot?: boolean;
   /** Days the listing has been on market, used for the "new" badge. */
   daysListed?: number;
   /** Matterport walkthrough. */
@@ -71,549 +116,76 @@ export type Listing = {
   sourceUrl?: string;
 };
 
-/** Shorthand for a listing's scene list. */
-const scenes = (...kinds: [SceneKind, string][]): Scene[] =>
-  kinds.map(([kind, caption]) => ({ kind, caption }));
+/**
+ * What the importer is allowed to write: the manufacturer's published facts
+ * and nothing else. Lot state — status, what is featured, what is standing on
+ * River Road — is decided by NERTO, lives in `lotState` below, and is applied
+ * over the generated file so re-running the import never overwrites it.
+ */
+export type CatalogueEntry = Omit<Listing, "status">;
 
 /* ------------------------------------------------------------------ *
- * The catalogue — twenty plans
+ * The catalogue
  *
- * Every home below is a real, published plan. Names, model codes, bedroom
- * and bathroom counts and square footages come from the manufacturer's or a
- * retailer's own sheet — `sourceUrl` on each listing is where it was read,
- * so any figure here can be checked against its source in one click.
+ * Every plan NERTO retails, imported from the two manufacturers it buys
+ * from, in `lib/catalogue.generated.ts`:
  *
- * READ THIS BEFORE QUOTING ANYBODY FROM IT. These are Clayton-built plans,
- * carried over from the template's own imported catalogue. NERTO's line-up
- * is its own — confirm which of these it actually orders, drop the ones it
- * does not, and add the ones it does. A listing is a claim that this
- * dealership can put this home on your land; it should only survive here if
- * that is true.
+ *   Pine Grove Homes — HUD-code manufactured homes, single-section through
+ *   double-section, plus the multi-family duplexes. The NETR line is the
+ *   northern-states specification, which is the one that matters in Maine.
  *
- * Widths, lengths and section counts are given only where the model code
- * carries them (Clayton codes read width-length-bedrooms, so TRU28563MH is
- * a 28 x 56 three-bedroom). Where a plan's dimensions were not published,
- * the fields are absent rather than derived.
+ *   Pleasant Valley Homes — state-code modulars. NERTO does not stock these:
+ *   every one is built to order, which is why they all carry `to-order`
+ *   below. The Lake Series is excluded on NERTO's instruction and is not in
+ *   the generated file at all.
  *
- * No prices: none are published uniformly and a dealer quotes on options,
- * delivery distance and site work, so the site says "call for pricing"
- * everywhere a price would go. Floor-plan geometry is likewise absent — the
- * drawings on this site are generated, and a generated layout for a real
- * plan would be wrong rather than merely missing.
+ * Do not edit the generated file. Re-import it with:
  *
- * `status`, `featured` and `daysListed` are lot state. Set them from what is
- * actually standing on River Road.
+ *   node scripts/import-manufacturers.mjs homes
+ *
+ * No prices: neither manufacturer publishes one, and a dealer quotes on
+ * options, delivery distance and site work, so the site says "call for
+ * pricing" everywhere a price would go.
  * ------------------------------------------------------------------ */
 
-export const listings: Listing[] = [
-  /* ---------------- Single-section ---------------- */
-  {
-    slug: "buttercup",
-    name: "Buttercup",
-    series: "TRU Mini",
-    model: "TRT12361PH",
-    beds: 1,
-    baths: 1,
-    sqft: 408,
-    sections: "single",
-    widthFt: 12,
-    lengthFt: 36,
-    status: "available",
-    style: "ranch",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/buttercup",
-    tagline: "Four hundred and eight square feet — the smallest home Clayton builds, and the smallest thing we can put on a pad.",
-    story: [
-      "The Buttercup is the first plan out of Clayton's TRU Mini collection, shown at Biloxi this spring: twelve feet by thirty-six, one bedroom, one bath, and nothing in it that a bigger home would have had to give up to get there.",
-      "Eight-foot flat ceilings are what keep 408 square feet from reading as a trailer. The finishes are the ones TRU puts in its full-size homes — Frigidaire appliances, DuraCraft cabinets, rolled-edge countertops — rather than a stripped-down mini spec.",
-      "It is a single section on a twelve-foot width, which means it hauls and sets where nothing else on this lot will: a narrow infill lot, a back corner of family land, a pad a community wrote off years ago.",
-    ],
-    highlights: [
-      "408 square feet — the smallest plan we can order",
-      "12 × 36 single section: sets where a 14-wide will not",
-      "Eight-foot flat ceilings throughout",
-      "Full-size TRU finishes, not a stripped mini spec",
-    ],
-    features: [
-      {
-        group: "Kitchen",
-        items: [
-          "Frigidaire appliance package",
-          "DuraCraft cabinets",
-          "Rolled-edge countertops",
-        ],
-      },
-      {
-        group: "Throughout",
-        items: [
-          "Eight-foot flat ceilings",
-          "Upgraded window casings",
-        ],
-      },
-    ],
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Living room"],
-      ["kitchen", "Kitchen"],
-      ["bedroom", "Bedroom"],
-      ["bath", "Bath"],
-    ),
-  },
-  {
-    slug: "elation",
-    name: "Elation",
-    series: "TRU",
-    model: "TRS14663AH",
-    beds: 3,
-    baths: 2,
-    sqft: 902,
-    sections: "single",
-    widthFt: 14,
-    lengthFt: 66,
-    status: "available",
-    featured: true,
-    style: "farmhouse",
-    sourceUrl: "https://owntru.com/models/trs14663ah/",
-    tagline: "Three bedrooms on a 14-foot section, which is the trick this plan is known for.",
-    story: [
-      "Nine hundred square feet that hold three bedrooms and two baths without any of them feeling like an afterthought — the living, kitchen and dining run as one open bay down the front of the home, and the sleeping rooms take the back third.",
-      "It is the plan we put in front of first-time buyers more often than any other, because it lands on a leased pad at a payment most people expect to hear for a one-bedroom apartment.",
-    ],
-    highlights: [
-      "Three bedrooms, two full baths",
-      "Open front living, kitchen and dining bay",
-      "14 × 66 — fits pads a 16-wide will not",
-      "Single-section delivery and set",
-    ],
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Open living bay"],
-      ["kitchen", "Kitchen"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Bath"],
-    ),
-  },
-  {
-    slug: "magellan",
-    name: "Magellan",
-    model: "30CEJ16723AH",
-    beds: 3,
-    baths: 2,
-    sqft: 1080,
-    sections: "single",
-    widthFt: 16,
-    lengthFt: 72,
-    status: "available",
-    style: "ranch",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/magellan",
-    tagline: "Three bedrooms and a full island kitchen inside a single sixteen-foot section.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "willow",
-    name: "Willow",
-    model: "37FRE16763CH",
-    beds: 3,
-    baths: 2,
-    sqft: 1140,
-    sections: "single",
-    widthFt: 16,
-    lengthFt: 76,
-    status: "available",
-    style: "farmhouse",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/willow",
-    tagline: "Sixteen by seventy-six, with a butcher-block island and a garden tub in the primary bath.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "anniversary-choice",
-    name: "Anniversary Choice",
-    series: "Anniversary",
-    model: "ANN16763CH",
-    beds: 3,
-    baths: 2,
-    sqft: 1140,
-    sections: "single",
-    widthFt: 16,
-    lengthFt: 76,
-    status: "available",
-    featured: true,
-    style: "farmhouse",
-    sourceUrl:
-      "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/anniversary-choice",
-    tagline: "The 16 × 76 that outsells almost everything else on this footprint, with the island kitchen.",
-    story: [
-      "If you have walked one manufactured home anywhere, it was probably this footprint. Sixteen by seventy-six, three bedrooms split with the primary at one end, a kitchen island in the middle of the home and the utility room off the back door.",
-      "The Choice is the layout worth walking twice — the island seats three, the pantry is a real cupboard rather than a shelf, and the primary bath takes the full width of the section.",
-    ],
-    highlights: [
-      "Split-bedroom layout — primary at the far end",
-      "Kitchen island with seating",
-      "Utility room at the rear entry",
-      "Single-section: one delivery, one set",
-    ],
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Living room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-    ),
-  },
+/**
+ * What is actually standing on River Road, and what NERTO wants surfaced.
+ *
+ * This is the one hand-maintained half of the catalogue, and the only place
+ * lot state is written. Anything not named here is a plan NERTO orders in,
+ * and defaults to `to-order` — "Available to order" — below.
+ *
+ * Keys are slugs in the generated catalogue. A key that matches no plan is
+ * caught by `npm run lint` (see `scripts/check-data.mjs`), so a model code
+ * that changes upstream fails loudly instead of silently dropping a home off
+ * the lot.
+ */
+const lotState: Record<string, Partial<Listing>> = {
+  /* The four homes open to walk through on the lot. */
+  "netr-g-3157": { status: "available", onLot: true, featured: true },
+  /* CHECK THIS ONE. NERTO named it as "3465", and Pine Grove publishes two
+     plans by that number: NETR G-3465 (the northern-states specification,
+     1,493 sq ft) and G-3465 (the standard one, 1,568 sq ft). The NETR is the
+     Maine build and matches the other NETR home on the lot, so it is the one
+     flagged here — but it is a claim about which house a visitor will find in
+     the yard, so confirm it and move this line to "g-3465" if it is wrong. */
+  "netr-g-3465": { status: "available", onLot: true, featured: true },
+  "zk-1100": { status: "available", onLot: true, featured: true },
+  "g-3002": { status: "available", onLot: true, featured: true },
+};
 
-  /* ---------------- Double-section ---------------- */
-  {
-    slug: "satisfaction",
-    name: "Satisfaction",
-    series: "TRU",
-    model: "TRU28483RH",
-    beds: 3,
-    baths: 2,
-    sqft: 1264,
-    sections: "double",
-    widthFt: 28,
-    lengthFt: 48,
-    status: "available",
-    style: "farmhouse",
-    sourceUrl: "https://owntru.com/models/tru28483rh/",
-    tagline: "Twelve hundred square feet, split bedrooms, and a pad that fits most community lots.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "franklin",
-    name: "Franklin",
-    model: "56INR28483AH",
-    beds: 3,
-    baths: 2,
-    sqft: 1280,
-    sections: "double",
-    widthFt: 28,
-    lengthFt: 48,
-    status: "available",
-    style: "ranch",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/franklin",
-    tagline: "The shortest double-section here — three bedrooms across twenty-eight by forty-eight feet.",
-    /* No exterior: Clayton publishes interiors only for this plan, so the
-       card leads on the great room rather than a drawing of the outside. */
-    scenes: scenes(
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "cook",
-    name: "Cook",
-    model: "43CEJ28523AH",
-    beds: 3,
-    baths: 2,
-    sqft: 1369,
-    sections: "double",
-    widthFt: 28,
-    lengthFt: 52,
-    status: "available",
-    featured: true,
-    style: "farmhouse",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/cook",
-    tagline: "An island kitchen open to the dining and living space, on a twenty-eight-foot box.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "breeze",
-    name: "The Breeze",
-    model: "SSR28563AH",
-    beds: 3,
-    baths: 2,
-    sqft: 1474,
-    sections: "double",
-    widthFt: 28,
-    lengthFt: 56,
-    status: "available",
-    featured: true,
-    style: "farmhouse",
-    sourceUrl: "https://www.claytonhomes.com/homes/25SSR28563AH/",
-    tagline: "Island kitchen, walk-in pantry, split bedrooms — the plan people come in asking for by name.",
-    story: [
-      "The Breeze has been on Clayton lots long enough that buyers arrive already knowing it. The draw is the middle of the home: an island big enough to work at from both sides, a pantry you walk into, and sight lines from the range straight through the great room to the front door.",
-      "Bedrooms two and three sit together at one end with the second bath between them, and the primary takes the other end on its own.",
-    ],
-    highlights: [
-      "Walk-in pantry off the island kitchen",
-      "Primary suite isolated at one end",
-      "Second bath between bedrooms two and three",
-      "Utility room on the rear entry",
-    ],
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-      ["porch", "Covered entry"],
-    ),
-  },
-  {
-    slug: "haven",
-    name: "Haven",
-    model: "38HZN28603AH",
-    beds: 3,
-    baths: 2,
-    sqft: 1580,
-    sections: "double",
-    widthFt: 28,
-    lengthFt: 60,
-    status: "available",
-    featured: true,
-    style: "craftsman",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/haven",
-    tagline: "A galley island kitchen running the length of the great room, with a buffet wall opposite.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "crockett",
-    name: "Crockett",
-    model: "45CEJ28683AH",
-    beds: 3,
-    baths: 2,
-    sqft: 1728,
-    sections: "double",
-    widthFt: 28,
-    lengthFt: 68,
-    status: "available",
-    style: "lodge",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/crockett",
-    tagline: "Twenty-eight by sixty-eight, with a stone fireplace wall and a walk-in island kitchen.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "pride",
-    name: "Pride",
-    series: "TRU",
-    model: "TRU28684RH",
-    beds: 4,
-    baths: 2,
-    sqft: 1791,
-    sections: "double",
-    widthFt: 28,
-    lengthFt: 68,
-    status: "available",
-    style: "ranch",
-    sourceUrl: "https://owntru.com/models/tru28684rh/",
-    tagline: "TRU's four-bedroom — the cheapest route to four rooms and two baths we can put on a pad.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "everett",
-    name: "Everett",
-    series: "NXT",
-    beds: 4,
-    baths: 3,
-    sqft: 1790,
-    sections: "double",
-    status: "available",
-    style: "modern",
-    sourceUrl: "https://www.braustin.com/shop/clayton-nxt-everett/",
-    tagline: "Four bedrooms and three full baths — the only plan here with a third bath under 1,800 square feet.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "el-sueno-breeze",
-    name: "El Sueno Breeze",
-    model: "38CLB28724CH",
-    beds: 4,
-    baths: 2,
-    sqft: 1896,
-    sections: "double",
-    widthFt: 28,
-    lengthFt: 72,
-    status: "available",
-    featured: true,
-    style: "modern",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/el-sueno-breeze",
-    tagline: "Four bedrooms, a linear fireplace and a dining room that seats eight without moving furniture.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "tinsley",
-    name: "The Tinsley",
-    series: "NXT",
-    beds: 4,
-    baths: 2,
-    sqft: 2128,
-    sections: "double",
-    status: "available",
-    style: "craftsman",
-    sourceUrl: "https://brigadiermh.com/home/nxt-tinsley/",
-    tagline: "Two thousand one hundred and twenty-eight square feet, and the largest plan on this list.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "double-maxx-elite-56",
-    name: "Double Maxx Elite 56",
-    series: "Double Maxx",
-    model: "VY32563E",
-    beds: 3,
-    baths: 2,
-    sqft: 1717,
-    sections: "double",
-    widthFt: 32,
-    lengthFt: 56,
-    status: "available",
-    style: "ranch",
-    sourceUrl: "https://www.mobilehomesdirect4less.com/clayton-double-wides/",
-    tagline: "Thirty-two feet across on a 56-foot length — width where a 28 spends length.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "double-maxx-elite-64",
-    name: "Double Maxx Elite 64",
-    series: "Double Maxx",
-    model: "VY32643E",
-    beds: 3,
-    baths: 2,
-    sqft: 1962,
-    sections: "double",
-    widthFt: 32,
-    lengthFt: 64,
-    status: "available",
-    style: "lodge",
-    sourceUrl: "https://www.mobilehomesdirect4less.com/clayton-double-wides/",
-    tagline: "Sold off the lot in March — the next one is orderable on a ten-week build slot.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "farm-4-flex-elite",
-    name: "Farm 4 Flex Elite",
-    model: "57FRM32724AH",
-    beds: 4,
-    baths: 3,
-    sqft: 2160,
-    sections: "double",
-    widthFt: 32,
-    lengthFt: 72,
-    status: "available",
-    featured: true,
-    style: "farmhouse",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/farm-4-flex-elite",
-    tagline: "Thirty-two feet across: four bedrooms, three full baths, and a freestanding tub in the primary.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bath", "Primary bath"],
-    ),
-  },
-  {
-    slug: "the-fusion-32b",
-    name: "The Fusion 32B",
-    model: "34FSN32764BH",
-    beds: 4,
-    baths: 2,
-    sqft: 2280,
-    sections: "double",
-    widthFt: 32,
-    lengthFt: 76,
-    status: "available",
-    style: "lodge",
-    sourceUrl: "https://www.claytonhomes.com/homes-for-sale/manufactured-homes/the-fusion-32b",
-    tagline: "The largest plan here — 2,280 square feet, with a beamed great room and a soaking tub.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Great room"],
-      ["kitchen", "Kitchen and island"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-    ),
-  },
+/**
+ * The catalogue as the site sees it: the manufacturers' published facts, with
+ * NERTO's lot state laid over the top.
+ */
+export const listings: Listing[] = catalogue.map((entry) => ({
+  ...entry,
+  /* A plan NERTO can order but does not stock. The four on the lot override
+     this from `lotState`. */
+  status: "to-order" as ListingStatus,
+  ...lotState[entry.slug],
+}));
 
-  /* ---------------- CrossMod ---------------- */
-  {
-    slug: "cypress",
-    name: "The Cypress",
-    series: "CrossMod",
-    beds: 2,
-    baths: 2,
-    sqft: 990,
-    status: "available",
-    style: "coastal",
-    sourceUrl: "https://www.claytonbuilt.com/crossmod",
-    tagline: "A CrossMod at 990 square feet — small enough for an infill lot, titled as real property.",
-    scenes: scenes(
-      ["exterior", "Front elevation"],
-      ["living", "Living room"],
-      ["kitchen", "Kitchen"],
-      ["bedroom", "Primary bedroom"],
-      ["bath", "Primary bath"],
-      ["porch", "Covered porch"],
-    ),
-  },
-];
 
 /* ------------------------------------------------------------------ *
  * Accessors
@@ -649,6 +221,11 @@ export function relatedListings(listing: Listing, count = 3): Listing[] {
 
 export const statusLabels: Record<ListingStatus, string> = {
   available: "Available",
+  /* The catalogue's default. NERTO stocks four homes and orders the rest, so
+     "available to order" is the honest word for almost every plan on the
+     site — it is a home the dealership can build for you, not one standing
+     on the lot today. */
+  "to-order": "Available to order",
   pending: "Sale pending",
   sold: "Sold",
   "coming-soon": "Coming soon",
@@ -661,13 +238,18 @@ export const sectionLabels: Record<Sections, string> = {
 };
 
 /**
- * A series rendered as a label. Most Clayton lines are named for the series
- * alone — "TRU", "NXT" — and read as "TRU Series". The ones whose own name
- * already carries that noun, like the Patriot Collection, are left as they
- * are rather than doubled into "Patriot Collection Series".
+ * Series whose name is a bare product code and wants the noun after it —
+ * "NETR" reads as a typo, "NETR Series" reads as a line. Everything else in
+ * this catalogue is already a phrase a buyer would say out loud ("Main
+ * Street", "Single-Section", "Cabin/Chalet") and is left alone: "Single-
+ * Section Series" is worse English than "Single-Section".
  */
+const SERIES_TAKING_SUFFIX = new Set(["NETR"]);
+
+/** A series rendered as a label. */
 export function seriesLabel(series: string): string {
-  return /\b(series|collection)$/i.test(series) ? series : `${series} Series`;
+  if (/\b(series|collection)$/i.test(series)) return series;
+  return SERIES_TAKING_SUFFIX.has(series) ? `${series} Series` : series;
 }
 
 export const styleLabels: Record<ArchStyle, string> = {
@@ -699,7 +281,7 @@ export const priceBounds = {
  * ------------------------------------------------------------------ */
 
 /**
- * The four buckets a buyer actually shops by — tiny, single, double, triple.
+ * The buckets a buyer actually shops by — tiny, single, double, triple, mods.
  *
  * A note on how these are decided, because it matters. The obvious approach
  * is to sort purely on square footage, and plenty of dealership sites do
@@ -711,9 +293,16 @@ export const priceBounds = {
  * fallback for a home whose `sections` was never filled in. The footprint
  * ranges shown under each label are computed from the homes really in that
  * bucket rather than being printed from a table, so they cannot drift away
- * from the catalogue either.
+ * from the catalogue.
+ *
+ * `modular` is the exception, and deliberately so: it is checked before any
+ * width or footprint rule, because a modular is not a width at all. It is a
+ * different code, a different inspection and a different appraisal, and a
+ * buyer shopping for one is not comparing it to a 28-wide. Pleasant Valley's
+ * plans land here whatever their footprint, which is what keeps the
+ * double-section manufactured homes together under "Double wide".
  */
-export type SizeCategory = "tiny" | "single" | "double" | "triple";
+export type SizeCategory = "tiny" | "single" | "double" | "triple" | "modular";
 
 /** Anything under this is a tiny home whatever its section count. */
 const TINY_MAX_SQFT = 800;
@@ -726,6 +315,8 @@ const SQFT_FALLBACK: [number, SizeCategory][] = [
 ];
 
 export function sizeCategoryOf(listing: Listing): SizeCategory {
+  /* Before everything else: a modular is a build standard, not a width. */
+  if (listing.construction === "modular") return "modular";
   if (listing.sqft < TINY_MAX_SQFT) return "tiny";
   if (listing.sections) return listing.sections;
   const match = SQFT_FALLBACK.find(([ceiling]) => listing.sqft < ceiling);
@@ -737,6 +328,17 @@ export const sizeCategoryLabels: Record<SizeCategory, string> = {
   single: "Single wide",
   double: "Double wide",
   triple: "Triple wide",
+  modular: "Mods",
+};
+
+/** The longer label, for the page heading a bucket links to. */
+export const sizeCategoryDescriptions: Record<SizeCategory, string> = {
+  tiny: "Under 800 square feet, on one section.",
+  single: "One section, delivered whole and set on your site.",
+  double: "Two sections, joined on site — the most common home we set.",
+  triple: "Three sections, for the widest floor plans we can deliver.",
+  modular:
+    "Built to the same state building code as a site-built house, inspected by the state and appraised as real property. Every one is built to order.",
 };
 
 /* The glyph on each bucket's button. Emoji rather than drawn icons on
@@ -748,9 +350,16 @@ export const sizeCategoryGlyphs: Record<SizeCategory, string> = {
   single: "🏡",
   double: "🏘️",
   triple: "🏰",
+  modular: "🏗️",
 };
 
-export const sizeCategoryOrder: SizeCategory[] = ["tiny", "single", "double", "triple"];
+export const sizeCategoryOrder: SizeCategory[] = [
+  "tiny",
+  "single",
+  "double",
+  "triple",
+  "modular",
+];
 
 export type SizeCategoryFacet = {
   id: SizeCategory;
@@ -763,7 +372,7 @@ export type SizeCategoryFacet = {
   glyph: string;
 };
 
-/** The four buckets, measured against whatever catalogue is passed in. */
+/** The buckets, measured against whatever catalogue is passed in. */
 export function sizeCategoryFacets(from: Listing[] = listings): SizeCategoryFacet[] {
   return sizeCategoryOrder.map((id) => {
     const inBucket = from.filter((l) => sizeCategoryOf(l) === id);

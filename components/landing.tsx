@@ -44,7 +44,8 @@ import { communities } from "@/lib/communities";
 import { company } from "@/lib/company";
 import { featuredListings, listings } from "@/lib/homes";
 import { market } from "@/lib/market";
-import { sections, videoShowcase, type LandingSection } from "@/lib/page-config";
+import { pages, sections, videoShowcase, type LandingSection } from "@/lib/page-config";
+import { projectCover, publishedProjects } from "@/lib/projects";
 import { featuredPromotion } from "@/lib/promotions";
 import { site } from "@/lib/site";
 import heroPhoto from "@/public/photos/hero-home.jpg";
@@ -223,6 +224,7 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
     : featuredListings();
   const promotion = featuredPromotion();
   const team = company.team ?? [];
+  const recentProjects = publishedProjects().slice(0, 3);
 
   const bands: Band[] = [
     {
@@ -252,12 +254,18 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
               <div className="text-center md:text-left">
                 <p className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-medium text-white backdrop-blur-sm">
                   <Icon.Star className="size-4 shrink-0 text-accent" />
-                  Trusted by families in {site.address.city}, {site.address.region}
+                  {/* The state, not the town: NERTO works the whole of Maine,
+                      and naming Chelsea alone reads as a Chelsea-only lot. */}
+                  Trusted by {site.stateName} families
                 </p>
 
+                {/* The state, not the delivery radius. `market.regionName` is
+                    still "Central Maine" and still correct about where a home
+                    is trucked from — but the headline is a claim about who
+                    NERTO serves, and that is the whole state. */}
                 <h1 className="mb-4 text-4xl font-bold uppercase leading-tight text-white md:text-5xl lg:text-6xl">
                   The top choice for mobile and modular homes in{" "}
-                  {market.regionName ?? site.address.region}
+                  {site.stateName}
                 </h1>
 
                 <p className="mx-auto mb-8 max-w-xl text-lg text-white/85 md:mx-0 md:text-xl">
@@ -509,6 +517,80 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
                   <ListingCard listing={listing} priority={i === 0} className="h-full" />
                 </Reveal>
               ))}
+            </div>
+          </Container>
+        </section>
+      ),
+    },
+    {
+      key: "projects",
+      /* Three gates, all of which have to say yes: the band is switched on,
+         the `/projects` route exists, and there is at least one project to
+         show. A "recent work" band with nothing in it is worse than no band. */
+      show: sections.projects && pages.projects && recentProjects.length > 0,
+      render: () => (
+        <section id="projects" className="relative overflow-hidden bg-paper">
+          <Container className="py-16 md:py-24">
+            <div className="mb-10 text-center">
+              <h2 className="mb-3 text-3xl font-bold text-ink md:text-4xl">
+                Recent work
+              </h2>
+              <p className="mx-auto max-w-2xl text-lg text-muted">
+                Not plans — houses we have already put on ground in{" "}
+                {site.stateName}, from the permit through to the last trim board.
+              </p>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {recentProjects.map((project, i) => {
+                const cover = projectCover(project);
+                return (
+                  <Reveal key={project.slug} delay={i * 90}>
+                    <Link
+                      href={`/projects/${project.slug}`}
+                      className="group flex h-full flex-col overflow-hidden rounded-card border border-line bg-surface transition-all duration-500 hover:-translate-y-1 hover:border-line-strong"
+                    >
+                      <div className="grain relative aspect-[4/3] overflow-hidden bg-surface-2">
+                        {cover ? (
+                          <Image
+                            src={cover}
+                            alt={project.title}
+                            fill
+                            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                            className="object-cover transition-transform duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.06]"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 grid place-items-center">
+                            <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-muted">
+                              Photograph to come
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-1 flex-col p-6">
+                        {project.location && (
+                          <p className="font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted">
+                            {project.location}
+                          </p>
+                        )}
+                        <h3 className="mt-3 font-display text-2xl leading-snug tracking-tight text-ink transition-colors group-hover:text-ember">
+                          {project.title}
+                        </h3>
+                        <p className="mt-3 flex-1 leading-relaxed text-muted">
+                          {project.summary}
+                        </p>
+                      </div>
+                    </Link>
+                  </Reveal>
+                );
+              })}
+            </div>
+
+            <div className="mt-10 text-center">
+              <ButtonLink href="/projects" variant="outline">
+                See every project
+                <Icon.Arrow className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+              </ButtonLink>
             </div>
           </Container>
         </section>

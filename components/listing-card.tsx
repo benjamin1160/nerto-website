@@ -5,6 +5,7 @@ import { SaveButton } from "./saved-homes";
 import { Badge, cx, Icon } from "./ui";
 import { money, num, priceText } from "@/lib/format";
 import { getCommunity } from "@/lib/communities";
+import { site } from "@/lib/site";
 import {
   sectionLabels,
   seriesLabel,
@@ -17,6 +18,9 @@ function StatusBadge({ listing }: { listing: Listing }) {
   if (listing.status === "sold") return <Badge tone="muted">Sold</Badge>;
   if (listing.status === "pending") return <Badge tone="neutral">Sale pending</Badge>;
   if (listing.status === "coming-soon") return <Badge tone="moss">Coming soon</Badge>;
+  /* Standing on the lot beats every other badge: it is the only one that says
+     you can drive over and walk through this exact house today. */
+  if (listing.onLot) return <Badge tone="ember">On our lot</Badge>;
   if (listing.daysListed !== undefined && listing.daysListed <= 10)
     return <Badge tone="ember">Just listed</Badge>;
   return <Badge tone="neutral">{statusLabels[listing.status]}</Badge>;
@@ -35,6 +39,22 @@ function metaLine(listing: Listing, ...extra: (string | undefined)[]): string {
 /** The card image: a home's first scene, which is not always an exterior. */
 function coverKind(listing: Listing) {
   return listing.scenes[0]?.kind ?? "exterior";
+}
+
+/**
+ * Where this home is, in one line beside the pin.
+ *
+ * It answers "where would I go to see it", which is a different question from
+ * the status badge and has to agree with it: a card badged "On our lot" that
+ * also reads "Available to order" contradicts itself in two inches.
+ */
+function placementLine(
+  listing: Listing,
+  community: ReturnType<typeof getCommunity>,
+): string {
+  if (listing.onLot) return `On our lot · ${site.address.city}, ${site.address.region}`;
+  if (community) return `${community.name} · ${community.city}, ${community.state}`;
+  return "Built to order";
 }
 
 export function SpecStrip({
@@ -58,11 +78,17 @@ export function SpecStrip({
         <Icon.Ruler className="size-4 text-muted" />
         <span className="font-mono text-[0.8rem] text-ink-soft">{num(listing.sqft)} sq ft</span>
       </li>
-      {listing.widthFt !== undefined && listing.lengthFt !== undefined && (
+      {/* The manufacturer's own box dimensions where it published them, which
+          carry inches a nominal width rounds away — a 26'8" home is a 27-wide,
+          and the spec sheet says so. Falls back to the nominal figures. */}
+      {(listing.dimensions ??
+        (listing.widthFt !== undefined && listing.lengthFt !== undefined
+          ? `${listing.widthFt}′ × ${listing.lengthFt}′`
+          : undefined)) && (
         <li className="flex items-center gap-1.5">
           <Icon.Truck className="size-4 text-muted" />
           <span className="font-mono text-[0.8rem] text-ink-soft">
-            {listing.widthFt}′ × {listing.lengthFt}′
+            {listing.dimensions ?? `${listing.widthFt}′ × ${listing.lengthFt}′`}
           </span>
         </li>
       )}
@@ -158,7 +184,7 @@ export function ListingCard({
         <div className="mt-auto flex items-center justify-between gap-4 border-t border-line pt-4">
           <span className="flex items-center gap-1.5 text-[0.8rem] text-muted">
             <Icon.Pin className="size-3.5" />
-            {community ? `${community.name} · ${community.city}, ${community.state}` : "Available to order"}
+            {placementLine(listing, community)}
           </span>
           <span className="flex items-center gap-1 text-[0.8rem] font-medium text-ink transition-colors group-hover:text-ember">
             View
@@ -226,7 +252,7 @@ export function ListingRow({ listing }: { listing: Listing }) {
           <SpecStrip listing={listing} />
           <span className="flex items-center gap-1.5 text-[0.8rem] text-muted">
             <Icon.Pin className="size-3.5" />
-            {community ? `${community.name}, ${community.state}` : "To order"}
+            {placementLine(listing, community)}
           </span>
         </div>
       </div>

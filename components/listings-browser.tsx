@@ -35,7 +35,7 @@ const SORTS = ALL_SORTS.filter((s) => hasPrices || !s.id.startsWith("price"));
 
 const SERIES = seriesList;
 const SECTIONS: Sections[] = ["single", "double", "triple"];
-const SIZES: SizeCategory[] = ["tiny", "single", "double", "triple"];
+const SIZES: SizeCategory[] = ["tiny", "single", "double", "triple", "modular"];
 const STYLES = Object.keys(styleLabels) as ArchStyle[];
 
 const STEP = 2500;

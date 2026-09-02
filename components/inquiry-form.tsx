@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { listings } from "@/lib/homes";
+import { listings, seriesLabel } from "@/lib/homes";
 import { buttonStyles, cx, Icon } from "./ui";
 
 type Errors = Partial<Record<"name" | "email" | "phone" | "date", string>>;
@@ -163,7 +163,7 @@ export function InquiryForm({
             <option value="">Not sure yet — show me a few</option>
             {listings.map((l) => (
               <option key={l.slug} value={l.slug}>
-                {l.name} — {l.series} Series
+                {l.series ? `${l.name} — ${seriesLabel(l.series)}` : l.name}
               </option>
             ))}
           </select>

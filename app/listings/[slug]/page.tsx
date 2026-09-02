@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Accordion } from "@/components/accordion";
@@ -27,6 +28,7 @@ import {
   listings,
   relatedListings,
   sectionLabels,
+  seriesLabel,
   statusLabels,
   styleLabels,
 } from "@/lib/homes";
@@ -71,6 +73,12 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
   if (!listing) notFound();
 
   const plan = getPlan(listing);
+  /* Section numbering has to survive a missing section. Most homes in this
+     catalogue carry no floor-plan geometry and no feature list, so hardcoded
+     eyebrows would read 01, 04, 05 down the page. This counts as the page
+     renders instead — the same trick `/about` uses. */
+  let n = 1;
+  const index = () => String(n++).padStart(2, "0");
   const community = listing.communitySlug ? getCommunity(listing.communitySlug) : undefined;
   const related = relatedListings(listing);
   const perSqFt = listing.price === undefined ? undefined : listing.price / listing.sqft;
@@ -135,10 +143,17 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
         <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="flex flex-wrap items-center gap-2">
-              <Badge tone={listing.status === "available" ? "ember" : "neutral"}>
-                {statusLabels[listing.status]}
-              </Badge>
-              {listing.series && <Badge>{listing.series} Series</Badge>}
+              {/* "On our lot" is the strongest thing this page can say, so it
+                  leads. Everything else in the catalogue is a plan NERTO
+                  orders in, which the status badge says plainly. */}
+              {listing.onLot ? (
+                <Badge tone="ember">On our lot — walk through it</Badge>
+              ) : (
+                <Badge tone={listing.status === "available" ? "ember" : "neutral"}>
+                  {statusLabels[listing.status]}
+                </Badge>
+              )}
+              {listing.series && <Badge>{seriesLabel(listing.series)}</Badge>}
               {listing.model && <Badge tone="muted">{listing.model}</Badge>}
               {listing.daysListed !== undefined && listing.daysListed <= 10 && (
                 <Badge tone="moss">New this week</Badge>
@@ -186,9 +201,13 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
           <SpecStrip listing={listing} />
           <span className="flex items-center gap-1.5 text-[0.8rem] text-muted">
             <Icon.Pin className="size-3.5" />
-            {community
-              ? `${community.name} · ${community.city}, ${community.state}`
-              : "Available to order"}
+            {/* Where you would go to see it — which has to agree with the
+                badge above rather than repeating the status back differently. */}
+            {listing.onLot
+              ? `On our lot · ${site.address.city}, ${site.address.region}`
+              : community
+                ? `${community.name} · ${community.city}, ${community.state}`
+                : "Built to order"}
           </span>
           {listing.hers !== undefined && (
             <span className="flex items-center gap-1.5 text-[0.8rem] text-muted">
@@ -224,7 +243,7 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
             {/* Story */}
             {listing.story && listing.story.length > 0 && (
             <div className="mt-14">
-              <Eyebrow index="01">About this home</Eyebrow>
+              <Eyebrow index={index()}>About this home</Eyebrow>
               <div className="mt-6 space-y-6">
                 {listing.story.map((p, i) => (
                   <p
@@ -253,10 +272,45 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
             </div>
             )}
 
+            {/* Floor plan — the manufacturer's own drawing.
+                This is a drawing, not a photograph, and is labelled as one:
+                it renders on white with a caption naming its source, and it
+                never fills a photograph's slot in the gallery above. Shown
+                only when there is no generated plan, which is the case for
+                every imported home. */}
+            {!plan && listing.planImage && (
+              <div className="mt-16" id="floor-plan">
+                <Eyebrow index={index()}>Floor plan</Eyebrow>
+                <h2 className="mt-5 font-display text-title text-ink">
+                  {listing.dimensions ?? `${num(listing.sqft)} sq ft`}
+                  {listing.dimensions ? ` · ${num(listing.sqft)} sq ft` : ""}
+                </h2>
+                <p className="mt-4 max-w-xl leading-relaxed text-muted">
+                  {listing.builder}&rsquo;s drawing for this plan. Interior walls
+                  are not load-bearing above the marriage line, so most of them
+                  can move before the build lock date — ask us what this one will
+                  take.
+                </p>
+                <figure className="mt-8 overflow-hidden rounded-card border border-line bg-white p-4 sm:p-8">
+                  <Image
+                    src={listing.planImage}
+                    alt={`${listing.name} floor plan, drawn by ${listing.builder}`}
+                    width={1600}
+                    height={1200}
+                    sizes="(min-width: 1024px) 60vw, 100vw"
+                    className="mx-auto h-auto w-full max-w-2xl"
+                  />
+                  <figcaption className="mt-4 text-center font-mono text-[0.65rem] uppercase tracking-[0.18em] text-muted">
+                    Manufacturer&rsquo;s drawing · {listing.builder}
+                  </figcaption>
+                </figure>
+              </div>
+            )}
+
             {/* Floor plan */}
             {plan && (
             <div className="mt-16" id="floor-plan">
-              <Eyebrow index="02">Floor plan</Eyebrow>
+              <Eyebrow index={index()}>Floor plan</Eyebrow>
               <h2 className="mt-5 font-display text-title text-ink">
                 {plan.width}′ × {plan.length}′ · {num(listing.sqft)} sq ft
               </h2>
@@ -290,7 +344,7 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
             {/* Features */}
             {listing.features && listing.features.length > 0 && (
             <div className="mt-16">
-              <Eyebrow index="03">What&apos;s included</Eyebrow>
+              <Eyebrow index={index()}>What&apos;s included</Eyebrow>
               <h2 className="mb-8 mt-5 font-display text-title text-ink">
                 Standard, not &ldquo;available.&rdquo;
               </h2>
@@ -328,10 +382,26 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
                   <SpecRow label="Bedrooms" value={listing.beds} />
                   <SpecRow label="Bathrooms" value={listing.baths} />
                   <SpecRow label="Living area" value={`${num(listing.sqft)} sq ft`} />
-                  {listing.widthFt !== undefined && listing.lengthFt !== undefined && (
+                  {(listing.dimensions ??
+                    (listing.widthFt !== undefined && listing.lengthFt !== undefined
+                      ? `${listing.widthFt}′ × ${listing.lengthFt}′`
+                      : undefined)) && (
                     <SpecRow
                       label="Box size"
-                      value={`${listing.widthFt}′ × ${listing.lengthFt}′`}
+                      value={
+                        listing.dimensions ?? `${listing.widthFt}′ × ${listing.lengthFt}′`
+                      }
+                    />
+                  )}
+                  {listing.builder && <SpecRow label="Built by" value={listing.builder} />}
+                  {listing.construction && (
+                    <SpecRow
+                      label="Built to"
+                      value={
+                        listing.construction === "modular"
+                          ? "State building code (modular)"
+                          : "HUD code (manufactured)"
+                      }
                     />
                   )}
                   {listing.year !== undefined && (
@@ -395,7 +465,7 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
         <Container className="py-20 sm:py-24">
           <Reveal>
             <SectionHeading
-              index="04"
+              index={index()}
               eyebrow={listing.price === undefined ? "Pricing" : "The honest number"}
               title={
                 listing.price === undefined
@@ -433,7 +503,7 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
       <Container className="py-20 sm:py-24">
         <Reveal>
           <SectionHeading
-            index="05"
+            index={index()}
             eyebrow="Close to this one"
             title="If you like this, look at these."
             action={

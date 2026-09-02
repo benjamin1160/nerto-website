@@ -10,17 +10,32 @@ This is the NERTO Homes site (New England Rent To Own, LLC, Chelsea, Maine). Alm
 change; routes derive from the data and should rarely be edited directly.
 
 ```
-lib/homes.ts        The catalogue. Prices, specs, copy, features, scenes.
-                    Twenty real, sourced manufacturer plans, no prices —
-                    every one carries the `sourceUrl` it was read from.
-                    They are Clayton-built; confirm NERTO's own line-up
-                    and swap what it does not order. Empty the array and
-                    the whole site reads honestly at zero instead.
+lib/homes.ts        The catalogue's types, and `lotState` — the ONE
+                    hand-maintained part: which plans are standing on
+                    River Road, what is featured, what is sold. The plans
+                    themselves are generated (below) and `listings` is the
+                    two composed. Also the size buckets, including `Mods`,
+                    which keys off `construction` rather than width.
+lib/catalogue.generated.ts
+                    GENERATED — 348 plans from the two manufacturers NERTO
+                    retails, every one carrying the `sourceUrl` it was read
+                    from. No prices; neither manufacturer publishes any.
+                    Rewritten by `node scripts/import-manufacturers.mjs
+                    homes`; never hand-edit it, edit `lotState` instead.
+lib/projects.ts     Past projects — houses NERTO has actually delivered.
+                    Evidence, as against the catalogue's plans. Ships
+                    EMPTY and `/projects` is switched off to match.
+lib/videos.ts       Informational videos — the process, construction loan
+                    versus end loan, site work. Ships EMPTY and `/videos`
+                    is switched off to match.
 lib/floor-plans.ts  Room geometry in feet. Rooms must tile the footprint.
 lib/communities.ts  Communities, tenure, lot rents, amenities. Currently
                     EMPTY, and `/communities` is switched off to match.
-lib/photos.ts       Every photograph on the site, by key. Absent key =
-                    an empty plate; the site shows photographs only.
+lib/photos.ts       Page heroes and one-offs, by key, plus the generated
+                    `lib/photos.generated.ts` for imported homes. Absent
+                    key = an empty plate; the site shows photographs only.
+                    A floor-plan DRAWING is not a photograph and lives in
+                    `planImage` on the listing, labelled as a drawing.
 lib/site.ts         Business name, phone, address, canonical URL.
 lib/page-config.ts  Which bands the landing page renders, in what order,
                     and which routes exist at all. Turning a page off
@@ -76,14 +91,31 @@ components/landing.tsx
                     `numbers`, `myth`, `cutaway`) — each one `true` away.
 ```
 
-The catalogue is at `/listings`; `/homes` permanently redirects there. The
-data file is still `lib/homes.ts` — the route was renamed, the file was not.
+The catalogue is at `/listings`; `/homes` permanently redirects there.
 
-Homes are browsed by size first — tiny, single, double, triple. The bucket
-comes from `sections` where the home has one, never from square footage
-alone, because "single wide" is a claim about width and filing a 1,000 sq ft
-double-section home under it would be false. Buckets with no homes in them
-are not rendered.
+Homes are browsed by size first — tiny, single, double, triple, mods. The
+bucket comes from `sections` where the home has one, never from square
+footage alone, because "single wide" is a claim about width and filing a
+1,000 sq ft double-section home under it would be false. `Mods` is checked
+before any width rule and keys off `construction: "modular"`: a modular is a
+build standard, not a width, and Pleasant Valley's plans belong there
+whatever their footprint. Buckets with no homes in them are not rendered, so
+the site currently shows four — there are no triple-section plans.
+
+Two statuses matter. `to-order` — "Available to order" — is the catalogue's
+default and true of almost everything: a plan NERTO can build for you.
+`onLot` is the four homes standing on River Road, open to walk through, and
+it is the strongest thing a card can say. Both are set in `lotState`.
+
+Re-importing the catalogue is three commands, in this order:
+
+    node scripts/import-manufacturers.mjs photos     # images
+    node scripts/import-manufacturers.mjs homes      # lib/catalogue.generated.ts
+    node scripts/import-manufacturers.mjs manifest   # lib/photos.generated.ts
+
+`npm run lint` runs `scripts/check-data.mjs`, which fails if `lotState`, a
+project or a custom page points at a plan that no longer exists — a model
+code changing upstream is loud rather than silent.
 
 Detailed conventions and recipes are in `.claude/skills/` — `homes`,
 `photos`, `brand`, `voice` and `land-deals`. Read the matching one before

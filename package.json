@@ -6,10 +6,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint && node scripts/check-placeholders.mjs",
+    "lint": "eslint && node scripts/check-placeholders.mjs && node scripts/check-data.mjs",
     "preview": "node scripts/build-preview.mjs",
     "check:placeholders": "node scripts/check-placeholders.mjs",
-    "check:boilerplate": "node scripts/check-boilerplate.mjs"
+    "check:boilerplate": "node scripts/check-boilerplate.mjs",
+    "check:data": "node scripts/check-data.mjs"
   },
   "dependencies": {
     "next": "16.2.4",
