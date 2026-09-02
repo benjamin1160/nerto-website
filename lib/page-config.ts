@@ -56,7 +56,12 @@ export const sections: Record<LandingSection, boolean> = {
   /** Current offer, drawn from `lib/promotions.ts`. Hidden when none is live. */
   promotion: true,
   /** One photograph the width of the screen, and one sentence over it. */
-  valueProp: true,
+  /* Off: the wide photograph band under the hero. It carried a stock picture
+     of somebody else's home under the words "imagine pulling into a home like
+     this", which is the one place on the page that reads as a promise about
+     a specific house. Turn it back on once there is a photograph of the yard
+     on River Road to put in it. */
+  valueProp: false,
   /** What buyers said afterwards, and a link to where they said it. */
   socialProof: true,
   /** Three steps, numbered. */

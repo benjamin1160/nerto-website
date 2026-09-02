@@ -77,7 +77,7 @@ export default function HomesPage() {
             ? `We are not listing inventory online yet. Tell us the size, the budget and where the home is going, and we will tell you what we can put on it — call ${site.phone} or send the form on the contact page.`
             : hasPrices
               ? `Full specs, honest status. From ${money(priceBounds.min)} to ${money(priceBounds.max)}, and you can walk most of them this week.`
-              : `Full specs, honest status. Pricing depends on options, delivery distance and site work, so we quote it rather than print it.`
+              : `Full specs and model codes, browsed by size. Pricing depends on options, delivery distance and site work, so we quote it rather than print it — call ${site.phone} and we will do it while you are on the phone.`
         }
         kind="exterior"
         breadcrumb={[
