@@ -67,6 +67,29 @@ lib/land/           Everything behind /land-deals: `areas.ts` prices each
                     points at the yard in Chelsea and the boundaries are
                     Maine and its neighbours, but `areas.ts` prices nothing,
                     so `/land-deals` is switched off until it does.
+lib/chat.ts         Every word the chat widget says, in order — the
+                    greeting, the five questions, the buttons on the first
+                    one, the sign-off. `components/chat-widget.tsx` reads
+                    them and holds no copy of its own. The widget is a
+                    guided intake, not an AI, and says so in its first
+                    message; `chatWidget` in page-config switches it off.
+lib/ghl/            The CRM. `fields.ts` is every contact custom field the
+                    site fills in — the ONE list, read at request time by
+                    `client.ts` and by `scripts/ghl-setup.mjs`, which
+                    creates them in a sub-account. `custom-values.ts` is the
+                    location-level values, drawn from `lib/site.ts`.
+                    `map.ts` decides which answer lands in which field;
+                    `submit.ts` is the single door every lead leaves by —
+                    GoHighLevel, then `LEAD_WEBHOOK_URL`, then the log.
+                    Adding a field is one entry in `fields.ts`, one line in
+                    `map.ts`, and the next deploy — `postbuild` creates
+                    whatever the CRM is missing and never fails a build.
+                    `chat-embed.ts` reads the `CHAT_WIDGET` variable: set it
+                    to GHL's embed snippet and GHL's own chat widget loads
+                    in place of this site's — one bubble, never two.
+lib/attribution.ts  First-touch UTM parameters and referrer, kept in
+                    sessionStorage and posted with every lead, because GHL's
+                    own attribution only sees GHL's own forms.
 lib/skin.ts         Skins: the whole palette, the brand gradient, the
                     typeface pairing, the corner radii and the primary
                     button, as data. Two ship — `hearthline` (warm and
@@ -118,7 +141,7 @@ project or a custom page points at a plan that no longer exists — a model
 code changing upstream is loud rather than silent.
 
 Detailed conventions and recipes are in `.claude/skills/` — `homes`,
-`photos`, `brand`, `voice` and `land-deals`. Read the matching one before
+`photos`, `brand`, `voice`, `land-deals` and `crm`. Read the matching one before
 editing; it is the contract for these files. `EDITING.md` is the same ground
 for the human asking.
 

@@ -7,6 +7,7 @@ import { EMPTY_LEAD_STATE, type LeadSource } from "@/lib/land/lead";
 import { money } from "@/lib/format";
 import { site } from "@/lib/site";
 import { buttonStyles, cx, Icon } from "./ui";
+import { LeadContext } from "./lead-context";
 
 const field =
   "w-full rounded-xl border border-line-strong bg-paper px-4 py-3 text-[0.95rem] text-ink placeholder:text-muted transition-colors focus:border-ink focus:outline-none";
@@ -57,6 +58,7 @@ export function PreApprovalForm({ source = "land-deals-map" }: { source?: LeadSo
         aria-hidden="true"
         className="hidden"
       />
+      <LeadContext />
 
       <label className="block">
         <span className="eyebrow">Your name</span>

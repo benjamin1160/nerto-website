@@ -5,12 +5,16 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "postbuild": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ghl-setup.mjs ensure",
     "start": "next start",
     "lint": "eslint && node scripts/check-placeholders.mjs && node scripts/check-data.mjs",
     "preview": "node scripts/build-preview.mjs",
     "check:placeholders": "node scripts/check-placeholders.mjs",
     "check:boilerplate": "node scripts/check-boilerplate.mjs",
-    "check:data": "node scripts/check-data.mjs"
+    "check:data": "node scripts/check-data.mjs",
+    "ghl:check": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ghl-setup.mjs check",
+    "ghl:setup": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ghl-setup.mjs all",
+    "ghl:values": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ghl-setup.mjs values"
   },
   "dependencies": {
     "next": "16.2.4",
