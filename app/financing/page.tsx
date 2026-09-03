@@ -13,7 +13,6 @@ import {
   SectionHeading,
 } from "@/components/ui";
 import { company } from "@/lib/company";
-import { market } from "@/lib/market";
 import { hasPrices, priceBounds } from "@/lib/homes";
 import { money } from "@/lib/format";
 import { pages } from "@/lib/page-config";
@@ -21,7 +20,7 @@ import { pages } from "@/lib/page-config";
 export const metadata: Metadata = {
   title: "Financing",
   description:
-    "Chattel versus real-property lending, what each actually costs, and the paperwork order that keeps a manufactured home purchase from going sideways.",
+    "Conventional, FHA, VA and cash — what each actually costs, and the order of operations that keeps a manufactured home purchase from going sideways.",
 };
 
 const PATHS = [
@@ -53,28 +52,6 @@ const PATHS = [
     body: "No down payment and no mortgage insurance. Fewer lenders write VA on manufactured homes, so the shortlist is short — ask us who is writing them in Maine this month before you spend six weeks with the wrong originator.",
   },
   {
-    name: "USDA Rural",
-    rate: "6.1 – 6.8%",
-    term: "30 yr",
-    down: "0% down",
-    tone: "moss" as const,
-    needs: "Eligible rural parcel · new home only · income limits",
-    /* Which tracts are USDA-eligible is a fact about one market, so it comes
-       from `lib/market.ts` and falls back to a portable sentence. */
-    body:
-      market.usdaNote ??
-      "USDA eligibility is drawn by tract rather than by town, and the map surprises people. Worth ten minutes with it before you assume you don't qualify — note that it applies to land you own, not a leased pad.",
-  },
-  {
-    name: "Chattel",
-    rate: "8.4 – 10.2%",
-    term: "20–23 yr",
-    down: "5% down",
-    tone: "neutral" as const,
-    needs: "Leased pad · personal-property title",
-    body: "The home is collateral, the land is not. Closes in two to three weeks instead of six, which genuinely matters if you are in a lease that ends. Costs roughly two points more for the life of the loan.",
-  },
-  {
     name: "Cash / construction",
     rate: "—",
     term: "—",
@@ -93,23 +70,23 @@ const PATHS = [
 const ORDER = [
   {
     n: "01",
-    title: "Land first, always",
-    body: "Before a lender, before a floor plan. Whether you own or lease decides which of the six paths above you are even eligible for, and it changes the monthly figure by hundreds of dollars. If you do not own land yet, the buyer's guide at /start-here walks through the three ways onto ground.",
+    title: "Call or visit the team",
+    body: "Before a lender, before a floor plan. Ten minutes on the phone, or a walk through the homes standing on River Road, tells us where you are — land or no land, credit, budget — and tells you which of the paths above is actually open to you. If you do not own land yet, the buyer's guide at /start-here walks through the three ways onto ground.",
   },
   {
     n: "02",
     title: "Pre-approval, not pre-qualification",
-    body: "A pre-qualification is a lender being polite. A pre-approval is underwriting having actually looked. Ask for the second one; it costs nothing and takes about four days.",
+    body: "A pre-qualification is a lender being polite. A pre-approval is underwriting having actually looked. Ask for the second one; it costs nothing and takes about four days, and it sets the ceiling for everything that follows.",
   },
   {
     n: "03",
-    title: "Site check and cost-to-set",
-    body: "Access, utilities, setbacks, soil, permits. We produce a written number. This is the line item that surprises people, and it is the one nobody else will quote you up front.",
+    title: "Pick the home, the options and a deposit",
+    body: "With the ceiling known, choose the plan, the finishes and the options. A deposit holds a build slot. Colour and finish selections stay open until the build lock date, typically three weeks before the plant run.",
   },
   {
     n: "04",
-    title: "Order and lock",
-    body: "Deposit holds a build slot. Colour and finish selections stay open until the build lock date, typically three weeks before the plant run.",
+    title: "Find the land and walk the site",
+    body: "If you do not own ground yet, we help you look. Once there is a parcel, we visit it: access, utilities, setbacks, soil, permits. We produce a written number for the development. This is the line item that surprises people, and it is the one nobody else will quote you up front.",
   },
   {
     n: "05",
@@ -123,51 +100,21 @@ const FAQ = [
     title: "What credit score do I need?",
     body: (
       <p>
-        Real-property lending generally starts around 620, and FHA will go lower with
-        compensating factors. Chattel lenders write down to about 575 at a price. If you
-        are below 620 and can wait six months, the difference between fixing your score
-        and not fixing it is usually larger than the difference between any two homes on
-        this site.
-      </p>
-    ),
-  },
-  {
-    title: "Do you make money on the financing?",
-    body: (
-      <p>
-        Ask us directly and we will tell you plainly how we are paid on any deal in front
-        of you — you are entitled to that answer before you sign anything. What we will
-        say up front is that a dealer who sends you to a lender that cannot close on a
-        HUD-code home wastes six weeks of your life and one of ours, which is reason
-        enough to keep the list current.
-      </p>
-    ),
-  },
-  {
-    title: "Can I convert a chattel loan to a mortgage later?",
-    body: (
-      <p>
-        Yes, and people do. It requires acquiring the land (or the community converting to
-        resident ownership), installing a permanent foundation, and retiring the personal
-        property title through your state&apos;s conversion process. It is paperwork, an
-        engineer&apos;s certification and a refinance — not a rebuild.
-      </p>
-    ),
-  },
-  {
-    title: "What does the set actually cost?",
-    body: (
-      <p>
-        It depends on the home, the distance and what is already on the ground. On a
-        prepared pad in an established park it is a much smaller number than on raw land,
-        where the pad, the drive, the well, the septic and the power run are all in play
-        and the spread between an easy parcel and a hard one is enormous. This is exactly
-        why we look at the ground before you order, and why we quote site work separately
-        rather than folding a guess into a headline price.
+        We can work with credit as low as 580. If you are below that, contact us and we
+        will enrol you in one of our credit restoration programs — buyers who have gone
+        through it have been approved in two to six months.
       </p>
     ),
   },
 ];
+
+/**
+ * Reviews from buyers who came through credit restoration, shown under the
+ * credit answer. Same rule as the landing page: take each one from a review
+ * the customer actually published, or with their written permission, and
+ * never draft one to fill the row. Empty, the block does not render.
+ */
+const CREDIT_REVIEWS: { quote: string; name: string; detail: string }[] = [];
 
 export default function FinancingPage() {
   /* Turned off in `lib/page-config.ts`, this route sends visitors home rather
@@ -182,15 +129,15 @@ export default function FinancingPage() {
         eyebrow="Financing"
         title={
           <>
-            Six ways to pay for it.
+            Four ways to pay for it.
             <br />
-            Two of them are a mistake.
+            We will tell you which is yours.
           </>
         }
         lede={
           hasPrices
             ? `Homes here run ${money(priceBounds.min)} to ${money(priceBounds.max)}. What that costs you every month depends far more on how you finance it than on which one you pick.`
-            : "What a home costs you every month depends far more on how you finance it than on which one you pick. Here is how the two paths differ, and how to work out your own number."
+            : "What a home costs you every month depends far more on how you finance it than on which one you pick. Here is how the paths differ, and how to work out your own number."
         }
         kind="exterior"
         breadcrumb={[
@@ -204,7 +151,7 @@ export default function FinancingPage() {
         <Reveal>
           <SectionHeading
             index="02"
-            eyebrow="The six paths"
+            eyebrow="The four paths"
             title="How the paths differ, plainly."
             lede="Indicative ranges for comparing the paths against each other, not quotes and not an offer of credit. Your number comes from a lender after underwriting, and depends on credit, term, down payment and how the home is titled."
           />
@@ -240,15 +187,15 @@ export default function FinancingPage() {
             <SectionHeading
               index="03"
               eyebrow="Run it yourself"
-              title="Move the sliders. Watch the gap."
-              lede="Put in the price you are working with, then switch between the two loan types with everything else held constant. That difference is the whole argument for buying the land."
+              title="Move the sliders. Find your number."
+              lede="Put in the home and development price you are working with, then the land, the rate and the down payment. Every figure is a slider, so change the one you are unsure of and watch what it does to the month."
             />
           </Reveal>
           <Reveal className="mt-12">
             <div className="mx-auto max-w-3xl">
               {/* No listing here to take a price from, so the visitor sets
-                  one. Seeded at a round number, not a home's sticker. */}
-              <PaymentCalculator price={150000} editablePrice />
+                  one. Seeded at NERTO's own example, not a home's sticker. */}
+              <PaymentCalculator price={240000} editablePrice />
             </div>
           </Reveal>
         </Container>
@@ -261,7 +208,7 @@ export default function FinancingPage() {
             index="04"
             eyebrow="Order of operations"
             title="Do these in this order and nothing goes wrong."
-            lede="Almost every purchase that falls apart falls apart because somebody did step four before step one."
+            lede="Almost every purchase that falls apart falls apart because somebody took the steps out of order."
           />
         </Reveal>
 
@@ -287,11 +234,32 @@ export default function FinancingPage() {
       <section className="border-t border-line bg-surface">
         <Container className="py-20 sm:py-28">
           <Reveal>
-            <SectionHeading index="05" eyebrow="Money questions" title="Asked and answered." />
+            <SectionHeading index="05" eyebrow="Credit" title="Asked and answered." />
           </Reveal>
           <Reveal className="mt-12">
             <Accordion items={FAQ} defaultOpen={0} />
           </Reveal>
+
+          {CREDIT_REVIEWS.length > 0 && (
+            <Reveal className="mt-12">
+              <p className="eyebrow">From buyers who came through credit restoration</p>
+              <div className="mt-6 grid gap-6 md:grid-cols-3">
+                {CREDIT_REVIEWS.map((r) => (
+                  <figure
+                    key={r.name}
+                    className="flex h-full flex-col rounded-card border border-line bg-paper p-7"
+                  >
+                    <blockquote className="flex-1 leading-relaxed text-ink">
+                      &ldquo;{r.quote}&rdquo;
+                    </blockquote>
+                    <figcaption className="mt-5 text-sm text-muted">
+                      <span className="font-medium text-ink">{r.name}</span> &middot; {r.detail}
+                    </figcaption>
+                  </figure>
+                ))}
+              </div>
+            </Reveal>
+          )}
 
           <Reveal className="mt-16">
             <div className="flex flex-col items-start gap-6 rounded-card border border-line bg-paper p-8 sm:flex-row sm:items-center sm:justify-between sm:p-10">
@@ -300,8 +268,8 @@ export default function FinancingPage() {
                   Want a real number instead of an estimate?
                 </h3>
                 <p className="mt-2 max-w-lg leading-relaxed text-muted">
-                  Tell us the parcel or the community and we will put a lender quote and a
-                  written cost-to-set in front of you.
+                  Tell us the parcel, or that you are still looking for one, and we will put
+                  a lender quote and a written development cost in front of you.
                 </p>
               </div>
               <ButtonLink href="/contact" className="shrink-0 !px-7 !py-4 !text-base">
