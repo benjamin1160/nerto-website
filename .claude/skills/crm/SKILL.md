@@ -26,6 +26,7 @@ form or chat  →  server validation  →  submitLead()  →  GHL   (if configur
 | `lib/ghl/submit.ts` | The single door out. Never throws; returns whether anything took the lead |
 | `lib/attribution.ts` | First-touch UTMs and referrer, and the defensive parser for them |
 | `lib/chat.ts` | Every word the chat widget says |
+| `lib/ghl/chat-embed.ts` | Parses `CHAT_WIDGET` — GHL's own widget, when one is configured |
 | `components/chat-widget.tsx` | The widget. Holds no copy |
 | `components/lead-context.tsx` | The two hidden inputs every form carries |
 | `scripts/ghl-setup.mjs` | Creates the fields and values in a sub-account |
@@ -65,6 +66,25 @@ without it. That is deliberate: a missing field never costs a lead.
   misrepresentation, not a copy change.
 - **Never invent a business fact in `custom-values.ts`.** It reads
   `lib/site.ts`; if the site does not publish it, the CRM does not get it.
+- **Never render both chat widgets.** `CHAT_WIDGET` set means GHL's; unset
+  means the built-in one. `app/layout.tsx` chooses, and that `else` is load
+  bearing.
+- **Never inject a snippet from configuration straight into the page.**
+  `chat-embed.ts` parses out the `src` and the `data-*` attributes, refuses
+  any host but `leadconnectorhq.com` over HTTPS, and drops everything else.
+
+## The lead tag
+
+Every submission cycles `GHL_LEAD_TAG` (default `MHG_WEBSITE_LEAD`) on the
+contact: added if new, removed and re-added if already there. The removal is
+the point — GHL's tag trigger fires on the transition, not the state, so a
+returning visitor with the tag already on them would start no workflow.
+
+Two rules around it. The add is the call that matters: a failed remove is
+logged and the add still runs, because the failure to avoid is a lead left
+untagged. And one conversation is one inbound — the chat widget's closing
+post sends `retag: false` when its opening post already tagged the same
+person, so a single chat does not fire the automation twice.
 
 ## Environment
 

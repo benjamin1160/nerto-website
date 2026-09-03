@@ -83,8 +83,11 @@ export function ChatWidget() {
   const threadRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   /* Whether the half-finished lead has already been sent, so the second post
-     updates rather than duplicating the work. */
+     updates rather than duplicating the work, and whether it actually landed
+     — which decides if the closing post has to tag the contact or whether the
+     opening one already did. */
   const partialSent = useRef(false);
+  const partialLanded = useRef(false);
 
   const current = CHAT_SCRIPT[step];
 
@@ -100,7 +103,10 @@ export function ChatWidget() {
       setTurns(stored.turns);
       setAnswers(stored.answers ?? {});
       setStatus(stored.status ?? "asking");
-      if (stored.answers?.phone) partialSent.current = true;
+      if (stored.answers?.phone) {
+        partialSent.current = true;
+        partialLanded.current = true;
+      }
     } catch {
       /* A blocked store just means the thread starts fresh. */
     }
@@ -149,6 +155,10 @@ export function ChatWidget() {
         transcript: transcript.map((t) => `${t.from === "us" ? "NERTO" : "Them"}: ${t.text}`).join("\n"),
         savedHomes: savedRef.current.slice(0, 30).join(","),
         attribution: attribution(),
+        /* One conversation is one inbound. If the opening post already
+           landed, it tagged them, and the closing post leaves the tag alone
+           rather than firing the CRM's automation a second time. */
+        retag: !partialLanded.current,
       };
       try {
         const res = await fetch("/api/chat", {
@@ -157,6 +167,7 @@ export function ChatWidget() {
           body: JSON.stringify(body),
         });
         if (!res.ok) throw new Error(`chat responded ${res.status}`);
+        if (!final) partialLanded.current = true;
         return true;
       } catch (err) {
         /* The half-way post is allowed to fail quietly — it is a bonus, and
@@ -243,6 +254,7 @@ export function ChatWidget() {
 
   function restart() {
     partialSent.current = false;
+    partialLanded.current = false;
     setStep(0);
     setAnswers({});
     setStatus("asking");

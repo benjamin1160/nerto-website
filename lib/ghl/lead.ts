@@ -76,6 +76,14 @@ export type SiteLead = {
   /** The chat conversation, already rendered turn by turn. */
   chatTranscript?: string;
   attribution?: Attribution;
+  /**
+   * Whether this submission should cycle the CRM's lead tag — off and on
+   * again, so the tag-added automation fires for a returning visitor as well
+   * as a new one. Default true. The chat widget's closing post sets it false
+   * when its opening post already tagged the same person: one conversation is
+   * one inbound.
+   */
+  retag?: boolean;
 };
 
 export type LeadResult = {

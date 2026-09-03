@@ -19,6 +19,10 @@
  *   GHL_PIPELINE_STAGE_ID   opportunity in that stage.
  *   GHL_DEFAULT_TAGS    Comma-separated, added to every contact on top of
  *                       the per-form tag.
+ *   GHL_LEAD_TAG        The tag that marks a website lead, cycled on every
+ *                       submission — see `cycleLeadTag` below. Defaults to
+ *                       `MHG_WEBSITE_LEAD`; set it empty to switch the
+ *                       behaviour off.
  *   GHL_API_BASE        Where to send all of it. Only ever set this to point
  *                       a staging deployment at a stub — it exists so the
  *                       integration can be exercised without a live account.
@@ -166,6 +170,13 @@ export type GhlContact = {
   note?: string;
   /** Opportunity title, when a pipeline is configured. */
   opportunityName?: string;
+  /**
+   * Whether to cycle the lead tag on this submission. Default true. The chat
+   * widget sets it false on its closing post, because its opening post
+   * already tagged the same person a minute earlier and one conversation is
+   * one inbound, not two.
+   */
+  retag?: boolean;
 };
 
 /**
@@ -210,6 +221,16 @@ const defaultTags = () =>
     .filter(Boolean);
 
 /**
+ * The tag that means "this person came off the website", and the one tag not
+ * sent with the upsert — it is applied afterwards, on its own, so that the
+ * order of operations is ours. See `cycleLeadTag`.
+ */
+const leadTag = () =>
+  process.env.GHL_LEAD_TAG === undefined
+    ? "MHG_WEBSITE_LEAD"
+    : process.env.GHL_LEAD_TAG.trim();
+
+/**
  * Creates or updates the contact, then hangs the note and the opportunity off
  * it. Deduplication is GHL's: `/contacts/upsert` matches on phone and email
  * and respects the sub-account's own duplicate setting, so a visitor who
@@ -242,12 +263,17 @@ export async function upsertContact(contact: GhlContact): Promise<string | undef
     body: JSON.stringify(payload),
   });
 
-  const created = (body.contact ?? {}) as { id?: string };
+  const created = (body.contact ?? {}) as { id?: string; tags?: string[] };
   const contactId = created.id;
   if (!contactId) return undefined;
 
-  /* Both of these are extras: a lead that landed but whose note failed is
-     still a lead, so neither is allowed to fail the submission. */
+  /* All three of these are extras: a lead that landed but whose note failed
+     is still a lead, so none of them is allowed to fail the submission. */
+  if (contact.retag !== false) {
+    await cycleLeadTag(contactId, body.new === true, created.tags ?? []).catch((err) =>
+      console.error("[ghl] lead tag failed", err),
+    );
+  }
   if (contact.note) {
     await addNote(contactId, contact.note).catch((err) =>
       console.error("[ghl] note failed", err),
@@ -258,6 +284,58 @@ export async function upsertContact(contact: GhlContact): Promise<string | undef
   );
 
   return contactId;
+}
+
+/**
+ * Puts the lead tag on the contact — and, if it is already there, takes it
+ * off first.
+ *
+ * The removal looks pointless and is the entire point. GHL fires its "Contact
+ * Tag Added" trigger on the transition, not on the state, so a returning
+ * visitor who is already tagged would otherwise start no workflow at all: the
+ * tag is present, nothing changed, nobody is told. Removing and re-adding
+ * makes the second enquiry fire the same automation as the first.
+ *
+ * It is therefore a real edit to a contact's tags, and the window between the
+ * two calls is a window in which the tag is genuinely absent. That is why the
+ * remove is skipped for a contact that does not have the tag, why the add is
+ * the call that is allowed to matter, and why a failed remove does not stop
+ * the add — the failure mode to avoid is a lead left untagged.
+ *
+ * GHL stores tags lowercased, so what comes back is `mhg_website_lead`
+ * whatever case it went in as. Comparison is case-insensitive to match.
+ */
+async function cycleLeadTag(contactId: string, isNew: boolean, existing: string[]) {
+  const tag = leadTag();
+  if (!tag) return;
+
+  /* A contact GHL just created cannot already carry it. For an existing one,
+     trust the tags the upsert echoed back; with none echoed, assume it may be
+     there and remove first — a remove of a tag that is absent is a no-op at
+     GHL's end and cheaper than being wrong in the other direction. */
+  const mayHaveIt =
+    !isNew && (existing.length === 0 || existing.some((t) => t.toLowerCase() === tag.toLowerCase()));
+
+  if (mayHaveIt) {
+    await removeTags(contactId, [tag]).catch((err) =>
+      console.warn("[ghl] could not remove the lead tag before re-adding it", err),
+    );
+  }
+  await addTags(contactId, [tag]);
+}
+
+export async function addTags(contactId: string, tags: string[]): Promise<void> {
+  await call(`/contacts/${contactId}/tags`, {
+    method: "POST",
+    body: JSON.stringify({ tags }),
+  });
+}
+
+export async function removeTags(contactId: string, tags: string[]): Promise<void> {
+  await call(`/contacts/${contactId}/tags`, {
+    method: "DELETE",
+    body: JSON.stringify({ tags }),
+  });
 }
 
 export async function addNote(contactId: string, body: string): Promise<void> {

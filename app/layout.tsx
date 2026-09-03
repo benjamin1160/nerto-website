@@ -1,11 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces, Inter } from "next/font/google";
+import Script from "next/script";
 import { CALL_BAR_HEIGHT } from "@/components/call-bar";
 import { ChatWidget } from "@/components/chat-widget";
 import { FloatingCall } from "@/components/floating-call";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SavedHomesProvider } from "@/components/saved-homes";
+import { chatEmbed } from "@/lib/ghl/chat-embed";
 import { callBar, chatWidget, floatingCall } from "@/lib/page-config";
 import { skin, skinStyles, type FontChoice } from "@/lib/skin";
 import { site } from "@/lib/site";
@@ -112,6 +114,11 @@ const THEME_BOOT = `(function(){try{var s=localStorage.getItem("nerto:theme");do
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  /* GHL's own chat widget, when `CHAT_WIDGET` names one — see
+     `lib/ghl/chat-embed.ts`. It replaces the built-in widget rather than
+     joining it: one chat bubble in the corner, never two. */
+  const embed = chatEmbed();
+
   return (
     <html
       lang="en"
@@ -143,7 +150,16 @@ export default function RootLayout({
           </main>
           <SiteFooter />
           {floatingCall && <FloatingCall />}
-          {chatWidget && <ChatWidget />}
+          {embed ? (
+            <Script
+              id="ghl-chat-widget"
+              src={embed.src}
+              strategy="lazyOnload"
+              {...embed.attributes}
+            />
+          ) : (
+            chatWidget && <ChatWidget />
+          )}
         </SavedHomesProvider>
       </body>
     </html>

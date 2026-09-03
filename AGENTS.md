@@ -83,6 +83,9 @@ lib/ghl/            The CRM. `fields.ts` is every contact custom field the
                     GoHighLevel, then `LEAD_WEBHOOK_URL`, then the log.
                     Adding a field is one entry in `fields.ts`, one line in
                     `map.ts` and one run of `npm run ghl:setup`.
+                    `chat-embed.ts` reads the `CHAT_WIDGET` variable: set it
+                    to GHL's embed snippet and GHL's own chat widget loads
+                    in place of this site's — one bubble, never two.
 lib/attribution.ts  First-touch UTM parameters and referrer, kept in
                     sessionStorage and posted with every lead, because GHL's
                     own attribution only sees GHL's own forms.

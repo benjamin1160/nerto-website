@@ -111,6 +111,10 @@ export async function POST(request: Request) {
       .map((s) => s.trim())
       .filter(Boolean),
     attribution: parseAttribution(input.attribution),
+    /* The widget's closing post says so when its opening post already tagged
+       this person — see `cycleLeadTag` in `lib/ghl/client.ts`. Anything else
+       arriving here gets the tag cycled, which is the safe default. */
+    retag: input.retag !== false,
   });
 
   return Response.json({ ok: result.ok }, { status: result.ok ? 200 : 502 });

@@ -133,5 +133,6 @@ export function mapLead(lead: SiteLead): GhlContact {
     opportunityName: lead.homeName
       ? `${lead.name} — ${lead.homeName}`
       : `${lead.name} — ${LEAD_FORM_LABEL[lead.form]}`,
+    retag: lead.retag,
   };
 }

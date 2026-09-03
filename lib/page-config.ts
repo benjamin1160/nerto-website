@@ -192,6 +192,10 @@ export const floatingCall = true;
  * Turn it off for a lot whose leads all arrive by phone, or while nobody is
  * there to answer the callbacks it promises. A chat that nobody answers is
  * worse than no chat.
+ *
+ * The `CHAT_WIDGET` environment variable overrides this: set it to GHL's own
+ * embed snippet and that widget loads instead of this one, switch or no
+ * switch. See `lib/ghl/chat-embed.ts` for the trade between them.
  */
 export const chatWidget = true;
 

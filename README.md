@@ -238,11 +238,34 @@ own attribution only sees GHL's own forms. And every form carries the
 visitor's shortlist — the homes they hearted — which is usually a better
 guide to the call than the one home they filled a form about.
 
-The chat widget is `components/chat-widget.tsx`, its script is data in
+Every contact the site creates is tagged `MHG_WEBSITE_LEAD` — and on a
+contact that already carries it, the tag is removed and re-added, because
+GHL fires "Contact Tag Added" on the transition rather than on the state, so
+a returning visitor would otherwise start no workflow at all. `GHL_LEAD_TAG`
+renames it; an empty string switches the behaviour off.
+
+### The chat widget
+
+Two of them, and you pick one.
+
+The built-in widget is `components/chat-widget.tsx`, its script is data in
 `lib/chat.ts`, and `chatWidget` in `lib/page-config.ts` turns it off. It is a
 guided intake rather than a conversation, it says so in its first message,
 and it posts as soon as it has a name and a number so an abandoned chat is
-still a lead. Nothing is loaded from a third-party CDN.
+still a lead. It fills every custom field above and loads nothing from a
+third-party CDN.
+
+Set `CHAT_WIDGET` to the embed snippet from GHL (Sites → Chat Widget) and
+GHL's own widget loads instead — a real conversation into the GHL inbox,
+with GHL's own fields rather than this site's. The built-in one stands down
+automatically: one bubble in the corner, never two. The snippet is parsed
+rather than injected — the `src` and `data-*` attributes are read out and
+re-rendered, and a `src` that is not HTTPS on `leadconnectorhq.com` is
+refused. It is read at build time, so it has to be set for the build.
+
+GHL's widget sits bottom-right, where the floating call button already is.
+Turn off `floatingCall` in `lib/page-config.ts`, or move the widget in GHL's
+own settings, rather than leaving them stacked.
 
 These routes need a running server; the rest of the site is static.
 
