@@ -82,7 +82,8 @@ lib/ghl/            The CRM. `fields.ts` is every contact custom field the
                     `submit.ts` is the single door every lead leaves by —
                     GoHighLevel, then `LEAD_WEBHOOK_URL`, then the log.
                     Adding a field is one entry in `fields.ts`, one line in
-                    `map.ts` and one run of `npm run ghl:setup`.
+                    `map.ts`, and the next deploy — `postbuild` creates
+                    whatever the CRM is missing and never fails a build.
                     `chat-embed.ts` reads the `CHAT_WIDGET` variable: set it
                     to GHL's embed snippet and GHL's own chat widget loads
                     in place of this site's — one bubble, never two.

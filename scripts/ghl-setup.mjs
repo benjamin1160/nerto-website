@@ -5,8 +5,25 @@
  *   node scripts/ghl-setup.mjs fields    # create the missing contact fields
  *   node scripts/ghl-setup.mjs values    # write the location's custom values
  *   node scripts/ghl-setup.mjs all       # both, after `check`
+ *   node scripts/ghl-setup.mjs ensure    # what the deploy runs, see below
  *
- * It reads two variables and refuses to run without them:
+ * `ensure` is the one that runs by itself. It is wired to `postbuild` in
+ * `package.json`, so merging and deploying creates whatever the CRM is
+ * missing without anybody remembering to run anything. It differs from the
+ * commands above in exactly the ways an unattended job should:
+ *
+ *   - It exits 0 whatever happens. A CRM that is unreachable, a token that
+ *     has expired, a field the API refuses — none of it fails a deploy. The
+ *     site works without these fields; it just logs louder.
+ *   - Without a token it says so in one line and stops, so a local build,
+ *     a CI check and a preview deploy are all unaffected.
+ *   - It CREATES missing custom values but never overwrites one that is
+ *     already there, because somebody may have edited it in GHL on purpose
+ *     and a deploy is not the place to argue. `npm run ghl:values` is the
+ *     explicit "push `lib/site.ts` over the CRM" command.
+ *   - `GHL_SETUP_ON_BUILD=false` turns it off.
+ *
+ * It reads two variables, and every command but `ensure` refuses without them:
  *
  *   GHL_API_TOKEN     A Private Integration Token (`pit-…`) or a sub-account
  *                     access token, with these scopes:
@@ -33,7 +50,9 @@ import { CONTACT_FIELDS } from "../lib/ghl/fields.ts";
 import { customValues } from "../lib/ghl/custom-values.ts";
 import { site } from "../lib/site.ts";
 
-const BASE = "https://services.leadconnectorhq.com";
+/* `GHL_API_BASE` is for testing only — it points this script at a stub, the
+   same way `lib/ghl/client.ts` can be pointed at one. */
+const BASE = process.env.GHL_API_BASE?.trim() || "https://services.leadconnectorhq.com";
 const VERSION = process.env.GHL_API_VERSION?.trim() || "2021-07-28";
 const TOKEN = process.env.GHL_API_TOKEN?.trim();
 const LOCATION = process.env.GHL_LOCATION_ID?.trim();
@@ -41,7 +60,17 @@ const LOCATION = process.env.GHL_LOCATION_ID?.trim();
 const command = process.argv[2] ?? "check";
 const DRY = process.argv.includes("--dry-run");
 
+/* `ensure` runs unattended during a build, where "not configured" is the
+   normal case and not an error: a contributor's laptop and a CI check have no
+   business holding a CRM token. Every other command was typed by somebody who
+   meant it, and gets told what is missing. */
 if (!TOKEN || !LOCATION) {
+  if (command === "ensure") {
+    console.log(
+      `ghl:ensure — ${TOKEN ? "GHL_LOCATION_ID" : "GHL_API_TOKEN"} is not set, skipping.`,
+    );
+    process.exit(0);
+  }
   console.error(
     "GHL_API_TOKEN and GHL_LOCATION_ID must both be set.\n" +
       "Put them in .env.local (see .env.example) and run with:\n" +
@@ -50,9 +79,16 @@ if (!TOKEN || !LOCATION) {
   process.exit(1);
 }
 
+if (command === "ensure" && process.env.GHL_SETUP_ON_BUILD === "false") {
+  console.log("ghl:ensure — GHL_SETUP_ON_BUILD is false, skipping.");
+  process.exit(0);
+}
+
 async function api(path, init = {}) {
   const res = await fetch(`${BASE}${path}`, {
     ...init,
+    /* A build must not hang on a CRM that has stopped answering. */
+    signal: AbortSignal.timeout(15_000),
     headers: {
       Authorization: `Bearer ${TOKEN}`,
       Version: VERSION,
@@ -266,8 +302,69 @@ async function values() {
   if (!DRY) console.log(`\n${made} created, ${updated} updated.`);
 }
 
+/**
+ * What a deploy runs. Quiet when there is nothing to do, loud when something
+ * was created, and never fatal.
+ *
+ * Two builds racing each other could in principle create the same field
+ * twice — there is no lock, and GHL has no "create if absent". In practice a
+ * host builds one commit at a time, and a duplicate is a cosmetic problem in
+ * a settings screen rather than a lost lead, which is the right way round.
+ */
+async function ensure() {
+  const remote = await existingFields();
+  const missing = CONTACT_FIELDS.filter((def) => !match(remote, def));
+
+  let made = 0;
+  const failed = [];
+  for (const def of missing) {
+    try {
+      const created = await createField(def);
+      made += 1;
+      console.log(`ghl:ensure — created field "${def.name}" [${created.how}]`);
+    } catch (err) {
+      failed.push(def.name);
+      console.warn(`ghl:ensure — could not create "${def.name}": ${err.message}`);
+    }
+  }
+
+  /* Values are only ever created here, never updated: one may have been
+     edited in GHL on purpose, and a deploy is not the place to argue. */
+  let values = 0;
+  try {
+    const remoteValues = await existingValues();
+    for (const def of customValues(site)) {
+      const found = remoteValues.find(
+        (v) => (v.name ?? "").trim().toLowerCase() === def.name.toLowerCase(),
+      );
+      if (found) continue;
+      await api(`/locations/${LOCATION}/customValues`, {
+        method: "POST",
+        body: JSON.stringify({ name: def.name, value: def.value }),
+      });
+      values += 1;
+      console.log(`ghl:ensure — created value "${def.name}"`);
+    }
+  } catch (err) {
+    console.warn(`ghl:ensure — custom values skipped: ${err.message}`);
+  }
+
+  const kept = CONTACT_FIELDS.length - missing.length;
+  console.log(
+    `ghl:ensure — ${kept} field(s) already there, ${made} created, ` +
+      `${failed.length} failed, ${values} custom value(s) created.`,
+  );
+  if (failed.length) {
+    console.warn(
+      `ghl:ensure — create these by hand in Settings → Custom Fields, with these exact labels: ${failed.join(", ")}.\n` +
+        "ghl:ensure — the site resolves fields by name as well as by key, so the labels are all that matter.",
+    );
+  }
+}
+
 try {
-  if (command === "check") await check();
+  if (command === "ensure") await ensure();
+  else if (command === "check") await check();
   else if (command === "fields") await fields();
   else if (command === "values") await values();
   else if (command === "all") {
@@ -277,10 +374,17 @@ try {
     console.log("");
     await values();
   } else {
-    console.error(`Unknown command "${command}". Use: check | fields | values | all`);
+    console.error(`Unknown command "${command}". Use: check | fields | values | all | ensure`);
     process.exit(1);
   }
 } catch (err) {
+  /* A deploy is never failed by the CRM being unreachable. The site does not
+     need these fields to serve a page, and it does not need them to take a
+     lead — `lib/ghl/client.ts` warns and sends what it can. */
+  if (command === "ensure") {
+    console.warn(`ghl:ensure — skipped: ${err.message}`);
+    process.exit(0);
+  }
   console.error(`\nGHL request failed: ${err.message}`);
   if (err.status === 401 || err.status === 403) {
     console.error(

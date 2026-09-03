@@ -29,7 +29,7 @@ form or chat  →  server validation  →  submitLead()  →  GHL   (if configur
 | `lib/ghl/chat-embed.ts` | Parses `CHAT_WIDGET` — GHL's own widget, when one is configured |
 | `components/chat-widget.tsx` | The widget. Holds no copy |
 | `components/lead-context.tsx` | The two hidden inputs every form carries |
-| `scripts/ghl-setup.mjs` | Creates the fields and values in a sub-account |
+| `scripts/ghl-setup.mjs` | Creates the fields and values in a sub-account. `ensure` is the deploy's own run |
 
 ## Adding a field the site sends
 
@@ -102,6 +102,19 @@ npm run ghl:check     # lists every field, present or MISSING. Changes nothing
 npm run ghl:setup     # creates what is missing, writes the custom values
 npm run ghl:values    # just the custom values — run after editing lib/site.ts
 ```
+
+Usually none of these need running: `postbuild` in `package.json` runs
+`ghl-setup.mjs ensure` after every build, which creates whatever is missing
+and nothing else. Two rules about that command, and both matter more than
+they look:
+
+- **`ensure` must never fail a build.** It exits 0 on every path — no token,
+  no network, a refused field. The site serves pages and takes leads without
+  these fields; a deploy blocked on the CRM is the worse outcome.
+- **`ensure` never overwrites.** Fields are created only when absent, and
+  custom values likewise — somebody may have edited one in GHL deliberately.
+  `ghl:values` is the explicit "push `lib/site.ts` over the CRM" command, and
+  it stays a thing somebody types.
 
 `ghl:check` is safe against a live account and is the first thing to run when
 a lead arrives with empty fields.

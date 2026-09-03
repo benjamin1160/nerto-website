@@ -220,11 +220,30 @@ GHL_API_TOKEN="pit-..."                         # Private Integration Token
 GHL_LOCATION_ID="..."                           # the sub-account
 ```
 
-Then create the CRM's fields — the script reads `.env.local` itself:
+**The fields create themselves on deploy.** `postbuild` in `package.json`
+runs `scripts/ghl-setup.mjs ensure` after every build, so merging and
+deploying with those two variables set is all it takes: it creates the 25
+contact fields and any missing custom values, and does nothing on every
+subsequent deploy because they already exist.
+
+It is built to be safe in a pipeline. Without a token it prints one line and
+stops, so local builds, CI checks and preview deploys are unaffected. It
+exits 0 whatever happens — an unreachable CRM or an expired token logs a
+warning and never fails a deploy. It creates missing custom values but never
+overwrites one that already exists, in case somebody edited it in GHL on
+purpose. `GHL_SETUP_ON_BUILD=false` turns it off.
+
+Two caveats. The variables have to be present in the **build** environment,
+not just at runtime — the same is true of `CHAT_WIDGET` below. And the host's
+build command has to be `npm run build` rather than `next build`, or npm
+never runs the `postbuild` hook.
+
+To do it by hand instead — the script reads `.env.local` itself:
 
 ```bash
 npm run ghl:check    # what exists, what is missing. Changes nothing.
 npm run ghl:setup    # creates the 25 contact fields, writes the custom values
+npm run ghl:values   # pushes lib/site.ts over the CRM's custom values
 ```
 
 `lib/ghl/fields.ts` is the list of contact custom fields and the one place to
