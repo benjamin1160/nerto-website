@@ -106,7 +106,9 @@ them by name (`display-serif`, `ui-sans`, `grotesk`, `mono`). Adding a
 typeface means adding the `next/font` call there *and* the entry in
 `FontChoice`.
 
-The logo is `components/logo.tsx`, drawn as inline SVG.
+The logo is `components/logo.tsx`, which renders `public/logo.png` — NERTO's
+own mark with its white plate knocked out. Replace the PNG to change it; the
+component sizes it by height and puts a white plate back in the dark theme.
 
 ## Page copy
 

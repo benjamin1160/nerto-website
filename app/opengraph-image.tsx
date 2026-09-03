@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { site } from "@/lib/site";
 
@@ -6,6 +8,11 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export default async function Image() {
+  /* The same mark the header wears, read from `public/` because the OG
+     route renders at build time with no origin to fetch it from. */
+  const logo = await readFile(join(process.cwd(), "public", "logo.png"));
+  const logoSrc = `data:image/png;base64,${logo.toString("base64")}`;
+
   return new ImageResponse(
     (
       <div
@@ -21,13 +28,19 @@ export default async function Image() {
           fontFamily: "serif",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <svg width="52" height="44" viewBox="0 0 34 28">
-            <path d="M2 14 17 3l15 11" fill="none" stroke="#f7f4ef" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M7 16h20v9H7z" fill="none" stroke="#f7f4ef" strokeWidth="2" />
-            <path d="M2 25.5h30" stroke="#e9853f" strokeWidth="2.6" strokeLinecap="round" />
-          </svg>
-          <span style={{ fontSize: 38, letterSpacing: -1 }}>{site.short}</span>
+        {/* The logo's wordmark is black, so it sits on its white plate here
+            as it does on a dark header. */}
+        <div style={{ display: "flex" }}>
+          <div
+            style={{
+              display: "flex",
+              background: "#ffffff",
+              borderRadius: 16,
+              padding: "12px 20px",
+            }}
+          >
+            <img src={logoSrc} alt="" width={260} height={129} />
+          </div>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column" }}>
