@@ -1,25 +1,30 @@
+import Image from "next/image";
 import { site } from "@/lib/site";
+import logo from "@/public/logo.png";
 import { cx } from "./ui";
 
+/**
+ * NERTO's own mark — the three grey houses, "N.E.R.T.O." in blue with the
+ * orange house icons, "MOBILES • MODULARS" beneath — as the business uses it
+ * on its existing site. `public/logo.png` is that artwork with the white
+ * plate knocked out, so it sits on the header ground; in the dark theme the
+ * black wordmark would vanish, so it gets its plate back.
+ */
 export function Logo({ className }: { className?: string }) {
   return (
-    <span className={cx("inline-flex items-center gap-2.5", className)}>
-      <svg viewBox="0 0 34 28" className="h-6 w-auto shrink-0" aria-hidden>
-        <path
-          d="M2 14 17 3l15 11"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path d="M7 16h20v9H7z" fill="none" stroke="currentColor" strokeWidth="2" />
-        <path d="M2 25.5h30" stroke="var(--ember)" strokeWidth="2.6" strokeLinecap="round" />
-        <rect x="14.5" y="19" width="5" height="6" fill="currentColor" opacity="0.85" />
-      </svg>
-      <span className="font-display text-[1.35rem] leading-none tracking-tight">
-        {site.short}
-      </span>
+    <span
+      className={cx(
+        "inline-flex items-center dark:rounded-lg dark:bg-white dark:px-2 dark:py-1",
+        className,
+      )}
+    >
+      <Image
+        src={logo}
+        alt={`${site.name} — Mobiles · Modulars`}
+        priority
+        sizes="260px"
+        className="h-14 w-auto sm:h-16"
+      />
     </span>
   );
 }
