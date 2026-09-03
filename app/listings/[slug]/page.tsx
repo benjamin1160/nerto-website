@@ -485,7 +485,7 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
               lede={
                 listing.price === undefined
                   ? `Pricing depends on the options, the delivery distance and the site work, so we quote it rather than post a number that turns out to be wrong. Call ${site.phone} or send the form and we will put real figures against this plan.`
-                  : "Move the sliders. The gap between the two loan types is the single most expensive decision in this whole process — bigger than the colour of the cabinets."
+                  : "Move the sliders. The land, the rate and the down payment move the month far more than the colour of the cabinets."
               }
             />
           </Reveal>
