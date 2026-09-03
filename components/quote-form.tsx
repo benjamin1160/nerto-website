@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { requestPreApproval } from "@/app/land-deals/actions";
+import { LeadContext } from "./lead-context";
 import { EMPTY_LEAD_STATE } from "@/lib/land/lead";
 import { cx, Icon } from "./ui";
 import { site } from "@/lib/site";
@@ -73,6 +74,7 @@ export function QuoteForm() {
             aria-hidden="true"
             className="hidden"
           />
+          <LeadContext />
 
           <h3 className="mb-4 text-xl font-semibold text-white">
             Get a free home &amp; land quote

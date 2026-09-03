@@ -2,6 +2,9 @@
 
 import { AREAS } from "@/lib/land/areas";
 import { LEAD_SOURCES, type LeadField, type LeadSource, type LeadState } from "@/lib/land/lead";
+import { parseAttribution } from "@/lib/attribution";
+import { submitLead } from "@/lib/ghl/submit";
+import type { LeadForm } from "@/lib/ghl/lead";
 
 const digits = (s: string) => s.replace(/\D/g, "");
 const clean = (v: FormDataEntryValue | null, max = 200) =>
@@ -11,9 +14,10 @@ const clean = (v: FormDataEntryValue | null, max = 200) =>
  * Takes a pre-approval request from the landing page.
  *
  * Server Functions are reachable by direct POST, so everything here is
- * validated and length-capped rather than trusted. Set `LEAD_WEBHOOK_URL` to
- * forward leads to your CRM; without it the lead is logged so nothing is lost
- * while the integration is being wired up.
+ * validated and length-capped rather than trusted. Delivery is
+ * `lib/ghl/submit.ts`: GoHighLevel when a token is configured, the
+ * `LEAD_WEBHOOK_URL` webhook when one is set, and the server log when
+ * neither, so nothing is lost while the integration is being wired up.
  */
 export async function requestPreApproval(
   _prev: LeadState,
@@ -63,38 +67,31 @@ export async function requestPreApproval(
     ? submitted
     : "land-deals-map";
 
-  const payload = {
+  const result = await submitLead({
+    /* The two vocabularies agree: every `LeadSource` is also a `LeadForm`. */
+    form: source as LeadForm,
     ...lead,
-    county:
-      AREAS.find((a) => a.slug === lead.county)?.county ?? lead.county ?? "",
-    source,
-    submittedAt: new Date().toISOString(),
-  };
+    /* The county's name rather than its slug — nobody reading a CRM record
+       wants `kennebec`. */
+    county: AREAS.find((a) => a.slug === lead.county)?.county ?? lead.county,
+    savedHomes: clean(formData.get("savedHomes"), 600)
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    attribution: parseAttribution(formData.get("attribution")),
+  });
 
-  const webhook = process.env.LEAD_WEBHOOK_URL;
-  if (webhook) {
-    try {
-      const res = await fetch(webhook, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error(`webhook responded ${res.status}`);
-    } catch (err) {
-      console.error("[lead] failed to forward to webhook", err);
-      return {
-        status: "error",
-        message:
-          "Something broke on our end. Call or text us and we'll take it from there.",
-        values: lead,
-      };
-    }
-  } else {
-    console.info("[lead] LEAD_WEBHOOK_URL unset, logging instead:", payload);
+  if (!result.ok) {
+    return {
+      status: "error",
+      message:
+        "Something broke on our end. Call or text us and we'll take it from there.",
+      values: lead,
+    };
   }
 
   return {
     status: "ok",
-    message: `Got it, ${payload.name.split(" ")[0]}. We'll call you with a pre-approval range — usually same day.`,
+    message: `Got it, ${lead.name.split(" ")[0]}. We'll call you with a pre-approval range — usually same day.`,
   };
 }

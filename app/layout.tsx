@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Fraunces, Inter } from "next/font/google";
 import { CALL_BAR_HEIGHT } from "@/components/call-bar";
+import { ChatWidget } from "@/components/chat-widget";
 import { FloatingCall } from "@/components/floating-call";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SavedHomesProvider } from "@/components/saved-homes";
-import { callBar, floatingCall } from "@/lib/page-config";
+import { callBar, chatWidget, floatingCall } from "@/lib/page-config";
 import { skin, skinStyles, type FontChoice } from "@/lib/skin";
 import { site } from "@/lib/site";
 import "./globals.css";
@@ -142,6 +143,7 @@ export default function RootLayout({
           </main>
           <SiteFooter />
           {floatingCall && <FloatingCall />}
+          {chatWidget && <ChatWidget />}
         </SavedHomesProvider>
       </body>
     </html>

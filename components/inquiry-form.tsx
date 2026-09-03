@@ -1,16 +1,20 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useActionState } from "react";
+import { requestWalkthrough } from "@/app/actions";
 import { listings, seriesLabel } from "@/lib/homes";
+import { EMPTY_WALKTHROUGH_STATE, TIME_SLOTS } from "@/lib/walkthrough";
+import { LeadContext } from "./lead-context";
 import { buttonStyles, cx, Icon } from "./ui";
 
-type Errors = Partial<Record<"name" | "email" | "phone" | "date", string>>;
-
-const TIME_SLOTS = ["Morning (9–12)", "Midday (12–3)", "Afternoon (3–6)", "Weekend only"];
-
 /**
- * Demo form: it validates properly and then resolves locally. Wire the
- * `submit` branch to a Server Action or your CRM endpoint when you deploy.
+ * The walkthrough request, on the contact page and at the foot of every
+ * listing.
+ *
+ * It posts to `requestWalkthrough` in `app/actions.ts`, which validates
+ * again — a Server Function is reachable by direct POST — and hands the lead
+ * to `lib/ghl/submit.ts`. Field names are the ones the CRM mapping expects:
+ * `name`, `email`, `phone`, `home`, `date`, `slot`, `message`, `callFirst`.
  */
 export function InquiryForm({
   defaultHome,
@@ -23,44 +27,17 @@ export function InquiryForm({
   lede?: string;
   compact?: boolean;
 }) {
-  const [errors, setErrors] = useState<Errors>({});
-  const [state, setState] = useState<"idle" | "sending" | "sent">("idle");
-
-  function validate(data: FormData): Errors {
-    const next: Errors = {};
-    const name = String(data.get("name") ?? "").trim();
-    const email = String(data.get("email") ?? "").trim();
-    const phone = String(data.get("phone") ?? "").trim();
-    const date = String(data.get("date") ?? "");
-
-    if (name.length < 2) next.name = "Tell us what to call you.";
-    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(email)) next.email = "That email doesn't look right.";
-    if (phone && phone.replace(/\D/g, "").length < 10)
-      next.phone = "Ten digits, or leave it blank.";
-    if (date && new Date(date) < new Date(new Date().toDateString()))
-      next.date = "Pick a date that hasn't happened yet.";
-    return next;
-  }
-
-  async function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const data = new FormData(e.currentTarget);
-    const found = validate(data);
-    setErrors(found);
-    if (Object.keys(found).length) {
-      const first = e.currentTarget.querySelector<HTMLElement>("[aria-invalid='true']");
-      first?.focus();
-      return;
-    }
-    setState("sending");
-    await new Promise((r) => setTimeout(r, 700));
-    setState("sent");
-  }
+  const [state, action, pending] = useActionState(
+    requestWalkthrough,
+    EMPTY_WALKTHROUGH_STATE,
+  );
+  const errors = state.fieldErrors ?? {};
+  const was = state.values ?? {};
 
   const field =
     "w-full rounded-xl border border-line-strong bg-paper px-4 py-3 text-[0.95rem] text-ink placeholder:text-muted transition-colors focus:border-ink focus:outline-none";
 
-  if (state === "sent") {
+  if (state.status === "ok") {
     return (
       <div
         className={cx(
@@ -80,26 +57,30 @@ export function InquiryForm({
             what you want to see. Bring the sceptic. Bring boots — we&apos;ll get under a home.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setState("idle")}
-          className={cx(buttonStyles.small)}
-        >
-          Book another
-        </button>
       </div>
     );
   }
 
   return (
     <form
-      onSubmit={onSubmit}
+      action={action}
       noValidate
       className={cx(
         "rounded-card border border-line bg-surface",
         compact ? "p-6" : "p-6 sm:p-9",
       )}
     >
+      {/* Honeypot: real people leave this empty. */}
+      <input
+        type="text"
+        name="company"
+        tabIndex={-1}
+        autoComplete="off"
+        aria-hidden="true"
+        className="hidden"
+      />
+      <LeadContext />
+
       <h3 className="font-display text-2xl tracking-tight text-ink">{title}</h3>
       <p className="mt-3 text-[0.92rem] leading-relaxed text-muted">{lede}</p>
 
@@ -110,6 +91,7 @@ export function InquiryForm({
             name="name"
             autoComplete="name"
             placeholder="Alex Whitfield"
+            defaultValue={was.name}
             aria-invalid={!!errors.name}
             aria-describedby={errors.name ? "err-name" : undefined}
             className={cx(field, "mt-2.5", errors.name && "border-ember")}
@@ -128,6 +110,7 @@ export function InquiryForm({
             type="email"
             autoComplete="email"
             placeholder="alex@example.com"
+            defaultValue={was.email}
             aria-invalid={!!errors.email}
             aria-describedby={errors.email ? "err-email" : undefined}
             className={cx(field, "mt-2.5", errors.email && "border-ember")}
@@ -145,7 +128,8 @@ export function InquiryForm({
             name="phone"
             type="tel"
             autoComplete="tel"
-            placeholder="(352) 555-0100"
+            placeholder="(207) 555-0100"
+            defaultValue={was.phone}
             aria-invalid={!!errors.phone}
             aria-describedby={errors.phone ? "err-phone" : undefined}
             className={cx(field, "mt-2.5", errors.phone && "border-ember")}
@@ -159,7 +143,11 @@ export function InquiryForm({
 
         <label className="block sm:col-span-2">
           <span className="eyebrow">Home you want to see</span>
-          <select name="home" defaultValue={defaultHome ?? ""} className={cx(field, "mt-2.5 cursor-pointer")}>
+          <select
+            name="home"
+            defaultValue={was.home ?? defaultHome ?? ""}
+            className={cx(field, "mt-2.5 cursor-pointer")}
+          >
             <option value="">Not sure yet — show me a few</option>
             {listings.map((l) => (
               <option key={l.slug} value={l.slug}>
@@ -174,6 +162,7 @@ export function InquiryForm({
           <input
             name="date"
             type="date"
+            defaultValue={was.date}
             aria-invalid={!!errors.date}
             aria-describedby={errors.date ? "err-date" : undefined}
             className={cx(field, "mt-2.5", errors.date && "border-ember")}
@@ -187,7 +176,7 @@ export function InquiryForm({
 
         <label className="block">
           <span className="eyebrow">Time that works</span>
-          <select name="slot" className={cx(field, "mt-2.5 cursor-pointer")}>
+          <select name="slot" defaultValue={was.slot} className={cx(field, "mt-2.5 cursor-pointer")}>
             {TIME_SLOTS.map((s) => (
               <option key={s}>{s}</option>
             ))}
@@ -199,7 +188,8 @@ export function InquiryForm({
           <textarea
             name="message"
             rows={3}
-            placeholder="We have a half-acre outside Sisters and no idea whether it will perc."
+            defaultValue={was.message}
+            placeholder="We have a half-acre outside Chelsea and no idea whether it will perc."
             className={cx(field, "mt-2.5 resize-y")}
           />
         </label>
@@ -208,6 +198,7 @@ export function InquiryForm({
           <input
             name="callFirst"
             type="checkbox"
+            defaultChecked={state.callFirst}
             className="mt-0.5 size-4 shrink-0 accent-[var(--ember)]"
           />
           <span className="text-[0.88rem] leading-relaxed text-muted">
@@ -216,20 +207,25 @@ export function InquiryForm({
         </label>
       </div>
 
+      {state.status === "error" && !errors.name && !errors.email && !errors.phone && !errors.date && (
+        <p
+          role="alert"
+          className="mt-6 rounded-xl border border-ember bg-surface-2 px-4 py-3 text-sm text-ink"
+        >
+          {state.message}
+        </p>
+      )}
+
       <button
         type="submit"
-        disabled={state === "sending"}
+        disabled={pending}
         className={cx(buttonStyles.primary, "mt-7 w-full !py-4 text-base")}
       >
-        {state === "sending" ? "Sending…" : "Request the walkthrough"}
-        {state !== "sending" && (
+        {pending ? "Sending…" : "Request the walkthrough"}
+        {!pending && (
           <Icon.Arrow className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
         )}
       </button>
-
-      <p className="mt-4 text-center text-xs text-muted">
-        Demo form — submissions resolve locally and are never sent anywhere.
-      </p>
     </form>
   );
 }

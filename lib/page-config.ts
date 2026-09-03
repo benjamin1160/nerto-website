@@ -182,6 +182,20 @@ export const videoShowcase: {
 export const floatingCall = true;
 
 /**
+ * The chat widget, bottom right, above the call button.
+ *
+ * It is a guided intake rather than a conversation — five questions, then a
+ * callback — and it says so in its own first message. The script is data in
+ * `lib/chat.ts`; the lead goes to GoHighLevel through `app/api/chat/route.ts`
+ * like every form on the site.
+ *
+ * Turn it off for a lot whose leads all arrive by phone, or while nobody is
+ * there to answer the callbacks it promises. A chat that nobody answers is
+ * worse than no chat.
+ */
+export const chatWidget = true;
+
+/**
  * The phone strip above the header — the number, the hours and the licence,
  * in the first line of the document.
  *

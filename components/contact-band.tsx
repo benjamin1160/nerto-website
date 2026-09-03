@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { requestPreApproval } from "@/app/land-deals/actions";
 import { EMPTY_LEAD_STATE } from "@/lib/land/lead";
 import { cx, Icon } from "./ui";
+import { LeadContext } from "./lead-context";
 import { site } from "@/lib/site";
 
 const BUDGETS = [
@@ -70,6 +71,7 @@ export function ContactBand() {
         aria-hidden="true"
         className="hidden"
       />
+      <LeadContext />
 
       <div>
         <h3 className="text-xl font-semibold text-ink">Contact us</h3>

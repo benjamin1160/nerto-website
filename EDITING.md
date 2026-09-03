@@ -166,9 +166,24 @@ invent them for you.
 
 > Send the pre-approval form to our CRM.
 
-The pre-approval form is already wired to a Server Action: set
-`LEAD_WEBHOOK_URL` and every lead is posted to it as JSON. Until then leads
-are logged to the server console rather than dropped.
+Every form on the site is already wired, and so is the chat widget. Put a
+GoHighLevel Private Integration Token and your sub-account id in `.env.local`
+(copy `.env.example`), run `npm run ghl:setup` once to create the fields the
+site fills in, and leads arrive as tagged contacts with a note, the whole
+conversation, and where the visitor came from. `LEAD_WEBHOOK_URL` still works
+alongside it, and with neither set leads are logged to the server console
+rather than dropped.
+
+> Take the chat bubble off.
+
+`chatWidget` in `lib/page-config.ts`, one `true` to `false`. Worth doing while
+nobody is there to answer the callbacks it promises.
+
+> Change what the chat asks.
+
+`lib/chat.ts`. Every word it says is in that file, in order — the greeting,
+the five questions, the buttons on the first one, and what it says when it is
+done. The component reads them and does not contain any copy of its own.
 
 ## Brand and copy
 

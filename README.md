@@ -196,25 +196,55 @@ The dark palette is the same token list redefined under `.dark`.
 Typography is Fraunces (display), Geist (UI) and Geist Mono (data), loaded
 through `next/font/google` and self-hosted at build time.
 
-### Wiring up the forms
+### The forms, the chat widget, and GoHighLevel
 
-`components/inquiry-form.tsx` validates properly and then resolves locally.
-Replace the `await new Promise(...)` in `onSubmit` with a Server Action or
-your CRM endpoint. Field names are already sensible: `name`, `email`, `phone`,
-`home`, `date`, `slot`, `message`, `callFirst`.
+Every lead capture on the site — the hero quote card, the closing enquiry
+band, the pre-approval form, the walkthrough request under each listing, and
+the chat widget — validates on the server and then goes through one function,
+`submitLead` in `lib/ghl/submit.ts`. It has three sinks and uses whichever are
+configured:
 
-The pre-approval form on `/land-deals` is already wired: it posts to a Server
-Action in `app/land-deals/actions.ts` which validates, honeypots and
-length-caps the lead, then forwards it as JSON to `LEAD_WEBHOOK_URL`.
+1. **GoHighLevel**, when `GHL_API_TOKEN` and `GHL_LOCATION_ID` are set. The
+   contact is upserted (so the same person filling in two forms stays one
+   contact), tagged `website` and `website-<form>`, given the whole lead as a
+   note, and — with a pipeline configured — an opportunity.
+2. **`LEAD_WEBHOOK_URL`**, exactly as before: the lead as JSON.
+3. **The server log**, when neither is set, so a site deployed ahead of its
+   CRM loses nothing.
+
+Copy `.env.example` to `.env.local` and fill it in:
 
 ```bash
-LEAD_WEBHOOK_URL="https://services.leadconnectorhq.com/hooks/..."
 NEXT_PUBLIC_SITE_URL="https://yourdomain.com"   # canonical + OG URLs
+GHL_API_TOKEN="pit-..."                         # Private Integration Token
+GHL_LOCATION_ID="..."                           # the sub-account
 ```
 
-With no webhook set the lead is logged to the server console rather than
-dropped, so nothing is lost while the integration is being wired up. Note
-that this route needs a running server; the rest of the site is static.
+Then create the CRM's fields — the script reads `.env.local` itself:
+
+```bash
+npm run ghl:check    # what exists, what is missing. Changes nothing.
+npm run ghl:setup    # creates the 25 contact fields, writes the custom values
+```
+
+`lib/ghl/fields.ts` is the list of contact custom fields and the one place to
+add another; `lib/ghl/custom-values.ts` is the location-level custom values,
+drawn from `lib/site.ts`, so the phone number in a GHL SMS template and the
+one in the footer are the same fact. `lib/ghl/map.ts` decides what goes where.
+
+Two details worth knowing. The site captures first-touch UTM parameters and
+the referrer in `sessionStorage` and posts them with the lead, because GHL's
+own attribution only sees GHL's own forms. And every form carries the
+visitor's shortlist — the homes they hearted — which is usually a better
+guide to the call than the one home they filled a form about.
+
+The chat widget is `components/chat-widget.tsx`, its script is data in
+`lib/chat.ts`, and `chatWidget` in `lib/page-config.ts` turns it off. It is a
+guided intake rather than a conversation, it says so in its first message,
+and it posts as soon as it has a name and a number so an abandoned chat is
+still a lead. Nothing is loaded from a third-party CDN.
+
+These routes need a running server; the rest of the site is static.
 
 ### The county map
 
