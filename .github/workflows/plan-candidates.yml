@@ -1,0 +1,50 @@
+# What was on the model pages that published no plan the importer could name.
+#
+# A diagnostic, not part of the catalogue: it writes the candidate images small
+# into `.review/plans/<slug>/` and pushes them to a branch of their own, so a
+# person can look at `waverly-1.png` and say whether it is the upstairs plan or
+# a photograph of the kitchen. The filename rule in the importer can only be
+# widened honestly by somebody looking first.
+#
+# Nothing here reaches the site, and the branch it writes is meant to be
+# deleted once the question is answered. Delete this workflow with it.
+name: Plan candidates
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["claude/**"]
+    paths: [".github/workflows/plan-candidates.yml"]
+
+concurrency:
+  group: plan-candidates
+
+permissions:
+  contents: write
+
+jobs:
+  candidates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/import-manufacturers.mjs candidates
+      - name: Push them somewhere they can be looked at
+        run: |
+          set -euo pipefail
+          if [ ! -d .review/plans ]; then
+            echo 'Nothing unmatched — every model page names its plan.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --quiet -B automation/plan-candidates
+          git add -f .review
+          git commit --quiet -m "Candidate images from the Pleasant Valley pages with no named plan"
+          git push --quiet --force origin automation/plan-candidates
+          echo 'Pushed `automation/plan-candidates`.' >> "$GITHUB_STEP_SUMMARY"

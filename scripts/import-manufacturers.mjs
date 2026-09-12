@@ -702,8 +702,15 @@ async function matchGalleries(list) {
 
 const CDN = "images.squarespace-cdn.com";
 
-/** Filenames that say, in the manufacturer's own words, "this is the plan". */
-const PLAN_NAME = /floor[\s._%-]*plan|[-_/]fp[-_.\d]|[-_]fp$|[-_.]plan[-_.]/i;
+/**
+ * Filenames that say, in the manufacturer's own words, "this is the plan".
+ *
+ * Squarespace writes a space in an uploaded filename as `+`, not `%20`, so
+ * `+` belongs in every separator class here. Leaving it out is not a near
+ * miss: it silently cost 5 plans — "Fillmore+Floor+Plan.jpg" says floor plan
+ * as plainly as a filename can, and was read as saying nothing.
+ */
+const PLAN_NAME = /floor[\s._%+-]*plan|[-_/]fp[-_.\d]|[-_]fp$|[-_.]plan[-_.]/i;
 
 const saysPlan = (image) =>
   PLAN_NAME.test(safeDecode(image.url)) || PLAN_NAME.test(image.alt ?? "");
@@ -933,6 +940,49 @@ async function galleries(list) {
 /* ------------------------------------------------------------------ */
 
 /**
+ * The images on every Pleasant Valley model page that published no plan this
+ * could name — written small, into `.review/plans/<slug>/`, for somebody to
+ * look at.
+ *
+ * This exists because the filename rule above can only be widened honestly by
+ * looking: `waverly-1.png` might be the upstairs plan or it might be a
+ * photograph of the kitchen, and the name does not say. Nothing here is
+ * published; `.review/` is not read by the site.
+ */
+async function candidates() {
+  const { entries: list } = await entries();
+  let models = 0;
+  let images = 0;
+
+  for (const entry of list.filter((e) => e._sourceKey === "pv")) {
+    let item;
+    try {
+      item = await pvItem(entry);
+    } catch (err) {
+      console.warn(`  ! ${entry.slug}: ${err.message}`);
+      continue;
+    }
+    const found = itemImages(item);
+    if (found.some(saysPlan)) continue;
+
+    models++;
+    for (const [i, image] of found.slice(0, 4).entries()) {
+      const name = safeDecode(image.url).split("/").pop().replace(/[^\w.-]+/g, "-");
+      const file = path.join(".review/plans", entry.slug, `${i}-${name}.webp`);
+      if (existsSync(file)) continue;
+      try {
+        await mkdir(path.dirname(file), { recursive: true });
+        await sharp(await download(image.url)).resize(1000).webp({ quality: 70 }).toFile(file);
+        images++;
+      } catch (err) {
+        console.warn(`  ! ${entry.slug} ${name}: ${err.message}`);
+      }
+    }
+  }
+  console.log(`wrote ${images} candidate images from ${models} model pages into .review/plans/`);
+}
+
+/**
  * The photo manifest for imported homes, read off what is actually on disk.
  *
  * Generated rather than hand-written because there are hundreds of keys and
@@ -987,7 +1037,9 @@ if (command === "fetch") {
   await photos();
 } else if (command === "manifest") {
   await writeManifest();
+} else if (command === "candidates") {
+  await candidates();
 } else {
-  console.error("usage: import-manufacturers.mjs fetch|homes|photos|manifest");
+  console.error("usage: import-manufacturers.mjs fetch|homes|photos|manifest|candidates");
   process.exit(1);
 }
