@@ -840,6 +840,18 @@ function itemImages(item) {
 }
 
 /**
+ * Plans read by eye, where the manufacturer's own filename says nothing.
+ *
+ * The equivalent of `ON_LOT_SCENES` above, and used as sparingly: one entry,
+ * because one model publishes its plan as page two of a sales sheet. The
+ * drawing on that page is Knox's own — 44' x 27'5", which is the 1,205 sq ft
+ * the listing claims — and no rule about filenames could have known it.
+ */
+const PLAN_BY_HAND = {
+  knox: "knox-sales-sheet-page-2",
+};
+
+/**
  * Every image on a model page that is a sheet of its floor plan, in the order
  * the sheets go: ground floor first.
  *
@@ -848,6 +860,14 @@ function itemImages(item) {
  */
 function planSheets(item, slug) {
   const images = itemImages(item);
+
+  const byHand = PLAN_BY_HAND[slug];
+  if (byHand) {
+    const hit = images.find(
+      (i) => normalise(safeDecode(i.url).split("/").pop() ?? "") === byHand,
+    );
+    if (hit) return [hit];
+  }
 
   const named = images.filter(saysPlan);
   if (named.length) return named;

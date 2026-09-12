@@ -18,6 +18,10 @@ on:
         description: "Re-fetch Pleasant Valley drawings already on disk"
         type: boolean
         default: false
+      sample_unmatched:
+        description: "Also collect the images from pages with no plan, to be looked at"
+        type: boolean
+        default: false
   # So that pushing this file is enough to run it once, on a working branch.
   push:
     branches: ["claude/**"]
@@ -125,3 +129,26 @@ jobs:
             git push --quiet origin "HEAD:${{ github.ref_name }}"
             echo "Committed to \`${{ github.ref_name }}\`." >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      # What was on the pages that published no plan this could name, small,
+      # on a branch of its own. The filename rule can only be widened
+      # honestly by looking: `waverly-1.png` might be the upstairs plan or a
+      # photograph of the kitchen, and the name does not say. Runs last, on a
+      # tree whose imported files are already committed, and nothing it
+      # writes reaches the site.
+      - name: Collect the unmatched images
+        if: inputs.sample_unmatched
+        run: |
+          set -euo pipefail
+          node scripts/import-manufacturers.mjs candidates
+          if [ ! -d .review/plans ]; then
+            echo 'Nothing unmatched — every model page names its plan.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --quiet -B automation/plan-candidates
+          git add -f .review
+          git commit --quiet -m "Candidate images from the pages with no named plan"
+          git push --quiet --force origin automation/plan-candidates
+          echo 'Pushed `automation/plan-candidates` — delete it once read.' >> "$GITHUB_STEP_SUMMARY"
