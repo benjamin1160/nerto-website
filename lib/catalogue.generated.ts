@@ -5039,6 +5039,7 @@ export const catalogue: CatalogueEntry[] = [
     beds: 2,
     baths: 2,
     sqft: 1205,
+    planImage: "/photos/plans/knox.webp",
     story: ["2 bedroom, 2 bathroom ranch with site-built attached garage and covered entry. Rendering shown with optional 7.0/12 pitch and optional bump-out with reverse gable dormer. The plan contemplates an attached, over-sized (26'0\" wide) site-built 2-car garage and 5'x5' covered entry and outdoor living area accessible via patio door adjacent to dining area. Primary bedroom features an en suite bathroom with double-bowl vanities and 48\" 1-piece fiberglass 1-seat shower."],
     scenes: [{ kind: "exterior", caption: "Front elevation" }],
     sourceUrl: "https://pleasantvalleymodularhomes.com/homes/knox",
