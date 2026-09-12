@@ -34,6 +34,10 @@
  *   Pleasant Valley leads each model with an exterior RENDERING. That is
  *   imported as the home's exterior scene. A rendering is a drawing of a
  *   house that has not been built yet, and the site says so in its footer.
+ *   Its floor-plan drawing, where the model page publishes one as an image,
+ *   is read off that page and imported as `planImage` as well — see
+ *   `pvPlans` below, which takes a drawing only when the filename says it is
+ *   one, and reports the models that publish a PDF instead.
  *   Real PHOTOGRAPHS exist only in Pine Grove's per-model gallery pages —
  *   about 150 of them, of which 88 belong to plans still in the catalogue.
  *   Those are matched, verified against the model number in their own
@@ -568,7 +572,10 @@ export const catalogue: CatalogueEntry[] = [
 
   const body = list
     .map((e) =>
-      serialise(e, e._sourceKey !== "pv" && existsSync(path.join(OUT_PLANS, `${e.slug}.webp`))),
+      /* A drawing is claimed when, and only when, the file is really on
+         disk — true of Pine Grove's lead image and of whatever Pleasant
+         Valley plan drawings `photos` could identify. */
+      serialise(e, existsSync(path.join(OUT_PLANS, `${e.slug}.webp`))),
     )
     .join("\n");
 
@@ -672,6 +679,118 @@ async function matchGalleries(list) {
   return pairs;
 }
 
+/* ------------------------------------------------------------------ *
+ * Pleasant Valley's floor-plan drawings
+ *
+ * Pleasant Valley leads each model with an exterior rendering, not with the
+ * plan, so the plan — where the model page carries one — is further down the
+ * page: another image in the item's gallery, or one dropped into the body
+ * copy. The collection listing does not carry those, so each model page is
+ * read on its own (and cached like everything else here).
+ *
+ * Which of those images IS the plan is decided by the filename and nothing
+ * else. Squarespace keeps the uploaded filename in the URL, and Pleasant
+ * Valley's drawings are named for what they are — "…-floor-plan.jpg",
+ * "…-FP.png". An image that does not say so is left alone: publishing an
+ * interior rendering captioned as a floor plan would be worse than
+ * publishing no plan at all, which the listing page already handles.
+ *
+ * Some models publish the plan only as a PDF. Those are counted and reported,
+ * never converted — a PDF is not an image and guessing at a page of one is
+ * how you end up with a blank plate.
+ * ------------------------------------------------------------------ */
+
+const CDN = "images.squarespace-cdn.com";
+
+/** Filenames that say, in the manufacturer's own words, "this is the plan". */
+const PLAN_NAME = /floor[\s._%-]*plan|[-_/]fp[-_.\d]|[-_]fp$|[-_.]plan[-_.]/i;
+
+const saysPlan = (image) =>
+  PLAN_NAME.test(safeDecode(image.url)) || PLAN_NAME.test(image.alt ?? "");
+
+function safeDecode(url) {
+  try {
+    return decodeURIComponent(url);
+  } catch {
+    return url;
+  }
+}
+
+/** Every CDN image a model page record carries, in page order, de-duplicated. */
+function itemImages(item) {
+  const seen = new Map();
+  const push = (url, alt) => {
+    if (typeof url !== "string" || !url.includes(CDN)) return;
+    const bare = url.split("?")[0];
+    if (!seen.has(bare)) seen.set(bare, { url: bare, alt: alt ?? "" });
+  };
+
+  push(item.assetUrl, item.filename ?? item.title);
+  for (const child of item.items ?? []) push(child.assetUrl, child.filename ?? child.title);
+  for (const m of String(item.body ?? "").matchAll(
+    /https:\/\/images\.squarespace-cdn\.com\/content\/v1\/[^"'?\s<>\\]+/g,
+  )) {
+    push(m[0], "");
+  }
+  return [...seen.values()];
+}
+
+/** The model page's own record, which carries the gallery the listing lacks. */
+async function pvItem(entry) {
+  return cached(`pv-model/${entry.slug}.json`, async () => {
+    const res = await fetch(`${entry.sourceUrl}?format=json`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const body = await res.json();
+    return body.item ?? body;
+  });
+}
+
+/** Does the page link a plan we cannot read — a PDF rather than an image? */
+const linksPlanPdf = (item) =>
+  [...String(item.body ?? "").matchAll(/href="([^"]+\.pdf)"/gi)].some(([, href]) =>
+    PLAN_NAME.test(safeDecode(href)),
+  );
+
+/**
+ * Import the plan drawing for every Pleasant Valley model that publishes one.
+ *
+ * Resumable in the same way as the rest of `photos`: a drawing already on
+ * disk is never re-fetched, so delete the file to force a refresh.
+ */
+async function pvPlans(list) {
+  const pv = list.filter((e) => e._sourceKey === "pv");
+  let written = 0;
+  let already = 0;
+  let pdfOnly = 0;
+  let none = 0;
+
+  for (const entry of pv) {
+    const file = path.join(OUT_PLANS, `${entry.slug}.webp`);
+    if (existsSync(file)) {
+      already++;
+      continue;
+    }
+    try {
+      const item = await pvItem(entry);
+      const plan = itemImages(item).find(saysPlan);
+      if (!plan) {
+        if (linksPlanPdf(item)) pdfOnly++;
+        else none++;
+        continue;
+      }
+      await writePlan(await download(plan.url), file);
+      written++;
+    } catch (err) {
+      console.warn(`  ! plan ${entry.slug}: ${err.message}`);
+    }
+  }
+
+  console.log(
+    `  Pleasant Valley plans: ${written} written, ${already} already on disk, ` +
+      `${pdfOnly} published as PDF only, ${none} with no drawing on the page`,
+  );
+}
+
 async function photos() {
   const { entries: list } = await entries();
   let plans = 0;
@@ -707,6 +826,7 @@ async function photos() {
   }
   console.log(`${exteriors} exterior renderings, ${plans} floor-plan drawings`);
 
+  await pvPlans(list);
   await galleries(list);
 }
 
