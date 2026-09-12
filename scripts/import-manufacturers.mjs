@@ -772,10 +772,19 @@ async function pvPlans(list) {
     }
     try {
       const item = await pvItem(entry);
-      const plan = itemImages(item).find(saysPlan);
+      const images = itemImages(item);
+      const plan = images.find(saysPlan);
       if (!plan) {
         if (linksPlanPdf(item)) pdfOnly++;
         else none++;
+        /* What was on the page and rejected, so a model that turns out to
+           publish its plan under a name this does not know is visible in the
+           log rather than silently absent. */
+        console.log(
+          `  ? ${entry.slug}: ${
+            images.map((i) => safeDecode(i.url).split("/").pop()).join(", ") || "no images"
+          }${linksPlanPdf(item) ? " [plan PDF]" : ""}`,
+        );
         continue;
       }
       await writePlan(await download(plan.url), file);

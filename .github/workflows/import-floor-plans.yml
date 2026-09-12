@@ -21,7 +21,11 @@ on:
   # So that pushing this file is enough to run it once, on a working branch.
   push:
     branches: ["claude/**"]
-    paths: [".github/workflows/import-floor-plans.yml"]
+    paths:
+      - ".github/workflows/import-floor-plans.yml"
+      # A change to the importer is a change to what it would bring in, so it
+      # runs and shows you, rather than waiting to be asked.
+      - "scripts/import-manufacturers.mjs"
 
 concurrency:
   group: import-floor-plans-${{ github.ref }}
