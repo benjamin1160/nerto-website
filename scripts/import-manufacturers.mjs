@@ -34,6 +34,10 @@
  *   Pleasant Valley leads each model with an exterior RENDERING. That is
  *   imported as the home's exterior scene. A rendering is a drawing of a
  *   house that has not been built yet, and the site says so in its footer.
+ *   Its floor-plan drawing, where the model page publishes one as an image,
+ *   is read off that page and imported as `planImage` as well — see
+ *   `pvPlans` below, which takes a drawing only when the filename says it is
+ *   one, and reports the models that publish a PDF instead.
  *   Real PHOTOGRAPHS exist only in Pine Grove's per-model gallery pages —
  *   about 150 of them, of which 88 belong to plans still in the catalogue.
  *   Those are matched, verified against the model number in their own
@@ -568,7 +572,10 @@ export const catalogue: CatalogueEntry[] = [
 
   const body = list
     .map((e) =>
-      serialise(e, e._sourceKey !== "pv" && existsSync(path.join(OUT_PLANS, `${e.slug}.webp`))),
+      /* A drawing is claimed when, and only when, the file is really on
+         disk — true of Pine Grove's lead image and of whatever Pleasant
+         Valley plan drawings `photos` could identify. */
+      serialise(e, existsSync(path.join(OUT_PLANS, `${e.slug}.webp`))),
     )
     .join("\n");
 
@@ -591,6 +598,48 @@ async function download(url) {
 async function writePhoto(buf, file) {
   await mkdir(path.dirname(file), { recursive: true });
   await sharp(buf).resize(1600, 1200, { fit: "cover" }).webp({ quality: 78 }).toFile(file);
+}
+
+/**
+ * Several sheets of one plan, stacked into a single drawing.
+ *
+ * `planImage` is one image and a two-storey home is two sheets, so they are
+ * joined rather than chosen between: the ground floor alone would be a
+ * drawing of a three-bedroom house with no bedrooms in it.
+ */
+async function writePlanSheets(buffers, file) {
+  if (buffers.length === 1) return writePlan(buffers[0], file);
+
+  const WIDTH = 1600;
+  const GAP = 48;
+  const sheets = [];
+  for (const buf of buffers) {
+    sheets.push(
+      await sharp(buf)
+        .resize(WIDTH, null, { fit: "inside" })
+        .flatten({ background: "#ffffff" })
+        .toBuffer({ resolveWithObject: true }),
+    );
+  }
+
+  const height = sheets.reduce((sum, s) => sum + s.info.height, 0) + GAP * (sheets.length - 1);
+
+  let top = 0;
+  const composite = [];
+  for (const sheet of sheets) {
+    composite.push({
+      input: sheet.data,
+      left: Math.round((WIDTH - sheet.info.width) / 2),
+      top,
+    });
+    top += sheet.info.height + GAP;
+  }
+
+  await mkdir(path.dirname(file), { recursive: true });
+  await sharp({ create: { width: WIDTH, height, channels: 3, background: "#ffffff" } })
+    .composite(composite)
+    .webp({ quality: 82 })
+    .toFile(file);
 }
 
 /** A floor-plan drawing: never cropped, and kept on white rather than filled. */
@@ -672,6 +721,235 @@ async function matchGalleries(list) {
   return pairs;
 }
 
+/* ------------------------------------------------------------------ *
+ * Pleasant Valley's floor-plan drawings
+ *
+ * Pleasant Valley leads each model with an exterior rendering, not with the
+ * plan, so the plan — where the model page carries one — is further down the
+ * page: another image in the item's gallery, or one dropped into the body
+ * copy. The collection listing does not carry those, so each model page is
+ * read on its own (and cached like everything else here).
+ *
+ * Which of those images IS the plan is decided by the filename and nothing
+ * else. Squarespace keeps the uploaded filename in the URL, and Pleasant
+ * Valley's drawings are named for what they are — "…-floor-plan.jpg",
+ * "…-FP.png". An image that does not say so is left alone: publishing an
+ * interior rendering captioned as a floor plan would be worse than
+ * publishing no plan at all, which the listing page already handles.
+ *
+ * Some models publish the plan only as a PDF. Those are counted and reported,
+ * never converted — a PDF is not an image and guessing at a page of one is
+ * how you end up with a blank plate.
+ * ------------------------------------------------------------------ */
+
+const CDN = "images.squarespace-cdn.com";
+
+/**
+ * Filenames that say, in the manufacturer's own words, "this is the plan".
+ *
+ * Squarespace writes a space in an uploaded filename as `+`, not `%20`, so
+ * `+` belongs in every separator class here. Leaving it out is not a near
+ * miss: it silently cost 5 plans — "Fillmore+Floor+Plan.jpg" says floor plan
+ * as plainly as a filename can, and was read as saying nothing.
+ */
+const PLAN_NAME = /floor[\s._%+-]*plan|[-_/]fp[-_.\d]|[-_]fp$|[-_.]plan[-_.]/i;
+
+const saysPlan = (image) =>
+  PLAN_NAME.test(safeDecode(image.url)) || PLAN_NAME.test(image.alt ?? "");
+
+function safeDecode(url) {
+  try {
+    return decodeURIComponent(url);
+  } catch {
+    return url;
+  }
+}
+
+/** A filename as a comparable name: `Cape+Verde+II+First+Floor.jpg` → `cape-verde-ii-first-floor`. */
+function normalise(filename) {
+  return filename
+    .replace(/\.[a-z0-9]+$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/**
+ * Which sheet of the plan an image is, for the models that name their
+ * drawings after the home rather than after the drawing.
+ *
+ * Pleasant Valley's two-storey plans are published a floor at a time —
+ * `waverly-1.png` and `waverly-2.png`, `Cape+Verde+II+First+Floor.jpg` — and
+ * its ADUs as `Denali+ADU+Final.jpg`. None of those names contains the words
+ * "floor plan", so the rule is structural instead: the filename must be the
+ * MODEL'S OWN NAME followed by a sheet marker, and that name must be one the
+ * model's slug contains.
+ *
+ * The slug condition is the whole safety of it, and it was arrived at by
+ * looking at the images rather than by reasoning about the names:
+ *
+ *   `plymouth-kit-1.png` is a rendering of the KITCHEN, and it ends in `-1`.
+ *   Its base, "plymouth-kit", is not inside the slug `cape-plymouth-ii`, so
+ *   it is rejected — where any rule that read the trailing `-1` alone would
+ *   have published a picture of some cabinets as a floor plan.
+ *
+ *   `aspendale-01.jpg` is the EXTERIOR rendering. The marker is `1`-`9` with
+ *   no leading zero for exactly that reason: `01` is how this manufacturer
+ *   numbers photographs, `-1` is how it numbers plan sheets.
+ */
+const SHEET_ORDER = {
+  final: 0,
+  "first-floor": 1,
+  "1st-floor": 1,
+  "second-floor": 2,
+  "2nd-floor": 2,
+};
+
+/* `big-bend-1-2.jpg` is one sheet drawing both the I and the II, which is how
+   the ADU pages publish a pair; it sorts with the first. */
+const SHEET_MARKER =
+  /^(.+?)-((?:[1-9](?:-[1-9])*)|first-floor|1st-floor|second-floor|2nd-floor|final)$/;
+
+function sheetOf(image, slug) {
+  const name = normalise(safeDecode(image.url).split("/").pop() ?? "");
+  const m = name.match(SHEET_MARKER);
+  if (!m) return undefined;
+  const [, base, marker] = m;
+  /* The name has to be the model's, not a room's. */
+  if (!base || !slug.includes(base)) return undefined;
+  return SHEET_ORDER[marker] ?? Number(marker.split("-")[0]);
+}
+
+/** Every CDN image a model page record carries, in page order, de-duplicated. */
+function itemImages(item) {
+  const seen = new Map();
+  const push = (url, alt) => {
+    if (typeof url !== "string" || !url.includes(CDN)) return;
+    const bare = url.split("?")[0];
+    if (!seen.has(bare)) seen.set(bare, { url: bare, alt: alt ?? "" });
+  };
+
+  push(item.assetUrl, item.filename ?? item.title);
+  for (const child of item.items ?? []) push(child.assetUrl, child.filename ?? child.title);
+  for (const m of String(item.body ?? "").matchAll(
+    /https:\/\/images\.squarespace-cdn\.com\/content\/v1\/[^"'?\s<>\\]+/g,
+  )) {
+    push(m[0], "");
+  }
+  return [...seen.values()];
+}
+
+/**
+ * Plans read by eye, where the manufacturer's own filename says nothing.
+ *
+ * The equivalent of `ON_LOT_SCENES` above, and used as sparingly: one entry,
+ * because one model publishes its plan as page two of a sales sheet. The
+ * drawing on that page is Knox's own — 44' x 27'5", which is the 1,205 sq ft
+ * the listing claims — and no rule about filenames could have known it.
+ */
+const PLAN_BY_HAND = {
+  knox: "knox-sales-sheet-page-2",
+};
+
+/**
+ * Every image on a model page that is a sheet of its floor plan, in the order
+ * the sheets go: ground floor first.
+ *
+ * A page that names a drawing outright settles it; only the pages that do not
+ * are read structurally, so the looser rule can never override a plain one.
+ */
+function planSheets(item, slug) {
+  const images = itemImages(item);
+
+  const byHand = PLAN_BY_HAND[slug];
+  if (byHand) {
+    const hit = images.find(
+      (i) => normalise(safeDecode(i.url).split("/").pop() ?? "") === byHand,
+    );
+    if (hit) return [hit];
+  }
+
+  const named = images.filter(saysPlan);
+  if (named.length) return named;
+
+  const sheets = [];
+  for (const image of images) {
+    const order = sheetOf(image, slug);
+    if (order !== undefined) sheets.push({ ...image, order });
+  }
+  return sheets.sort((a, b) => a.order - b.order);
+}
+
+/** The model page's own record, which carries the gallery the listing lacks. */
+async function pvItem(entry) {
+  return cached(`pv-model/${entry.slug}.json`, async () => {
+    const res = await fetch(`${entry.sourceUrl}?format=json`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const body = await res.json();
+    return body.item ?? body;
+  });
+}
+
+/** Does the page link a plan we cannot read — a PDF rather than an image? */
+const linksPlanPdf = (item) =>
+  [...String(item.body ?? "").matchAll(/href="([^"]+\.pdf)"/gi)].some(([, href]) =>
+    PLAN_NAME.test(safeDecode(href)),
+  );
+
+/**
+ * Import the plan drawing for every Pleasant Valley model that publishes one.
+ *
+ * Resumable in the same way as the rest of `photos`: a drawing already on
+ * disk is never re-fetched, so delete the file to force a refresh.
+ */
+async function pvPlans(list) {
+  const pv = list.filter((e) => e._sourceKey === "pv");
+  let written = 0;
+  let stacked = 0;
+  let already = 0;
+  let pdfOnly = 0;
+  let none = 0;
+
+  for (const entry of pv) {
+    const file = path.join(OUT_PLANS, `${entry.slug}.webp`);
+    if (existsSync(file)) {
+      already++;
+      continue;
+    }
+    try {
+      const item = await pvItem(entry);
+      const images = itemImages(item);
+      const sheets = planSheets(item, entry.slug);
+      if (sheets.length === 0) {
+        if (linksPlanPdf(item)) pdfOnly++;
+        else none++;
+        /* What was on the page and rejected, so a model that turns out to
+           publish its plan under a name this does not know is visible in the
+           log rather than silently absent. */
+        console.log(
+          `  ? ${entry.slug}: ${
+            images.map((i) => safeDecode(i.url).split("/").pop()).join(", ") || "no images"
+          }${linksPlanPdf(item) ? " [plan PDF]" : ""}`,
+        );
+        continue;
+      }
+      const buffers = [];
+      for (const sheet of sheets) buffers.push(await download(sheet.url));
+      await writePlanSheets(buffers, file);
+      written++;
+      if (buffers.length > 1) stacked++;
+    } catch (err) {
+      console.warn(`  ! plan ${entry.slug}: ${err.message}`);
+    }
+  }
+
+  console.log(
+    `  Pleasant Valley plans: ${written} written (${stacked} of them several ` +
+      `sheets stacked into one), ${already} already on disk, ` +
+      `${pdfOnly} published as PDF only, ${none} with no drawing on the page`,
+  );
+}
+
 async function photos() {
   const { entries: list } = await entries();
   let plans = 0;
@@ -707,6 +985,7 @@ async function photos() {
   }
   console.log(`${exteriors} exterior renderings, ${plans} floor-plan drawings`);
 
+  await pvPlans(list);
   await galleries(list);
 }
 
@@ -804,6 +1083,49 @@ async function galleries(list) {
 /* ------------------------------------------------------------------ */
 
 /**
+ * The images on every Pleasant Valley model page that published no plan this
+ * could name — written small, into `.review/plans/<slug>/`, for somebody to
+ * look at.
+ *
+ * This exists because the filename rule above can only be widened honestly by
+ * looking: `waverly-1.png` might be the upstairs plan or it might be a
+ * photograph of the kitchen, and the name does not say. Nothing here is
+ * published; `.review/` is not read by the site.
+ */
+async function candidates() {
+  const { entries: list } = await entries();
+  let models = 0;
+  let images = 0;
+
+  for (const entry of list.filter((e) => e._sourceKey === "pv")) {
+    let item;
+    try {
+      item = await pvItem(entry);
+    } catch (err) {
+      console.warn(`  ! ${entry.slug}: ${err.message}`);
+      continue;
+    }
+    const found = itemImages(item);
+    if (planSheets(item, entry.slug).length) continue;
+
+    models++;
+    for (const [i, image] of found.slice(0, 4).entries()) {
+      const name = safeDecode(image.url).split("/").pop().replace(/[^\w.-]+/g, "-");
+      const file = path.join(".review/plans", entry.slug, `${i}-${name}.webp`);
+      if (existsSync(file)) continue;
+      try {
+        await mkdir(path.dirname(file), { recursive: true });
+        await sharp(await download(image.url)).resize(1000).webp({ quality: 70 }).toFile(file);
+        images++;
+      } catch (err) {
+        console.warn(`  ! ${entry.slug} ${name}: ${err.message}`);
+      }
+    }
+  }
+  console.log(`wrote ${images} candidate images from ${models} model pages into .review/plans/`);
+}
+
+/**
  * The photo manifest for imported homes, read off what is actually on disk.
  *
  * Generated rather than hand-written because there are hundreds of keys and
@@ -858,7 +1180,9 @@ if (command === "fetch") {
   await photos();
 } else if (command === "manifest") {
   await writeManifest();
+} else if (command === "candidates") {
+  await candidates();
 } else {
-  console.error("usage: import-manufacturers.mjs fetch|homes|photos|manifest");
+  console.error("usage: import-manufacturers.mjs fetch|homes|photos|manifest|candidates");
   process.exit(1);
 }

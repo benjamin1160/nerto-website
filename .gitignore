@@ -45,3 +45,6 @@ next-env.d.ts
 
 # single-file site bundle (npm run preview)
 /preview/
+
+# Diagnostic images, written by `import-manufacturers.mjs candidates`.
+.review/

@@ -136,6 +136,15 @@ Re-importing the catalogue is three commands, in this order:
     node scripts/import-manufacturers.mjs homes      # lib/catalogue.generated.ts
     node scripts/import-manufacturers.mjs manifest   # lib/photos.generated.ts
 
+They need the manufacturers' own sites, so they cannot run in a sandbox
+without that access. `.github/workflows/import-floor-plans.yml` runs the three
+of them on a GitHub runner instead — Actions → Import floor plans → Run
+workflow — and commits what they write: on a working branch to that branch, on
+the default branch as a pull request. Two inputs: `refresh` re-fetches the
+Pleasant Valley drawings already on disk, and `sample_unmatched` pushes the
+images from pages whose plan the importer could not name to
+`automation/plan-candidates`, to be looked at before any rule is widened.
+
 `npm run lint` runs `scripts/check-data.mjs`, which fails if `lotState`, a
 project or a custom page points at a plan that no longer exists — a model
 code changing upstream is loud rather than silent.

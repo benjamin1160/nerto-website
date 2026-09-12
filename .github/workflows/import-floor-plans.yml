@@ -1,0 +1,154 @@
+# Import the manufacturers' floor-plan drawings.
+#
+# `scripts/import-manufacturers.mjs` needs to reach pinegrovehomes.com,
+# pleasantvalleymodularhomes.com and the Squarespace CDN, which is why this
+# runs here rather than in a sandbox without that access. It is the same three
+# commands a person would run locally, and it commits exactly what they would
+# commit: the drawings, and the two generated files that name them.
+#
+# Nothing is published by this workflow. Run from a working branch it commits
+# there; run from the default branch it opens a pull request instead, so the
+# drawings are looked at before they are on the website.
+name: Import floor plans
+
+on:
+  workflow_dispatch:
+    inputs:
+      refresh:
+        description: "Re-fetch Pleasant Valley drawings already on disk"
+        type: boolean
+        default: false
+      sample_unmatched:
+        description: "Also collect the images from pages with no plan, to be looked at"
+        type: boolean
+        default: false
+  # So that pushing this file is enough to run it once, on a working branch.
+  push:
+    branches: ["claude/**"]
+    paths:
+      - ".github/workflows/import-floor-plans.yml"
+      # A change to the importer is a change to what it would bring in, so it
+      # runs and shows you, rather than waiting to be asked.
+      - "scripts/import-manufacturers.mjs"
+
+concurrency:
+  group: import-floor-plans-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # Every image already on disk is skipped, which is what makes the import
+      # resumable. Deleting the Pleasant Valley drawings and the cached model
+      # pages is therefore how you ask for them again — after a fix to the
+      # rule that decides which image on a model page IS the plan.
+      - name: Drop the cached Pleasant Valley drawings
+        if: inputs.refresh
+        run: |
+          rm -rf .cache/manufacturers/pv-model
+          node -e '
+            const fs = require("node:fs");
+            const src = fs.readFileSync("lib/catalogue.generated.ts", "utf8");
+            let dropped = 0;
+            for (const m of src.matchAll(/slug: "([^"]+)",[\s\S]{0,200}?builder: "Pleasant Valley Homes"/g)) {
+              const file = `public/photos/plans/${m[1]}.webp`;
+              if (fs.existsSync(file)) { fs.rmSync(file); dropped++; }
+            }
+            console.log(`dropped ${dropped} Pleasant Valley drawings`);
+          '
+
+      - name: Import
+        run: |
+          set -o pipefail
+          node scripts/import-manufacturers.mjs photos   2>&1 | tee -a import.log
+          node scripts/import-manufacturers.mjs homes    2>&1 | tee -a import.log
+          node scripts/import-manufacturers.mjs manifest 2>&1 | tee -a import.log
+
+      # What the import actually did, on the run page, whether or not anything
+      # below this passes.
+      - name: Report
+        if: always()
+        run: |
+          {
+            echo '### Import'
+            echo '```'
+            cat import.log 2>/dev/null || echo 'the import did not get far enough to say anything'
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # The data checks are the point of running these here: check:data fails
+      # if a plan something references has gone from the catalogue, and the
+      # build fails on a floor plan that no longer tiles. A failure here means
+      # nothing is committed.
+      - run: npm run lint
+      - run: npm run build
+
+      - name: Commit
+        id: commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/photos/plans lib/catalogue.generated.ts lib/photos.generated.ts
+
+          if git diff --cached --quiet; then
+            echo 'No new drawings — every plan the manufacturers publish as an image is already in the repository.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          git commit --quiet \
+            -m "Import the manufacturers' floor-plan drawings" \
+            -m "$(cat import.log)" \
+            -m "Ran by .github/workflows/import-floor-plans.yml, run ${{ github.run_id }}."
+
+          # Never straight onto the branch Vercel deploys.
+          if [ "${{ github.ref_name }}" = "${{ github.event.repository.default_branch }}" ]; then
+            branch="automation/floor-plan-import-${{ github.run_number }}"
+            git push --quiet origin "HEAD:refs/heads/$branch"
+            gh pr create --head "$branch" --base "${{ github.ref_name }}" \
+              --title "Import the manufacturers' floor-plan drawings" \
+              --body "$(printf 'Floor-plan drawings read off the manufacturers own model pages.\n\n```\n%s\n```\n\nLook at the drawings in the Files tab before merging: the importer takes an image only when its filename says it is a plan, and a look is the check that it really is one.\n' "$(cat import.log)")" \
+              || echo "Pushed \`$branch\`; open a pull request from it: ${{ github.server_url }}/${{ github.repository }}/compare/$branch?expand=1" >> "$GITHUB_STEP_SUMMARY"
+          else
+            git push --quiet origin "HEAD:${{ github.ref_name }}"
+            echo "Committed to \`${{ github.ref_name }}\`." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      # What was on the pages that published no plan this could name, small,
+      # on a branch of its own. The filename rule can only be widened
+      # honestly by looking: `waverly-1.png` might be the upstairs plan or a
+      # photograph of the kitchen, and the name does not say. Runs last, on a
+      # tree whose imported files are already committed, and nothing it
+      # writes reaches the site.
+      - name: Collect the unmatched images
+        if: inputs.sample_unmatched
+        run: |
+          set -euo pipefail
+          node scripts/import-manufacturers.mjs candidates
+          if [ ! -d .review/plans ]; then
+            echo 'Nothing unmatched — every model page names its plan.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout --quiet -B automation/plan-candidates
+          git add -f .review
+          git commit --quiet -m "Candidate images from the pages with no named plan"
+          git push --quiet --force origin automation/plan-candidates
+          echo 'Pushed `automation/plan-candidates` — delete it once read.' >> "$GITHUB_STEP_SUMMARY"
