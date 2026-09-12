@@ -600,6 +600,48 @@ async function writePhoto(buf, file) {
   await sharp(buf).resize(1600, 1200, { fit: "cover" }).webp({ quality: 78 }).toFile(file);
 }
 
+/**
+ * Several sheets of one plan, stacked into a single drawing.
+ *
+ * `planImage` is one image and a two-storey home is two sheets, so they are
+ * joined rather than chosen between: the ground floor alone would be a
+ * drawing of a three-bedroom house with no bedrooms in it.
+ */
+async function writePlanSheets(buffers, file) {
+  if (buffers.length === 1) return writePlan(buffers[0], file);
+
+  const WIDTH = 1600;
+  const GAP = 48;
+  const sheets = [];
+  for (const buf of buffers) {
+    sheets.push(
+      await sharp(buf)
+        .resize(WIDTH, null, { fit: "inside" })
+        .flatten({ background: "#ffffff" })
+        .toBuffer({ resolveWithObject: true }),
+    );
+  }
+
+  const height = sheets.reduce((sum, s) => sum + s.info.height, 0) + GAP * (sheets.length - 1);
+
+  let top = 0;
+  const composite = [];
+  for (const sheet of sheets) {
+    composite.push({
+      input: sheet.data,
+      left: Math.round((WIDTH - sheet.info.width) / 2),
+      top,
+    });
+    top += sheet.info.height + GAP;
+  }
+
+  await mkdir(path.dirname(file), { recursive: true });
+  await sharp({ create: { width: WIDTH, height, channels: 3, background: "#ffffff" } })
+    .composite(composite)
+    .webp({ quality: 82 })
+    .toFile(file);
+}
+
 /** A floor-plan drawing: never cropped, and kept on white rather than filled. */
 async function writePlan(buf, file) {
   await mkdir(path.dirname(file), { recursive: true });
@@ -723,6 +765,61 @@ function safeDecode(url) {
   }
 }
 
+/** A filename as a comparable name: `Cape+Verde+II+First+Floor.jpg` → `cape-verde-ii-first-floor`. */
+function normalise(filename) {
+  return filename
+    .replace(/\.[a-z0-9]+$/i, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+/**
+ * Which sheet of the plan an image is, for the models that name their
+ * drawings after the home rather than after the drawing.
+ *
+ * Pleasant Valley's two-storey plans are published a floor at a time —
+ * `waverly-1.png` and `waverly-2.png`, `Cape+Verde+II+First+Floor.jpg` — and
+ * its ADUs as `Denali+ADU+Final.jpg`. None of those names contains the words
+ * "floor plan", so the rule is structural instead: the filename must be the
+ * MODEL'S OWN NAME followed by a sheet marker, and that name must be one the
+ * model's slug contains.
+ *
+ * The slug condition is the whole safety of it, and it was arrived at by
+ * looking at the images rather than by reasoning about the names:
+ *
+ *   `plymouth-kit-1.png` is a rendering of the KITCHEN, and it ends in `-1`.
+ *   Its base, "plymouth-kit", is not inside the slug `cape-plymouth-ii`, so
+ *   it is rejected — where any rule that read the trailing `-1` alone would
+ *   have published a picture of some cabinets as a floor plan.
+ *
+ *   `aspendale-01.jpg` is the EXTERIOR rendering. The marker is `1`-`9` with
+ *   no leading zero for exactly that reason: `01` is how this manufacturer
+ *   numbers photographs, `-1` is how it numbers plan sheets.
+ */
+const SHEET_ORDER = {
+  final: 0,
+  "first-floor": 1,
+  "1st-floor": 1,
+  "second-floor": 2,
+  "2nd-floor": 2,
+};
+
+/* `big-bend-1-2.jpg` is one sheet drawing both the I and the II, which is how
+   the ADU pages publish a pair; it sorts with the first. */
+const SHEET_MARKER =
+  /^(.+?)-((?:[1-9](?:-[1-9])*)|first-floor|1st-floor|second-floor|2nd-floor|final)$/;
+
+function sheetOf(image, slug) {
+  const name = normalise(safeDecode(image.url).split("/").pop() ?? "");
+  const m = name.match(SHEET_MARKER);
+  if (!m) return undefined;
+  const [, base, marker] = m;
+  /* The name has to be the model's, not a room's. */
+  if (!base || !slug.includes(base)) return undefined;
+  return SHEET_ORDER[marker] ?? Number(marker.split("-")[0]);
+}
+
 /** Every CDN image a model page record carries, in page order, de-duplicated. */
 function itemImages(item) {
   const seen = new Map();
@@ -740,6 +837,27 @@ function itemImages(item) {
     push(m[0], "");
   }
   return [...seen.values()];
+}
+
+/**
+ * Every image on a model page that is a sheet of its floor plan, in the order
+ * the sheets go: ground floor first.
+ *
+ * A page that names a drawing outright settles it; only the pages that do not
+ * are read structurally, so the looser rule can never override a plain one.
+ */
+function planSheets(item, slug) {
+  const images = itemImages(item);
+
+  const named = images.filter(saysPlan);
+  if (named.length) return named;
+
+  const sheets = [];
+  for (const image of images) {
+    const order = sheetOf(image, slug);
+    if (order !== undefined) sheets.push({ ...image, order });
+  }
+  return sheets.sort((a, b) => a.order - b.order);
 }
 
 /** The model page's own record, which carries the gallery the listing lacks. */
@@ -767,6 +885,7 @@ const linksPlanPdf = (item) =>
 async function pvPlans(list) {
   const pv = list.filter((e) => e._sourceKey === "pv");
   let written = 0;
+  let stacked = 0;
   let already = 0;
   let pdfOnly = 0;
   let none = 0;
@@ -780,8 +899,8 @@ async function pvPlans(list) {
     try {
       const item = await pvItem(entry);
       const images = itemImages(item);
-      const plan = images.find(saysPlan);
-      if (!plan) {
+      const sheets = planSheets(item, entry.slug);
+      if (sheets.length === 0) {
         if (linksPlanPdf(item)) pdfOnly++;
         else none++;
         /* What was on the page and rejected, so a model that turns out to
@@ -794,15 +913,19 @@ async function pvPlans(list) {
         );
         continue;
       }
-      await writePlan(await download(plan.url), file);
+      const buffers = [];
+      for (const sheet of sheets) buffers.push(await download(sheet.url));
+      await writePlanSheets(buffers, file);
       written++;
+      if (buffers.length > 1) stacked++;
     } catch (err) {
       console.warn(`  ! plan ${entry.slug}: ${err.message}`);
     }
   }
 
   console.log(
-    `  Pleasant Valley plans: ${written} written, ${already} already on disk, ` +
+    `  Pleasant Valley plans: ${written} written (${stacked} of them several ` +
+      `sheets stacked into one), ${already} already on disk, ` +
       `${pdfOnly} published as PDF only, ${none} with no drawing on the page`,
   );
 }
@@ -963,7 +1086,7 @@ async function candidates() {
       continue;
     }
     const found = itemImages(item);
-    if (found.some(saysPlan)) continue;
+    if (planSheets(item, entry.slug).length) continue;
 
     models++;
     for (const [i, image] of found.slice(0, 4).entries()) {
