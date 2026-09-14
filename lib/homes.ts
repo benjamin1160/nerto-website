@@ -196,6 +196,32 @@ const tours: Record<string, string> = {
 };
 
 /**
+ * The same tour as an embeddable URL, or `undefined` if this is not a
+ * Matterport link.
+ *
+ * Matterport serves the viewer at the same `/show/` path it gives out for
+ * sharing, so the embed is the share link plus the parameters that make it
+ * behave inside a frame: `play=1` starts the visitor inside the house rather
+ * than on the dollhouse, and `qs=1` skips the splash.
+ *
+ * Anything that is not a Matterport URL returns `undefined` and the page
+ * falls back to a plain link out, for the same reason the video shelf does:
+ * a broken frame tells a visitor nothing, a link at least goes somewhere.
+ */
+export function tourEmbedUrl(url: string): string | undefined {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return undefined;
+  }
+  if (!/(^|\.)matterport\.com$/.test(parsed.hostname)) return undefined;
+  const model = parsed.searchParams.get("m");
+  if (!model) return undefined;
+  return `https://my.matterport.com/show/?m=${encodeURIComponent(model)}&play=1&qs=1`;
+}
+
+/**
  * The catalogue as the site sees it: the manufacturers' published facts, with
  * NERTO's walkthroughs and lot state laid over the top.
  */
