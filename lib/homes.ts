@@ -193,22 +193,29 @@ const tours: Record<string, string> = {
   "gh-2017": "https://my.matterport.com/show/?m=swdorJ7jSZp",
   "g-487": "https://my.matterport.com/show/?m=wBBpn3sMroC",
   "netr-g-3461": "https://my.matterport.com/show/?m=Ydjo6ZxMcL3",
+  "g-200": "https://my.matterport.com/show/?m=T6h1Zv3hgHu",
+  /* Filmed with the porch on, which is an option rather than part of the
+     plan — the drawing below the tour is the plan as Pine Grove publishes
+     it. This is also the one home here that is standing on the lot. */
+  "netr-g-3157": "https://my.matterport.com/models/p7X7JuDjFBf",
+  "gh-210": "https://my.matterport.com/models/yUcaXGHWjbx",
 };
 
 /**
- * The same tour as an embeddable URL, or `undefined` if this is not a
- * Matterport link.
+ * The Matterport model id inside a tour URL, whichever shape the URL is.
  *
- * Matterport serves the viewer at the same `/show/` path it gives out for
- * sharing, so the embed is the share link plus the parameters that make it
- * behave inside a frame: `play=1` starts the visitor inside the house rather
- * than on the dollhouse, and `qs=1` skips the splash.
+ * Matterport hands out two, and both get pasted into this file: the share
+ * link `my.matterport.com/show/?m=<id>`, and the one the Copy Link button
+ * gives you from inside your own model list,
+ * `my.matterport.com/models/<id>?cta_origin=...`. They address the same
+ * model, so both are read here rather than asking whoever files a tour to
+ * convert one into the other by hand.
  *
- * Anything that is not a Matterport URL returns `undefined` and the page
- * falls back to a plain link out, for the same reason the video shelf does:
+ * Anything that is not a Matterport URL returns `undefined`, and the page
+ * falls back to a plain link out for the same reason the video shelf does:
  * a broken frame tells a visitor nothing, a link at least goes somewhere.
  */
-export function tourEmbedUrl(url: string): string | undefined {
+function matterportId(url: string): string | undefined {
   let parsed: URL;
   try {
     parsed = new URL(url);
@@ -216,9 +223,38 @@ export function tourEmbedUrl(url: string): string | undefined {
     return undefined;
   }
   if (!/(^|\.)matterport\.com$/.test(parsed.hostname)) return undefined;
-  const model = parsed.searchParams.get("m");
-  if (!model) return undefined;
-  return `https://my.matterport.com/show/?m=${encodeURIComponent(model)}&play=1&qs=1`;
+
+  const fromQuery = parsed.searchParams.get("m");
+  if (fromQuery) return fromQuery;
+
+  const fromPath = parsed.pathname.match(/^\/(?:models|show)\/([A-Za-z0-9]+)\/?$/);
+  return fromPath?.[1];
+}
+
+/**
+ * The tour as an embeddable URL, or `undefined` if this is not a Matterport
+ * link.
+ *
+ * `play=1` starts the visitor inside the house rather than on the dollhouse,
+ * and `qs=1` skips the splash.
+ */
+export function tourEmbedUrl(url: string): string | undefined {
+  const id = matterportId(url);
+  if (!id) return undefined;
+  return `https://my.matterport.com/show/?m=${encodeURIComponent(id)}&play=1&qs=1`;
+}
+
+/**
+ * The tour as a public share link — what "open full screen" should point at.
+ *
+ * Always the `/show/` form, because a `/models/` URL is the one Matterport
+ * shows the account that owns the scan and it carries that dashboard's
+ * tracking parameters. A visitor should get the plain share link, not our
+ * `cta_origin`. Falls back to the URL as filed if it cannot be parsed.
+ */
+export function tourShareUrl(url: string): string {
+  const id = matterportId(url);
+  return id ? `https://my.matterport.com/show/?m=${encodeURIComponent(id)}` : url;
 }
 
 /**
