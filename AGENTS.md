@@ -14,7 +14,10 @@ lib/homes.ts        The catalogue's types, and `lotState` — the ONE
                     hand-maintained part: which plans are standing on
                     River Road, what is featured, what is sold. The plans
                     themselves are generated (below) and `listings` is the
-                    two composed. Also the size buckets, including `Mods`,
+                    two composed. `tours` alongside it is the Matterport
+                    walkthroughs, keyed by slug — kept apart from `lotState`
+                    because a tour is of a plan, not a claim that the house is
+                    standing in the yard. Also the size buckets, including `Mods`,
                     which keys off `construction` rather than width.
 lib/catalogue.generated.ts
                     GENERATED — 348 plans from the two manufacturers NERTO

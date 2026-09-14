@@ -45,6 +45,18 @@ for (const [, slug] of lotBlock.matchAll(/^\s*"([^"]+)":/gm)) {
   }
 }
 
+/* `tours` — the Matterport walkthroughs. A key that matches nothing is a tour
+   that has quietly stopped showing on any listing. */
+const tourBlock = homes.match(/const tours[^=]*= \{([\s\S]*?)\n\};/)?.[1] ?? "";
+for (const [, slug] of tourBlock.matchAll(/^\s*"?([A-Za-z0-9-]+)"?:/gm)) {
+  if (!slugs.has(slug)) {
+    problems.push(
+      `lib/homes.ts: tours has "${slug}", which is not a plan in the catalogue. ` +
+        `The model code may have changed upstream — check the manufacturer's site.`,
+    );
+  }
+}
+
 /* A project pointing at a plan we no longer carry. */
 const projects = await read("lib/projects.ts");
 for (const [, slug] of projects.matchAll(/homeSlug: "([^"]+)"/g)) {
