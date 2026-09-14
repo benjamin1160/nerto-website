@@ -27,6 +27,7 @@ import {
   getListing,
   getPlan,
   tourEmbedUrl,
+  tourShareUrl,
   listings,
   relatedListings,
   sectionLabels,
@@ -86,6 +87,8 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
   let n = 1;
   const index = () => String(n++).padStart(2, "0");
   const tourEmbed = listing.tourUrl ? tourEmbedUrl(listing.tourUrl) : undefined;
+  /* The public share link, never the dashboard URL a tour may be filed as. */
+  const tourShare = listing.tourUrl ? tourShareUrl(listing.tourUrl) : undefined;
   const community = listing.communitySlug ? getCommunity(listing.communitySlug) : undefined;
   const related = relatedListings(listing);
   const perSqFt = listing.price === undefined ? undefined : listing.price / listing.sqft;
@@ -227,7 +230,7 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
                than a trip off the site. Without one it still goes out to the
                tour, which is where it always went. */
             <a
-              href={tourEmbed ? "#walkthrough" : listing.tourUrl}
+              href={tourEmbed ? "#walkthrough" : tourShare}
               {...(tourEmbed ? {} : { target: "_blank", rel: "noreferrer" })}
               className="flex items-center gap-1.5 text-[0.8rem] text-ember underline-offset-4 hover:underline"
             >
@@ -308,7 +311,7 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
                 </div>
                 <p className="mt-4 text-sm text-muted">
                   <a
-                    href={listing.tourUrl}
+                    href={tourShare}
                     target="_blank"
                     rel="noreferrer"
                     className="text-ember underline-offset-4 hover:underline"
