@@ -94,6 +94,12 @@ and say so.
 **Change a status, or move a home on or off the lot.** Edit `lotState` in
 `lib/homes.ts` — one entry per home, keyed by slug. Nothing else.
 
+**Add a Matterport walkthrough.** One line in the `tours` map in
+`lib/homes.ts`, keyed by the plan's slug. Not `lotState` — a tour is a
+walkthrough of the plan, not a claim that the house is standing on River Road,
+and most plans with a tour are still `to-order`. `npm run lint` fails if the
+slug matches no plan.
+
 **Change a spec that is wrong.** Check it against the listing's `sourceUrl`
 first. If the manufacturer has changed it, re-import (`photos`, then `homes`,
 then `manifest`); if the importer is misreading the source, fix the parser in

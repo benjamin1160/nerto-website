@@ -175,14 +175,36 @@ const lotState: Record<string, Partial<Listing>> = {
 };
 
 /**
+ * Matterport walkthroughs NERTO has filmed, keyed by the slug of the plan the
+ * tour is of.
+ *
+ * Separate from `lotState` because it answers a different question. A tour is
+ * not lot state: most of these are plans NERTO can order rather than houses
+ * standing on River Road, and a tour filmed in one of those is a walkthrough
+ * of the plan, not a claim that the house is here to visit. Keeping the two
+ * apart means adding a tour never accidentally says a home is on the lot.
+ *
+ * Like `lotState`, keys are slugs in the generated catalogue and a key that
+ * matches no plan fails `npm run lint` (see `scripts/check-data.mjs`).
+ */
+const tours: Record<string, string> = {
+  "netr-g-3655": "https://my.matterport.com/show/?m=7ZFKGKTyGc2",
+  knox: "https://my.matterport.com/show/?m=5221mGYjwCz",
+  "gh-2017": "https://my.matterport.com/show/?m=swdorJ7jSZp",
+  "g-487": "https://my.matterport.com/show/?m=wBBpn3sMroC",
+  "netr-g-3461": "https://my.matterport.com/show/?m=Ydjo6ZxMcL3",
+};
+
+/**
  * The catalogue as the site sees it: the manufacturers' published facts, with
- * NERTO's lot state laid over the top.
+ * NERTO's walkthroughs and lot state laid over the top.
  */
 export const listings: Listing[] = catalogue.map((entry) => ({
   ...entry,
   /* A plan NERTO can order but does not stock. The four on the lot override
      this from `lotState`. */
   status: "to-order" as ListingStatus,
+  ...(tours[entry.slug] ? { tourUrl: tours[entry.slug] } : {}),
   ...lotState[entry.slug],
 }));
 
