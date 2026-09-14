@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Accordion } from "@/components/accordion";
 import { FloorPlan } from "@/components/floor-plan";
+import { TourEmbed } from "@/components/tour-embed";
 import { Gallery } from "@/components/gallery";
 import { InquiryForm } from "@/components/inquiry-form";
 import { ListingCard, SpecStrip } from "@/components/listing-card";
@@ -25,6 +26,7 @@ import { feetInches, money, num, priceText, PRICE_ON_REQUEST } from "@/lib/forma
 import {
   getListing,
   getPlan,
+  tourEmbedUrl,
   listings,
   relatedListings,
   sectionLabels,
@@ -83,6 +85,7 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
      renders instead — the same trick `/about` uses. */
   let n = 1;
   const index = () => String(n++).padStart(2, "0");
+  const tourEmbed = listing.tourUrl ? tourEmbedUrl(listing.tourUrl) : undefined;
   const community = listing.communitySlug ? getCommunity(listing.communitySlug) : undefined;
   const related = relatedListings(listing);
   const perSqFt = listing.price === undefined ? undefined : listing.price / listing.sqft;
@@ -220,10 +223,12 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
             </span>
           )}
           {listing.tourUrl && (
+            /* With an embed below, this is a jump link down the page rather
+               than a trip off the site. Without one it still goes out to the
+               tour, which is where it always went. */
             <a
-              href={listing.tourUrl}
-              target="_blank"
-              rel="noreferrer"
+              href={tourEmbed ? "#walkthrough" : listing.tourUrl}
+              {...(tourEmbed ? {} : { target: "_blank", rel: "noreferrer" })}
               className="flex items-center gap-1.5 text-[0.8rem] text-ember underline-offset-4 hover:underline"
             >
               <Icon.Arrow className="size-3.5" />
@@ -280,6 +285,39 @@ export default async function ListingPage(props: PageProps<"/listings/[slug]">) 
                 </ul>
               )}
             </div>
+            )}
+
+            {/* 3D walkthrough — the tour, embedded.
+                Placed above the floor plan deliberately: a drawing asks a
+                visitor to imagine the house and the tour just shows it to
+                them, so when both exist the tour leads. It loads on a press,
+                not on page load — see `components/tour-embed.tsx`. */}
+            {tourEmbed && (
+              <div className="mt-16 scroll-mt-[calc(var(--chrome-h)+1.5rem)]" id="walkthrough">
+                <Eyebrow index={index()}>3D walkthrough</Eyebrow>
+                <h2 className="mt-5 font-display text-title text-ink">
+                  Walk through it from where you are
+                </h2>
+                <p className="mt-4 max-w-xl leading-relaxed text-muted">
+                  A Matterport scan of this plan, so you can see the ceiling
+                  heights, the sightlines and how the rooms actually meet —
+                  the things a drawing cannot tell you.
+                </p>
+                <div className="mt-8 aspect-video overflow-hidden rounded-card border border-line bg-surface-2">
+                  <TourEmbed src={tourEmbed} name={listing.name} />
+                </div>
+                <p className="mt-4 text-sm text-muted">
+                  <a
+                    href={listing.tourUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-ember underline-offset-4 hover:underline"
+                  >
+                    Open the tour full screen
+                  </a>{" "}
+                  if you would rather not have it in the page.
+                </p>
+              </div>
             )}
 
             {/* Floor plan — the manufacturer's own drawing.
