@@ -130,11 +130,9 @@ export type OptionalPage =
  */
 export const pages: Record<OptionalPage, boolean> = {
   listings: true,
-  /* Off because `lib/projects.ts` is empty. Past projects are the evidence
-     behind the turnkey claim, so this is worth filling first: add a project
-     and turn this on, and `/projects`, the nav links and the landing band all
-     appear together. */
-  projects: false,
+  /* On: `lib/projects.ts` carries the NETR G-3160 job. `/projects`, the nav
+     links and the landing band all appear together. */
+  projects: true,
   /* Off because `lib/videos.ts` is empty. Turn on once the explainers — the
      process, construction loan versus end loan — are up. */
   videos: false,

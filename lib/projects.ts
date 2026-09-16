@@ -69,7 +69,66 @@ export type Project = {
   testimonial?: { quote: string; attribution: string };
 };
 
-export const projects: Project[] = [];
+export const projects: Project[] = [
+  {
+    slug: "netr-g-3160",
+    title: "NETR G-3160",
+    summary:
+      "A NETR G-3160 NERTO carried land through finish — septic, well, driveway, foundation, electrical and utility hookups, delivery, and set and finish.",
+    homeSlug: "netr-g-3160",
+    scope: [
+      "Land search",
+      "Permitting",
+      "Septic system",
+      "Well",
+      "Driveway",
+      "Foundation",
+      "Electrical",
+      "Utility connections",
+      "Delivery",
+      "Set and finish",
+    ],
+    photos: [
+      "/photos/projects/netr-g-3160/19.jpg",
+      "/photos/projects/netr-g-3160/01.jpg",
+      "/photos/projects/netr-g-3160/02.jpg",
+      "/photos/projects/netr-g-3160/03.jpg",
+      "/photos/projects/netr-g-3160/04.jpg",
+      "/photos/projects/netr-g-3160/05.jpg",
+      "/photos/projects/netr-g-3160/06.jpg",
+      "/photos/projects/netr-g-3160/07.jpg",
+      "/photos/projects/netr-g-3160/08.jpg",
+      "/photos/projects/netr-g-3160/09.jpg",
+      "/photos/projects/netr-g-3160/10.jpg",
+      "/photos/projects/netr-g-3160/11.jpg",
+      "/photos/projects/netr-g-3160/12.jpg",
+      "/photos/projects/netr-g-3160/13.jpg",
+      "/photos/projects/netr-g-3160/14.jpg",
+      "/photos/projects/netr-g-3160/15.jpg",
+      "/photos/projects/netr-g-3160/16.jpg",
+      "/photos/projects/netr-g-3160/17.jpg",
+      "/photos/projects/netr-g-3160/18.jpg",
+      "/photos/projects/netr-g-3160/20.jpg",
+      "/photos/projects/netr-g-3160/21.jpg",
+      "/photos/projects/netr-g-3160/22.jpg",
+      "/photos/projects/netr-g-3160/23.jpg",
+      "/photos/projects/netr-g-3160/24.jpg",
+      "/photos/projects/netr-g-3160/25.jpg",
+      "/photos/projects/netr-g-3160/26.jpg",
+      "/photos/projects/netr-g-3160/27.jpg",
+      "/photos/projects/netr-g-3160/28.jpg",
+      "/photos/projects/netr-g-3160/29.jpg",
+      "/photos/projects/netr-g-3160/30.jpg",
+      "/photos/projects/netr-g-3160/31.jpg",
+      "/photos/projects/netr-g-3160/32.jpg",
+      "/photos/projects/netr-g-3160/33.jpg",
+      "/photos/projects/netr-g-3160/34.jpg",
+      "/photos/projects/netr-g-3160/35.jpg",
+      "/photos/projects/netr-g-3160/36.jpg",
+      "/photos/projects/netr-g-3160/37.jpg",
+    ],
+  },
+];
 
 /** Newest first, with undated projects last. */
 export function publishedProjects(): Project[] {
