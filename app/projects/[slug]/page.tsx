@@ -73,7 +73,7 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
 
         <div className="max-w-3xl">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge tone="ember">Delivered by {site.name}</Badge>
+            <Badge tone="ember">Built by {site.name}</Badge>
             {when && <Badge tone="muted">{when}</Badge>}
           </div>
           <h1 className="mt-6 font-display text-display text-balance text-ink">

@@ -12,7 +12,7 @@ import { site } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Past projects",
-  description: `Homes ${site.name} has delivered and set across ${site.stateName} — land, permitting, site work, foundation, delivery and finish.`,
+  description: `Homes ${site.name} has actually built and delivered across ${site.stateName} — land found, permits pulled, site work done, home set and finished. Start to finish, by us.`,
 };
 
 const completed = new Intl.DateTimeFormat("en-US", {
@@ -44,12 +44,12 @@ export default function ProjectsPage() {
         eyebrow={`${projects.length} ${projects.length === 1 ? "project" : "projects"}`}
         title={
           <>
-            Houses that exist,
+            Houses we built,
             <br />
-            on ground in {site.stateName}.
+            standing in {site.stateName}.
           </>
         }
-        lede="A catalogue is a set of plans. This is the work: land found, permits pulled, septic in, foundation poured, home set and finished."
+        lede="A catalogue is a set of plans on a manufacturer's website. This is what we did with them: land found, permits pulled, septic and foundation in, home delivered, set, and finished — start to finish, by us."
         kind="exterior"
         breadcrumb={[
           { href: "/", label: "Home" },
@@ -97,7 +97,7 @@ export default function ProjectsPage() {
                     </h2>
                     <p className="mt-3 flex-1 leading-relaxed text-muted">{project.summary}</p>
                     <span className="mt-5 inline-flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-ink">
-                      See the project
+                      See how we built it
                       <Icon.Arrow className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                   </div>
