@@ -96,6 +96,14 @@ export default function ProjectsPage() {
                       {project.title}
                     </h2>
                     <p className="mt-3 flex-1 leading-relaxed text-muted">{project.summary}</p>
+                    <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-muted">
+                      {["Delivered", "Set", "Sold"].map((step) => (
+                        <span key={step} className="flex items-center gap-1.5">
+                          <Icon.Check className="size-3 text-moss" />
+                          {step}
+                        </span>
+                      ))}
+                    </div>
                     <span className="mt-5 inline-flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-ink">
                       See how we built it
                       <Icon.Arrow className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" />
