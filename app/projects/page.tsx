@@ -110,7 +110,7 @@ export default function ProjectsPage() {
                         "mt-5 w-full !py-3 text-[0.7rem] uppercase tracking-[0.18em] group-hover:border-ink group-hover:bg-ink group-hover:text-paper",
                       )}
                     >
-                      Order this design
+                      View this project
                       <Icon.Arrow className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                   </div>
