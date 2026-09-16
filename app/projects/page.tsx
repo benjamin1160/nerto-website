@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { ContactBand } from "@/components/contact-band";
 import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
-import { Icon, Section } from "@/components/ui";
+import { buttonStyles, cx, Icon, Section } from "@/components/ui";
 import { pages } from "@/lib/page-config";
 import { projectCover, publishedProjects } from "@/lib/projects";
 import { site } from "@/lib/site";
@@ -104,8 +104,13 @@ export default function ProjectsPage() {
                         </span>
                       ))}
                     </div>
-                    <span className="mt-5 inline-flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-ink">
-                      See how we built it
+                    <span
+                      className={cx(
+                        buttonStyles.outline,
+                        "mt-5 w-full !py-3 text-[0.7rem] uppercase tracking-[0.18em] group-hover:border-ink group-hover:bg-ink group-hover:text-paper",
+                      )}
+                    >
+                      Order this design
                       <Icon.Arrow className="size-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                     </span>
                   </div>

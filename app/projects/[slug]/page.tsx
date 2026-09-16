@@ -149,8 +149,24 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
             )}
           </div>
 
-          <aside>
-            <div className="rounded-card border border-line bg-surface p-7 lg:sticky lg:top-28">
+          <aside className="space-y-6 lg:sticky lg:top-28">
+            <div className="rounded-card border border-line-strong bg-paper p-7">
+              <p className="eyebrow">Like this build?</p>
+              <p className="mt-3 font-display text-2xl leading-snug tracking-tight text-ink">
+                Order this design.
+              </p>
+              <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">
+                {home
+                  ? `Same ${home.name}, land through finish — priced for your lot.`
+                  : "Land through finish, priced for your lot — tell us what you have in mind."}
+              </p>
+              <ButtonLink href={home ? "#quote" : "#contact"} className="group/btn mt-6 w-full !py-3.5">
+                Order this design
+                <Icon.Arrow className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+              </ButtonLink>
+            </div>
+
+            <div className="rounded-card border border-line bg-surface p-7">
               <p className="eyebrow">The job</p>
               <dl className="mt-5 space-y-1">
                 {project.location && <SpecRow label="Where" value={project.location} />}
@@ -186,11 +202,6 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
                   <Icon.Arrow className="size-4 shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
               )}
-
-              <ButtonLink href={home ? "#quote" : "#contact"} className="group/btn mt-8 w-full !py-3.5">
-                {home ? "Put this on my land" : "Ask about a build like this"}
-                <Icon.Arrow className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
-              </ButtonLink>
             </div>
           </aside>
         </div>
@@ -205,7 +216,7 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
             <div className="mx-auto max-w-xl">
               <InquiryForm
                 defaultHome={home.slug}
-                title={`Put a ${home.name} on your land`}
+                title={`Order this design — ${home.name}`}
                 lede={`Same plan, land through finish. Tell us about your lot and we'll call to talk about what it takes to put one there.`}
                 successTitle="Good — we've got it."
                 successBody="A real person will call to talk about your land and what it takes to build this one there. No pressure, no obligation."
