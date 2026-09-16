@@ -20,11 +20,15 @@ export function InquiryForm({
   defaultHome,
   title = "Book a walkthrough",
   lede = "Pick a slot and we will confirm by phone within one business hour. No deposit, no sales floor, no pressure to sit at a desk.",
+  successTitle = "That's booked on our side.",
+  successBody = "You'll get a text confirming the slot, and a real person will call to check what you want to see. Bring the sceptic. Bring boots — we'll get under a home.",
   compact = false,
 }: {
   defaultHome?: string;
   title?: string;
   lede?: string;
+  successTitle?: string;
+  successBody?: string;
   compact?: boolean;
 }) {
   const [state, action, pending] = useActionState(
@@ -49,13 +53,8 @@ export function InquiryForm({
           <Icon.Check className="size-6" />
         </span>
         <div>
-          <h3 className="font-display text-2xl tracking-tight text-ink">
-            That&apos;s booked on our side.
-          </h3>
-          <p className="mt-3 max-w-md leading-relaxed text-muted">
-            You&apos;ll get a text confirming the slot, and a real person will call to check
-            what you want to see. Bring the sceptic. Bring boots — we&apos;ll get under a home.
-          </p>
+          <h3 className="font-display text-2xl tracking-tight text-ink">{successTitle}</h3>
+          <p className="mt-3 max-w-md leading-relaxed text-muted">{successBody}</p>
         </div>
       </div>
     );
