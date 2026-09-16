@@ -3,7 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ContactBand } from "@/components/contact-band";
-import { Badge, Container, Eyebrow, Icon, SpecRow } from "@/components/ui";
+import { InquiryForm } from "@/components/inquiry-form";
+import { Badge, ButtonLink, Container, Eyebrow, Icon, SpecRow } from "@/components/ui";
 import { getListing } from "@/lib/homes";
 import { pages } from "@/lib/page-config";
 import { projectBySlug, projects } from "@/lib/projects";
@@ -73,13 +74,22 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
 
         <div className="max-w-3xl">
           <div className="flex flex-wrap items-center gap-2">
-            <Badge tone="ember">Delivered by {site.name}</Badge>
+            <Badge tone="ember">Built by {site.name}</Badge>
             {when && <Badge tone="muted">{when}</Badge>}
           </div>
           <h1 className="mt-6 font-display text-display text-balance text-ink">
             {project.title}
           </h1>
           <p className="mt-5 text-lg leading-relaxed text-muted">{project.summary}</p>
+
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted">
+            {["Delivered", "Set", "Sold"].map((step) => (
+              <span key={step} className="flex items-center gap-1.5">
+                <Icon.Check className="size-3.5 text-moss" />
+                {step}
+              </span>
+            ))}
+          </div>
         </div>
 
         {cover && (
@@ -139,8 +149,24 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
             )}
           </div>
 
-          <aside>
-            <div className="rounded-card border border-line bg-surface p-7 lg:sticky lg:top-28">
+          <aside className="space-y-6 lg:sticky lg:top-28">
+            <div className="rounded-card border border-line-strong bg-paper p-7">
+              <p className="eyebrow">Like this build?</p>
+              <p className="mt-3 font-display text-2xl leading-snug tracking-tight text-ink">
+                Order this design.
+              </p>
+              <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">
+                {home
+                  ? `Same ${home.name}, land through finish — priced for your lot.`
+                  : "Land through finish, priced for your lot — tell us what you have in mind."}
+              </p>
+              <ButtonLink href={home ? "#quote" : "#contact"} className="group/btn mt-6 w-full !py-3.5">
+                Order this design
+                <Icon.Arrow className="size-4 transition-transform duration-300 group-hover/btn:translate-x-1" />
+              </ButtonLink>
+            </div>
+
+            <div className="rounded-card border border-line bg-surface p-7">
               <p className="eyebrow">The job</p>
               <dl className="mt-5 space-y-1">
                 {project.location && <SpecRow label="Where" value={project.location} />}
@@ -181,7 +207,28 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
         </div>
       </Container>
 
-      <ContactBand />
+      {home && (
+        <section
+          id="quote"
+          className="scroll-mt-[calc(var(--chrome-h)+1.5rem)] border-y border-line bg-surface"
+        >
+          <Container className="py-20 sm:py-24">
+            <div className="mx-auto max-w-xl">
+              <InquiryForm
+                defaultHome={home.slug}
+                title={`Order this design — ${home.name}`}
+                lede={`Same plan, land through finish. Tell us about your lot and we'll call to talk about what it takes to put one there.`}
+                successTitle="Good — we've got it."
+                successBody="A real person will call to talk about your land and what it takes to build this one there. No pressure, no obligation."
+              />
+            </div>
+          </Container>
+        </section>
+      )}
+
+      <div id="contact" className="scroll-mt-[calc(var(--chrome-h)+1.5rem)]">
+        <ContactBand />
+      </div>
     </>
   );
 }
