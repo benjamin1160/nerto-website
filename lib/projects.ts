@@ -73,6 +73,8 @@ export const projects: Project[] = [
   {
     slug: "netr-g-3160",
     title: "NETR G-3160",
+    location: "Whitefield, Maine",
+    completedOn: "2026-08",
     summary:
       "A NETR G-3160 NERTO carried land through finish — septic, well, driveway, foundation, electrical and utility hookups, delivery, and set and finish.",
     homeSlug: "netr-g-3160",
