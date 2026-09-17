@@ -33,6 +33,7 @@ export function Scene({
   photo,
   plan,
   sizes = "100vw",
+  focus,
 }: {
   kind: SceneKind;
   label: string;
@@ -47,13 +48,26 @@ export function Scene({
    */
   plan?: string;
   sizes?: string;
+  /**
+   * Which part of the photo to keep when `object-cover` crops it. Most shots
+   * of a home are sky-heavy — centring the crop on a tall, narrow box (a
+   * phone-width hero) can leave mostly sky on screen and crop the home
+   * itself out of frame. `"bottom"` biases the crop toward the ground.
+   */
+  focus?: "center" | "bottom";
 }) {
   const src = photo ?? photoFor(photoKey);
 
   if (src) {
     return (
       <div className={cx("relative overflow-hidden", className)}>
-        <Image src={src} alt={label} fill sizes={sizes} className="object-cover" />
+        <Image
+          src={src}
+          alt={label}
+          fill
+          sizes={sizes}
+          className={cx("object-cover", focus === "bottom" ? "object-bottom" : "object-center")}
+        />
       </div>
     );
   }

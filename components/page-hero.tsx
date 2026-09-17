@@ -43,9 +43,13 @@ export function PageHero({
           kind={kind}
           photoKey={photoKey}
           label=""
+          focus="bottom"
           className="size-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/45" />
+        {/* A photo can be any brightness, so the scrim is deliberately heavy
+            rather than tuned to one image — white text needs to hold up on
+            a washed-out sky just as well as a dark exterior at dusk. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/65 to-black/55" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
       </div>
 
