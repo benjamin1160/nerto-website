@@ -126,9 +126,37 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
               </blockquote>
             )}
 
+            {project.videos && project.videos.length > 0 && (
+              <div className="mt-14">
+                <Eyebrow index="02">Walk through it</Eyebrow>
+                {/* Phone footage, so portrait tiles: two across on a phone,
+                    three on anything wider. Nothing downloads until play. */}
+                <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
+                  {project.videos.map((video) => (
+                    <figure key={video.src}>
+                      <video
+                        src={video.src}
+                        poster={video.poster}
+                        controls
+                        playsInline
+                        preload="none"
+                        className={`w-full rounded-card bg-surface-2 object-cover ${
+                          video.portrait === false ? "aspect-video" : "aspect-[9/16]"
+                        }`}
+                      />
+                      <figcaption className="mt-2 flex items-baseline justify-between gap-2 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted">
+                        <span>{video.title}</span>
+                        {video.duration && <span>{video.duration}</span>}
+                      </figcaption>
+                    </figure>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {rest.length > 0 && (
               <div className="mt-14">
-                <Eyebrow index="02">On site</Eyebrow>
+                <Eyebrow index={project.videos?.length ? "03" : "02"}>On site</Eyebrow>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {rest.map((photo) => (
                     <div

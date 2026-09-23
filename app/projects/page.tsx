@@ -84,6 +84,11 @@ export default function ProjectsPage() {
                         </span>
                       </div>
                     )}
+                    {project.videos && project.videos.length > 0 && (
+                      <span className="absolute left-3 top-3 rounded-full bg-ink/80 px-3 py-1.5 font-mono text-[0.62rem] uppercase tracking-[0.18em] text-paper backdrop-blur">
+                        ▶ Video tour
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex flex-1 flex-col p-6">
