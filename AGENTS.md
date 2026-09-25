@@ -25,6 +25,14 @@ lib/catalogue.generated.ts
                     from. No prices; neither manufacturer publishes any.
                     Rewritten by `node scripts/import-manufacturers.mjs
                     homes`; never hand-edit it, edit `lotState` instead.
+lib/inventory.ts    The platform's inventory feed. With `LISTINGS_FEED_URL`
+                    set, `scripts/sync-listings.mjs` runs before every build
+                    and writes `lib/inventory.generated.ts`, and that feed
+                    REPLACES `lotState`: status, on-lot, featured, price,
+                    photos, and homes the catalogue does not have. Unset, the
+                    generated file is `null` and nothing changes. The
+                    contract, and `/api/listings` which the platform reads
+                    back, are in `PLATFORM.md`.
 lib/projects.ts     Past projects — houses NERTO has actually delivered.
                     Evidence, as against the catalogue's plans. Ships
                     EMPTY and `/projects` is switched off to match.
@@ -147,6 +155,11 @@ the default branch as a pull request. Two inputs: `refresh` re-fetches the
 Pleasant Valley drawings already on disk, and `sample_unmatched` pushes the
 images from pages whose plan the importer could not name to
 `automation/plan-candidates`, to be looked at before any rule is widened.
+
+Before editing `lotState`, check whether the deployment has
+`LISTINGS_FEED_URL` set. If it does, the platform owns lot state, an edit to
+`lotState` changes nothing on the live site, and the change belongs in the
+platform. Keep `lib/inventory.generated.ts` committed as `null`.
 
 `npm run lint` runs `scripts/check-data.mjs`, which fails if `lotState`, a
 project or a custom page points at a plan that no longer exists — a model

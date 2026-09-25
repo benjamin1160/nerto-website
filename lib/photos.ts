@@ -1,4 +1,14 @@
 import { importedPhotos } from "./photos.generated";
+import { inventory } from "./inventory.generated";
+
+/* Photographs the platform's feed sent, downloaded into `public/photos/feed/`
+   by `scripts/sync-listings.mjs`. They win over an imported photo of the same
+   scene: a picture of the house in the yard beats the manufacturer's. */
+const feedPhotos: Record<string, string> = Object.fromEntries(
+  (inventory?.listings ?? []).flatMap((l) =>
+    (l.photos ?? []).map((p) => [`${l.slug}/${p.kind}`, p.src]),
+  ),
+);
 
 /**
  * The photo desk — one lookup for every photograph on the site.
@@ -71,6 +81,8 @@ import { importedPhotos } from "./photos.generated";
 export const photos: Record<string, string> = {
   /* Every imported home's scenes, generated from disk. */
   ...importedPhotos,
+  /* The platform's, when a feed is connected. */
+  ...feedPhotos,
 
   /* Page heroes and one-offs, hand-written. */
   "page/homes": "/photos/pages/homes.webp",

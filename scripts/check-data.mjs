@@ -88,6 +88,17 @@ for (const [, path] of manifest.matchAll(/: "(\/photos\/[^"]+)"/g)) {
   }
 }
 
+/* The platform feed is fetched at build time and never committed: a
+   committed feed would ship stale lot state on every deploy that could not
+   reach the platform's, and silently outrank `lotState` on one with none. */
+const inventory = await read("lib/inventory.generated.ts");
+if (!/export const inventory: Inventory \| null = null;/.test(inventory)) {
+  problems.push(
+    "lib/inventory.generated.ts holds a synced feed. `git checkout lib/inventory.generated.ts` " +
+      "before committing — it is written at build time, not stored.",
+  );
+}
+
 if (problems.length > 0) {
   console.error("check:data — problems found:\n");
   for (const p of problems) console.error(`  • ${p}`);

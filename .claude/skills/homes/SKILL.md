@@ -24,6 +24,13 @@ sit behind it. A value no plan uses gets no pill, so nothing on the rail can
 be pressed to an empty page; add homes carrying a new style or a triple
 section and its pill appears on its own.
 
+**When the platform feed is connected, `lotState` is not the authority.** A
+deployment with `LISTINGS_FEED_URL` set builds its lot state from the
+platform (`lib/inventory.ts`, `PLATFORM.md`), and `lotState` is ignored. A
+status, price or on-lot change then belongs in the platform, not here. Say
+so rather than editing a file the live site no longer reads. Never commit
+`lib/inventory.generated.ts` as anything but `null`.
+
 `listings`, exported from `lib/homes.ts`, is the two composed, and everything
 else on the site derives from it — detail pages, filter facets, sitemap,
 related-homes scoring, the homepage figures. Change the data, never the

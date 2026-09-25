@@ -48,3 +48,6 @@ next-env.d.ts
 
 # Diagnostic images, written by `import-manufacturers.mjs candidates`.
 .review/
+
+# Photographs downloaded from the platform feed by `scripts/sync-listings.mjs`.
+/public/photos/feed/
