@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/sync-listings.mjs",
     "build": "next build",
     "postbuild": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ghl-setup.mjs ensure",
     "start": "next start",
@@ -12,6 +13,8 @@
     "check:placeholders": "node scripts/check-placeholders.mjs",
     "check:boilerplate": "node scripts/check-boilerplate.mjs",
     "check:data": "node scripts/check-data.mjs",
+    "sync:listings": "node --env-file-if-exists=.env.local scripts/sync-listings.mjs",
+    "sync:listings:check": "node --env-file-if-exists=.env.local scripts/sync-listings.mjs check",
     "ghl:check": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ghl-setup.mjs check",
     "ghl:setup": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ghl-setup.mjs all",
     "ghl:values": "node --env-file-if-exists=.env.local --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/ghl-setup.mjs values"

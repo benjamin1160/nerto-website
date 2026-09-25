@@ -1,5 +1,7 @@
 import { floorPlans, type FloorPlan } from "./floor-plans";
 import { catalogue } from "./catalogue.generated";
+import { inventory } from "./inventory.generated";
+import type { InventoryListing } from "./inventory";
 
 export type ListingStatus =
   | "available"
@@ -258,18 +260,56 @@ export function tourShareUrl(url: string): string {
 }
 
 /**
- * The catalogue as the site sees it: the manufacturers' published facts, with
- * NERTO's walkthroughs and lot state laid over the top.
+ * A home's scenes with the feed's photographs laid in: one scene per
+ * photograph, replacing the catalogue's scene of the same kind and keeping
+ * the rest. The files themselves are registered in `lib/photos.ts`.
  */
-export const listings: Listing[] = catalogue.map((entry) => ({
-  ...entry,
-  /* A plan NERTO can order but does not stock. The four on the lot override
-     this from `lotState`. */
-  status: "to-order" as ListingStatus,
-  ...(tours[entry.slug] ? { tourUrl: tours[entry.slug] } : {}),
-  ...lotState[entry.slug],
-}));
+function withFeedPhotos(name: string, base: Scene[], photos: InventoryListing["photos"]): Scene[] {
+  if (!photos?.length) return base;
+  const over = photos.map((p) => ({ kind: p.kind, caption: p.caption ?? `${name} — ${p.kind}` }));
+  const kinds = new Set(over.map((s) => s.kind));
+  return [...over, ...base.filter((s) => !kinds.has(s.kind))];
+}
 
+/**
+ * Who says what is on the lot. When the platform's feed is connected (see
+ * `lib/inventory.ts`) it is the only authority and `lotState` is ignored;
+ * otherwise `lotState` is. Never both.
+ */
+const feedBySlug = new Map((inventory?.listings ?? []).map((l) => [l.slug, l]));
+const overlay = (slug: string): InventoryListing | Partial<Listing> | undefined =>
+  inventory ? feedBySlug.get(slug) : lotState[slug];
+
+const catalogueSlugs = new Set(catalogue.map((e) => e.slug));
+
+/**
+ * The catalogue as the site sees it: the manufacturers' published facts, with
+ * NERTO's walkthroughs and lot state laid over the top, followed by any home
+ * the feed carries that is not a catalogue plan — a pre-owned home, a spec
+ * build. The sync script has already checked those carry name, beds, baths
+ * and sq ft.
+ */
+export const listings: Listing[] = [
+  ...catalogue.map((entry): Listing => {
+    const { photos, ...over } = (overlay(entry.slug) ?? {}) as InventoryListing;
+    return {
+      ...entry,
+      /* A plan NERTO can order but does not stock. The homes on the lot
+         override this from `lotState` or the feed. */
+      status: "to-order",
+      ...(tours[entry.slug] ? { tourUrl: tours[entry.slug] } : {}),
+      ...over,
+      scenes: withFeedPhotos(entry.name, entry.scenes, photos),
+    };
+  }),
+  ...[...feedBySlug.values()]
+    .filter((l) => !catalogueSlugs.has(l.slug))
+    .map(({ photos, ...l }): Listing => ({
+      status: "available",
+      ...(l as Omit<Listing, "status" | "scenes">),
+      scenes: withFeedPhotos(l.name ?? l.slug, [], photos),
+    })),
+];
 
 /* ------------------------------------------------------------------ *
  * Accessors
