@@ -21,6 +21,10 @@ const nextConfig: NextConfig = {
     return [
       { source: "/homes", destination: "/listings", permanent: true },
       { source: "/homes/:slug", destination: "/listings/:slug", permanent: true },
+      // Past projects were renamed from internal names to the model set.
+      { source: "/projects/the-bentley", destination: "/projects/g-16-611", permanent: true },
+      { source: "/projects/double-section-ranch", destination: "/projects/netr-g-3465", permanent: true },
+      { source: "/projects/porch-double-section", destination: "/projects/netr-g-3157", permanent: true },
       // Model search is the listings band on the landing page, not a page.
       { source: "/model-search", destination: "/#listings", permanent: false },
     ];
