@@ -247,6 +247,8 @@ export const projects: Project[] = [
   {
     slug: "the-bentley",
     title: "The Bentley",
+    location: "Pittston, Maine",
+    homeSlug: "g-16-611",
     summary:
       "A 1,000 sq ft Pine Grove single-section, two bedrooms and two baths, set on land NERTO owns — and spoken for.",
     body: [
@@ -327,8 +329,10 @@ export const projects: Project[] = [
   {
     slug: "double-section-ranch",
     title: "Double-section ranch",
+    location: "Richmond, Maine",
+    homeSlug: "netr-g-3465",
     summary:
-      "A double-section ranch NERTO delivered and set on open ground, with a gravel drive and a graded pad.",
+      "A double-section ranch with green kitchen cabinets, NERTO delivered and set on open ground, with a gravel drive and a graded pad.",
     photos: [
       "/photos/projects/double-section-ranch/01.jpg",
       "/photos/projects/double-section-ranch/02.jpg",
@@ -378,8 +382,10 @@ export const projects: Project[] = [
   {
     slug: "porch-double-section",
     title: "Double-section with a covered porch",
+    location: "Newfield, Maine",
+    homeSlug: "netr-g-3157",
     summary:
-      "A double-section home NERTO delivered and set on a cleared wooded lot, with a full-width covered front porch.",
+      "A double-section home NERTO delivered and set on a cleared wooded lot, with a full-width covered front porch added to the plan.",
     photos: [
       "/photos/projects/porch-double-section/01.jpg",
       "/photos/projects/porch-double-section/02.jpg",
