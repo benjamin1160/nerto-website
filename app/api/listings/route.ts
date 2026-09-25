@@ -2,6 +2,7 @@ import { listings, statusLabels } from "@/lib/homes";
 import { inventory } from "@/lib/inventory.generated";
 import { site } from "@/lib/site";
 import { catalogue } from "@/lib/catalogue.generated";
+import { photoFor } from "@/lib/photos";
 
 /**
  * The site's catalogue as JSON, for the platform.
@@ -10,6 +11,10 @@ import { catalogue } from "@/lib/catalogue.generated";
  * feed entry can be laid over — and to confirm a deploy took: `inventory`
  * says whether the build ran from the feed or from `lotState`, and when the
  * feed was fetched. The contract is in `PLATFORM.md`.
+ *
+ * It is also the dealer's inventory API: the AI platform's `home_list` tool
+ * reads it from nothing but the site's address, so this is what the AI
+ * offers a buyer. Change what it returns and you change what the AI says.
  *
  * Built once per deploy as a static file, like every page it describes.
  * Nothing here is private — it is what `/listings` already shows — so any
@@ -21,6 +26,13 @@ export const dynamic = "force-static";
 const CORS = { "Access-Control-Allow-Origin": "*" };
 
 const planSlugs = new Set(catalogue.map((e) => e.slug));
+
+/* The card's photograph, as an absolute URL an AI can text to a buyer. The
+   floor-plan drawing is not a photograph and is never offered as one. */
+const coverPhoto = (slug: string, kind = "exterior") => {
+  const src = photoFor(`${slug}/${kind}`);
+  return src ? new URL(src, site.url).href : null;
+};
 
 export function GET() {
   return Response.json(
@@ -58,6 +70,8 @@ export function GET() {
         sections: l.sections ?? null,
         widthFt: l.widthFt ?? null,
         lengthFt: l.lengthFt ?? null,
+        description: l.tagline ?? null,
+        photo: coverPhoto(l.slug, l.scenes[0]?.kind),
         tourUrl: l.tourUrl ?? null,
         sourceUrl: l.sourceUrl ?? null,
       })),

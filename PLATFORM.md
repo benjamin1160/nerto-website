@@ -1,5 +1,16 @@
 # Connecting a site to the platform
 
+**The short version.** On the platform, set the account's `home_list` tool
+Website URL to this site's address, such as `https://www.newenglandrenttoown.com`.
+That is all. The AI reads the site's own API at `/api/listings` whenever a
+buyer asks about homes, so it offers what the site shows: the lot homes
+first, sold homes never, prices where the site has them, and a link and a
+photo for each. Change a home on the site, deploy, and the AI knows. See
+[The catalogue endpoint](#the-catalogue-endpoint).
+
+The rest of this page covers the other direction, which is optional: the
+platform pushing inventory INTO the site.
+
 A site built from this template can take its inventory from the platform
 instead of from this repository. This page is the contract between the two.
 Everything in it is optional for the site: with nothing configured, it builds
@@ -134,14 +145,20 @@ every deploy.
       "name": "NETR G-3157", "status": "available", "statusLabel": "…", "onLot": true,
       "featured": true, "price": 129900, "builder": "Pine Grove Homes", "construction": "manufactured",
       "series": "NETR", "model": "NETR G-3157", "beds": 3, "baths": 2, "sqft": 1280, "sections": "double",
-      "widthFt": 27, "lengthFt": 48, "tourUrl": "…",
+      "widthFt": 27, "lengthFt": 48, "description": null,
+      "photo": "https://…/photos/homes/netr-g-3157/exterior.webp", "tourUrl": "…",
       "sourceUrl": "https://www.pinegrovehomes.com/ranch-homes/netr-g-3157" }
   ]
 }
 ```
 
-Use it for two things:
+Use it for three things:
 
+- **The AI's inventory.** Give the platform the site's address as the
+  `home_list` website URL and nothing else. The tool reads this endpoint
+  first (`lib/scrape/site-api.ts` in the platform): homes on the lot are
+  offered first, sold homes never, and a plan built to order is described
+  as one. No BuildShip flow, sheet or scrape is involved.
 - **Offering choices.** It gives the platform's AI and its admin screens the
   plans this site can put on its lot, each with a link to its page.
 - **Checking a deploy.** Compare `inventory.updatedAt` with the platform's own
