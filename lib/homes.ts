@@ -196,6 +196,7 @@ const tours: Record<string, string> = {
   "g-487": "https://my.matterport.com/show/?m=wBBpn3sMroC",
   "netr-g-3461": "https://my.matterport.com/show/?m=Ydjo6ZxMcL3",
   "g-200": "https://my.matterport.com/show/?m=T6h1Zv3hgHu",
+  "g-3564": "https://my.matterport.com/show/?m=QntPxjq1Xvv",
   /* Filmed with the porch on, which is an option rather than part of the
      plan — the drawing below the tour is the plan as Pine Grove publishes
      it. This is also the one home here that is standing on the lot. */
