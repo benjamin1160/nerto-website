@@ -377,3 +377,56 @@
     filter: blur(4px) saturate(1.15);
   }
 }
+
+/* Manufactured-home event helper: a playful mobile entrance, with a quiet
+   float after landing and a no-motion fallback for visitors who request it. */
+@keyframes event-nudge-arrive {
+  0% { opacity: 0; transform: translate3d(-115%, 2rem, 0) rotate(-7deg); }
+  62% { opacity: 1; transform: translate3d(5%, -0.35rem, 0) rotate(2deg); }
+  82% { transform: translate3d(-2%, 0.12rem, 0) rotate(-1deg); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0) rotate(0); }
+}
+
+@keyframes event-home-float {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-0.4rem) rotate(2deg); }
+}
+
+@keyframes event-speed-line {
+  0%, 100% { opacity: 0.2; transform: scaleX(0.65); }
+  50% { opacity: 0.8; transform: scaleX(1); }
+}
+
+.event-nudge-arrive {
+  animation: event-nudge-arrive 720ms cubic-bezier(.2,.85,.25,1.12) both;
+}
+
+.event-home-float {
+  animation: event-home-float 2.4s ease-in-out 720ms infinite;
+}
+
+.event-speed-line {
+  transform-origin: right center;
+  animation: event-speed-line 850ms ease-in-out infinite;
+}
+
+.event-speech-bubble::before {
+  content: "";
+  position: absolute;
+  left: -0.7rem;
+  bottom: 1.15rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  background: var(--paper);
+  border-left: 2px solid rgb(23 20 15 / 0.8);
+  border-bottom: 2px solid rgb(23 20 15 / 0.8);
+  transform: rotate(45deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .event-nudge-arrive,
+  .event-home-float,
+  .event-speed-line {
+    animation: none;
+  }
+}
