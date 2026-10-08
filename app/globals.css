@@ -378,7 +378,7 @@
   }
 }
 
-/* Manufactured-home event helper, Clippy-style: the house swoops in from the
+/* Event helper, Clippy-style — a ghost for Halloween: it swoops in from the
    top-left on an arc, overshoots, settles, and only then does its speech
    bubble pop open over its head. Dismissing sends it flying back out.
    No-motion visitors get it already landed. */
@@ -442,13 +442,16 @@
 }
 
 .event-wing-left {
-  --flap: 22deg;
-  transform-origin: right center;
+  --flap: 28deg;
+  transform-origin: right bottom;
+  animation-duration: 700ms;
 }
 
+/* The pumpkin pail only sways. */
 .event-wing-right {
-  --flap: -22deg;
-  transform-origin: left center;
+  --flap: -8deg;
+  transform-origin: 10% 0;
+  animation-duration: 1.2s;
 }
 
 .event-eyes {
@@ -457,7 +460,7 @@
   animation: event-blink 4s ease-in-out 1.6s infinite;
 }
 
-/* The tail points down at the house standing under the bubble. */
+/* The tail points down at the ghost standing under the bubble. */
 .event-speech-bubble::before {
   content: "";
   position: absolute;
