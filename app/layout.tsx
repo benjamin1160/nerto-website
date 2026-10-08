@@ -4,6 +4,7 @@ import Script from "next/script";
 import { CALL_BAR_HEIGHT } from "@/components/call-bar";
 import { ChatWidget } from "@/components/chat-widget";
 import { EventNudge } from "@/components/event-nudge";
+import { HalloweenPumpkins, HalloweenSky } from "@/components/halloween-decor";
 import { FloatingCall } from "@/components/floating-call";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -165,7 +166,9 @@ export default function RootLayout({
           <main id="main" className="flex-1">
             {children}
           </main>
+          <HalloweenPumpkins />
           <SiteFooter />
+          <HalloweenSky />
           {currentEvents().length > 0 && <EventNudge />}
           {floatingCall && <FloatingCall />}
           {embed ? (

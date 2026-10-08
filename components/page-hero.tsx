@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { Scene } from "./artwork/scene";
 import { Container, cx, Eyebrow, Icon } from "./ui";
 import type { SceneKind } from "@/lib/homes";
+import { HalloweenNight } from "./halloween-decor";
 
 /**
  * Every route opens on the same armature: a full-bleed dark scene, an
@@ -51,6 +52,7 @@ export function PageHero({
             a washed-out sky just as well as a dark exterior at dusk. */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/65 to-black/55" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent" />
+        <HalloweenNight />
       </div>
 
       <Container>
