@@ -11,6 +11,7 @@ import { cx, Icon } from "./ui";
 import { drawerNav, primaryNav } from "@/lib/navigation";
 import { callBar } from "@/lib/page-config";
 import { site } from "@/lib/site";
+import { HalloweenHeaderDecor } from "./halloween-decor";
 
 /**
  * The header: a phone strip, then a white bar that sticks to the top of the
@@ -62,7 +63,7 @@ export function SiteHeader() {
       <header className="sticky top-0 z-50">
         {callBar && <CallBar />}
 
-        <div className="border-b border-line bg-paper">
+        <div className="relative border-b border-line bg-paper">
           <div className="mx-auto flex min-h-[var(--header-h)] w-full max-w-[80rem] items-center gap-4 px-4 py-2 sm:px-6 lg:px-8">
             <Link
               href="/"
@@ -136,6 +137,7 @@ export function SiteHeader() {
               </button>
             </div>
           </div>
+          <HalloweenHeaderDecor />
         </div>
       </header>
 

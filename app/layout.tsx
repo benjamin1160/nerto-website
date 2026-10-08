@@ -4,6 +4,7 @@ import Script from "next/script";
 import { CALL_BAR_HEIGHT } from "@/components/call-bar";
 import { ChatWidget } from "@/components/chat-widget";
 import { EventNudge } from "@/components/event-nudge";
+import { HalloweenPumpkins, HalloweenSky } from "@/components/halloween-decor";
 import { FloatingCall } from "@/components/floating-call";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -11,7 +12,7 @@ import { SavedHomesProvider } from "@/components/saved-homes";
 import { chatEmbed } from "@/lib/ghl/chat-embed";
 import { currentEvents } from "@/lib/events";
 import { callBar, chatWidget, floatingCall } from "@/lib/page-config";
-import { skin, skinStyles, type FontChoice } from "@/lib/skin";
+import { activeSeason, skin, skinStyles, type FontChoice } from "@/lib/skin";
 import { site } from "@/lib/site";
 import "./globals.css";
 
@@ -54,8 +55,15 @@ const stack = (choice: FontChoice) =>
 
 /* The skin's palette, radii and typefaces as one stylesheet, inlined ahead
    of anything else in the head. */
+/* A seasonal skin, when one is set and not yet over at build time, is
+   emitted scoped to its class and laid over the base. Whether that class is
+   on — and so whether the season still shows — is decided in the browser by
+   THEME_BOOT below. */
+const season = activeSeason();
+
 const SKIN_CSS =
   skinStyles() +
+  (season ? skinStyles(season.skin, `.${season.id}`) : "") +
   `:root:root{--font-family-display:${stack(skin.fonts.display)};` +
   `--font-family-sans:${stack(skin.fonts.sans)};` +
   `--font-family-mono:${stack(skin.fonts.mono)}}`;
@@ -110,8 +118,16 @@ export const viewport: Viewport = {
  * toggle in the header still works and is still remembered; it just has to be
  * asked for. Change `"dark"` to `matchMedia(...).matches` here to follow the
  * system again.
+ *
+ * It also switches the seasonal skin on (see `seasonalSkin` in `lib/skin.ts`)
+ * until its end date, by the visitor's clock, so the season ends on time
+ * without a redeploy. A season that prefers dark opens in dark unless the
+ * visitor has picked light.
  */
-const THEME_BOOT = `(function(){try{var s=localStorage.getItem("nerto:theme");document.documentElement.classList.toggle("dark",s==="dark");}catch(e){}})();`;
+const SEASON_BOOT = season
+  ? `var h=Date.now()<${new Date(season.until).getTime()};if(h)d.classList.add(${JSON.stringify(season.id)});var pd=h&&${season.preferDark};`
+  : "var pd=false;";
+const THEME_BOOT = `(function(){var d=document.documentElement;${SEASON_BOOT}var s=null;try{s=localStorage.getItem("nerto:theme");}catch(e){}d.classList.toggle("dark",s==="dark"||(pd&&s!=="light"));})();`;
 
 export default function RootLayout({
   children,
@@ -150,7 +166,9 @@ export default function RootLayout({
           <main id="main" className="flex-1">
             {children}
           </main>
+          <HalloweenPumpkins />
           <SiteFooter />
+          <HalloweenSky />
           {currentEvents().length > 0 && <EventNudge />}
           {floatingCall && <FloatingCall />}
           {embed ? (
