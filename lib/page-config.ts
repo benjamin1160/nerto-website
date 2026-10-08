@@ -118,7 +118,8 @@ export type OptionalPage =
   | "promotions"
   | "prequalify"
   | "buildAHome"
-  | "address";
+  | "address"
+  | "events";
 
 /**
  * Standalone routes. A `false` here makes the route redirect to `/` and drops
@@ -157,6 +158,7 @@ export const pages: Record<OptionalPage, boolean> = {
   prequalify: true,
   buildAHome: true,
   address: true,
+  events: true,
 };
 
 /**

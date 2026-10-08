@@ -25,7 +25,8 @@ export type NavIcon =
   | "Pin"
   | "Dollar"
   | "Plan"
-  | "Shield";
+  | "Shield"
+  | "Calendar";
 
 export type NavItem = {
   href: string;
@@ -48,6 +49,7 @@ const PRIMARY: NavItem[] = [
 
 /** Drawer and footer only — the bar has no room, and these are second visits. */
 const SECONDARY: NavItem[] = [
+  { href: "/events", label: "Events", page: "events", icon: "Calendar" },
   { href: "/new-home", label: "Build a home", page: "buildAHome", icon: "Plan" },
   { href: "/projects", label: "Past projects", page: "projects", icon: "Grid" },
   { href: "/videos", label: "Videos", page: "videos", icon: "Info" },

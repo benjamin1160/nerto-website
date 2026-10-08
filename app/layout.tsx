@@ -3,11 +3,13 @@ import { Geist, Geist_Mono, Fraunces, Inter } from "next/font/google";
 import Script from "next/script";
 import { CALL_BAR_HEIGHT } from "@/components/call-bar";
 import { ChatWidget } from "@/components/chat-widget";
+import { EventNudge } from "@/components/event-nudge";
 import { FloatingCall } from "@/components/floating-call";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { SavedHomesProvider } from "@/components/saved-homes";
 import { chatEmbed } from "@/lib/ghl/chat-embed";
+import { currentEvents } from "@/lib/events";
 import { callBar, chatWidget, floatingCall } from "@/lib/page-config";
 import { skin, skinStyles, type FontChoice } from "@/lib/skin";
 import { site } from "@/lib/site";
@@ -149,6 +151,7 @@ export default function RootLayout({
             {children}
           </main>
           <SiteFooter />
+          {currentEvents().length > 0 && <EventNudge />}
           {floatingCall && <FloatingCall />}
           {embed ? (
             <Script
