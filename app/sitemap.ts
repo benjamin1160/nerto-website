@@ -25,6 +25,7 @@ const STATIC_ROUTES: { path: string; priority: number; page?: OptionalPage }[] =
   { path: "/videos", priority: 0.7, page: "videos" },
   { path: "/blog", priority: 0.6, page: "blog" },
   { path: "/promotions", priority: 0.6, page: "promotions" },
+  { path: "/events", priority: 0.75, page: "events" },
   { path: "/address", priority: 0.6, page: "address" },
   { path: "/about", priority: 0.6, page: "about" },
   { path: "/contact", priority: 0.6, page: "contact" },
