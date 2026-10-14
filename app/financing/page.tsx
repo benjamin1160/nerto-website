@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Accordion } from "@/components/accordion";
 import { PageHero } from "@/components/page-hero";
 import { PaymentCalculator } from "@/components/payment-calculator";
+import { PreferredLender } from "@/components/preferred-lender";
 import { Reveal } from "@/components/reveal";
 import {
   Badge,
@@ -121,6 +122,11 @@ export default function FinancingPage() {
      than 404ing — an indexed link or a printed card outlives the switch. */
   if (!pages.financing) redirect("/");
 
+  /* Section numbers, counted after the optional lender band so the page
+     reads 01, 02, 03 whether or not a lender is set. */
+  const lender = company.preferredLender;
+  const n = (i: number) => String(i + (lender ? 1 : 0)).padStart(2, "0");
+
   return (
     <>
       <PageHero
@@ -146,11 +152,16 @@ export default function FinancingPage() {
         ]}
       />
 
+      {/* Preferred lender — first after the hero: the question this page
+          exists to answer is "who do I talk to", and the paths below are
+          what that conversation covers. */}
+      {lender && <PreferredLender index="02" lender={lender} />}
+
       {/* Paths */}
       <Section>
         <Reveal>
           <SectionHeading
-            index="02"
+            index={n(2)}
             eyebrow="The four paths"
             title="How the paths differ, plainly."
             lede="Indicative ranges for comparing the paths against each other, not quotes and not an offer of credit. Your number comes from a lender after underwriting, and depends on credit, term, down payment and how the home is titled."
@@ -185,7 +196,7 @@ export default function FinancingPage() {
         <Container className="py-20 sm:py-28">
           <Reveal>
             <SectionHeading
-              index="03"
+              index={n(3)}
               eyebrow="Run it yourself"
               title="Move the sliders. Find your number."
               lede="Put in the home and development price you are working with, then the land, the rate and the down payment. Every figure is a slider, so change the one you are unsure of and watch what it does to the month."
@@ -205,7 +216,7 @@ export default function FinancingPage() {
       <Section>
         <Reveal>
           <SectionHeading
-            index="04"
+            index={n(4)}
             eyebrow="Order of operations"
             title="Do these in this order and nothing goes wrong."
             lede="Almost every purchase that falls apart falls apart because somebody took the steps out of order."
@@ -234,7 +245,7 @@ export default function FinancingPage() {
       <section className="border-t border-line bg-surface">
         <Container className="py-20 sm:py-28">
           <Reveal>
-            <SectionHeading index="05" eyebrow="Credit" title="Asked and answered." />
+            <SectionHeading index={n(5)} eyebrow="Credit" title="Asked and answered." />
           </Reveal>
           <Reveal className="mt-12">
             <Accordion items={FAQ} defaultOpen={0} />
