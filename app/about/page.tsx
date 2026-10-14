@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Scene } from "@/components/artwork/scene";
 import { CountUp } from "@/components/count-up";
@@ -7,6 +8,7 @@ import { Reveal } from "@/components/reveal";
 import {
   ButtonLink,
   Container,
+  cx,
   Eyebrow,
   Icon,
   Section,
@@ -189,7 +191,18 @@ export default function AboutPage() {
             />
           </Reveal>
 
-          <div className="mt-14 grid gap-px overflow-hidden rounded-2xl bg-line sm:grid-cols-2 lg:grid-cols-4">
+          {/* As many columns as people, up to four: the grid's gutters are its
+              background, so an empty column would read as a grey slab. */}
+          <div
+            className={cx(
+              "mt-14 grid gap-px overflow-hidden rounded-2xl bg-line sm:grid-cols-2",
+              company.team.length >= 4
+                ? "lg:grid-cols-4"
+                : company.team.length === 3
+                  ? "lg:grid-cols-3"
+                  : "max-w-4xl",
+            )}
+          >
             {company.team.map((t, i) => (
               <Reveal key={t.name} delay={i * 80} className="bg-paper">
                 <div className="flex h-full flex-col">
@@ -214,19 +227,30 @@ export default function AboutPage() {
                       <p className="font-mono text-[0.7rem] text-white/70">{t.role}</p>
                     </div>
                   </div>
-                  <p className="flex-1 p-6 text-[0.92rem] leading-relaxed text-muted">{t.body}</p>
+                  <div className="flex flex-1 flex-col gap-4 p-6">
+                    <p className="flex-1 text-[0.92rem] leading-relaxed text-muted">{t.body}</p>
+                    {t.link && (
+                      <Link
+                        href={t.link.href}
+                        {...(t.link.href.startsWith("http")
+                          ? { target: "_blank", rel: "noopener noreferrer" }
+                          : {})}
+                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink underline-offset-4 hover:underline"
+                      >
+                        {t.link.label}
+                        {t.link.href.startsWith("http") ? (
+                          <Icon.External className="size-3.5" />
+                        ) : (
+                          <Icon.Arrow className="size-3.5" />
+                        )}
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </Reveal>
             ))}
           </div>
 
-          <Reveal className="mt-10">
-            <p className="text-xs text-muted">
-              Portraits are illustrative placeholders in this template — register a
-              photograph under <code className="font-mono text-ink">page/about-team-N</code> in{" "}
-              <code className="font-mono text-ink">lib/photos.ts</code> when you deploy.
-            </p>
-          </Reveal>
         </Section>
       )}
 

@@ -95,6 +95,9 @@ export const photos: Record<string, string> = {
   "page/saved": "/photos/pages/saved.webp",
   "page/not-found": "/photos/pages/not-found.webp",
   "page/home-closing": "/photos/pages/home-closing.webp",
+  /* Team portraits, in the order of `company.team`. */
+  "page/about-team-1": "/photos/team/anna-boucher.webp",
+  "page/about-team-2": "/photos/team/brendan-fontaine.webp",
   /* The NETR G-3160 job, delivered and standing — an actual project photo
      rather than a stock plate, since that is the page's whole argument. */
   "page/projects": "/photos/projects/netr-g-3160/24.jpg",

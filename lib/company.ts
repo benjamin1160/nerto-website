@@ -32,6 +32,8 @@ export type TeamMember = {
   /** Year they joined. Omit if you don't know it — the card drops the line. */
   since?: string;
   body: string;
+  /** Somewhere to read more about them — a brokerage profile, a lender page. */
+  link?: { href: string; label: string };
 };
 
 export type Principle = {
@@ -76,6 +78,8 @@ export type PreferredLender = {
   profileUrl: string;
   /** Their personal application link, so the file lands with them. */
   applyUrl?: string;
+  /** Loan programs they offer, as the business wants them listed. */
+  loanPrograms?: { name: string; note?: string }[];
 };
 
 export type Company = {
@@ -171,7 +175,39 @@ export const company: Company = {
     photo: "/photos/lender/brendan-fontaine.jpg",
     profileUrl: "https://branches.guildmortgage.com/me/falmouth/brendan-fontaine-304-rgbfo.html",
     applyUrl: "https://myaccount.guildmortgage.com/officers/brendanfontaine/apply-online/?v=2",
+    /* The list NERTO asked for. Construction loans are left off on purpose —
+       NERTO would rather buyers did not go that way. */
+    loanPrograms: [
+      { name: "FHA" },
+      {
+        name: "FHA BOOL",
+        note: "Can take care of the down payment for buyers who already own their land.",
+      },
+      { name: "VA" },
+      { name: "USDA" },
+      { name: "MaineHousing" },
+    ],
   },
+
+  /* From Jordan's note on the team. Each portrait is `page/about-team-N` in
+     `lib/photos.ts`, in this order. More bios to follow. */
+  team: [
+    {
+      name: "Anna Boucher",
+      role: "Real estate agent · Summit Real Estate",
+      body: "Anna is part of the NERTO Homes team and a real estate agent with Summit Real Estate in Maine.",
+      link: {
+        href: "https://www.summitofmaine.com/realestate/agent/anna-boucher/",
+        label: "Anna's Summit Real Estate profile",
+      },
+    },
+    {
+      name: "Brendan Fontaine",
+      role: "Preferred lender · Guild Mortgage · NMLS #102571",
+      body: "Brendan offers FHA — including FHA BOOL, which can take care of the down payment for buyers who already own their land — plus VA, USDA and MaineHousing loans.",
+      link: { href: "/financing#lender", label: "Talk to Brendan about financing" },
+    },
+  ],
 
   /* NERTO's own mission statement, as the business writes it today. It
      deliberately replaces the rent-to-own storage story the company started
