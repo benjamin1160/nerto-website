@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ContactBand } from "@/components/contact-band";
+import { ContactSection } from "@/components/contact-band";
 import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
 import { buttonStyles, cx, Icon, Section } from "@/components/ui";
@@ -126,7 +126,7 @@ export default function ProjectsPage() {
         </div>
       </Section>
 
-      <ContactBand />
+      <ContactSection />
     </>
   );
 }

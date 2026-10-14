@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import { requestPreApproval } from "@/app/land-deals/actions";
 import { EMPTY_LEAD_STATE } from "@/lib/land/lead";
-import { cx, Icon } from "./ui";
+import { Container, cx, Icon } from "./ui";
 import { LeadContext } from "./lead-context";
 import { site } from "@/lib/site";
 
@@ -99,7 +99,7 @@ export function ContactBand() {
 
       <div>
         <label className={label} htmlFor="contact-email">
-          Email
+          Email{req}
         </label>
         <input
           id="contact-email"
@@ -108,6 +108,7 @@ export function ContactBand() {
           autoComplete="email"
           placeholder="you@example.com"
           defaultValue={was.email}
+          required
           aria-invalid={!!err.email}
           className={cx(field, err.email && "border-ember")}
         />
@@ -134,28 +135,33 @@ export function ContactBand() {
 
       <div>
         <label className={label} htmlFor="contact-budget">
-          Budget
+          Budget{req}
         </label>
         <div className="relative">
           <Icon.Dollar className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
+          {/* Keyed so a rejected submission does not blank it — see quote-form. */}
           <select
+            key={`budget-${was.budget ?? ""}`}
             id="contact-budget"
             name="budget"
             defaultValue={was.budget ?? ""}
-            className={cx(field, "appearance-none pl-10")}
+            required
+            aria-invalid={!!err.budget}
+            className={cx(field, "appearance-none pl-10", err.budget && "border-ember")}
           >
             {BUDGETS.map((o) => (
-              <option key={o.value} value={o.value}>
+              <option key={o.value} value={o.value} disabled={o.value === ""}>
                 {o.label}
               </option>
             ))}
           </select>
         </div>
+        {err.budget && <p className="mt-1.5 text-xs text-ember">{err.budget}</p>}
       </div>
 
       <div>
         <label className={label} htmlFor="contact-location">
-          Desired location
+          Desired location{req}
         </label>
         <div className="relative">
           <Icon.Pin className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-muted" />
@@ -164,12 +170,15 @@ export function ContactBand() {
             name="location"
             placeholder="City, state or county"
             defaultValue={was.location}
-            className={cx(field, "pl-10")}
+            required
+            aria-invalid={!!err.location}
+            className={cx(field, "pl-10", err.location && "border-ember")}
           />
         </div>
+        {err.location && <p className="mt-1.5 text-xs text-ember">{err.location}</p>}
       </div>
 
-      {state.status === "error" && !err.name && !err.phone && !err.email && (
+      {state.status === "error" && Object.keys(err).length === 0 && (
         <p className="text-sm text-ember">{state.message}</p>
       )}
 
@@ -187,5 +196,27 @@ export function ContactBand() {
         details, and one reply saying stop ends it.
       </p>
     </form>
+  );
+}
+
+/**
+ * The same form for a page with no panel of its own to put it in — the foot
+ * of `/projects`, each project, and `/videos`. `ContactBand` renders bare and
+ * stretches to whatever holds it, so dropped straight into a page it runs to
+ * the edges of the screen; this gives it the section, gutter and card the
+ * landing page's closing band gives it.
+ */
+export function ContactSection({ id }: { id?: string }) {
+  return (
+    <section
+      id={id}
+      className="scroll-mt-[calc(var(--chrome-h)+1.5rem)] border-t border-line bg-surface-2"
+    >
+      <Container className="py-20 sm:py-24">
+        <div className="mx-auto max-w-xl rounded-2xl border border-line bg-surface p-6 shadow-[var(--card-shadow)] md:p-8">
+          <ContactBand />
+        </div>
+      </Container>
+    </section>
   );
 }

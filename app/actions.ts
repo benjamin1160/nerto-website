@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { listings } from "@/lib/homes";
 import { site } from "@/lib/site";
 import { parseAttribution } from "@/lib/attribution";
@@ -98,8 +99,6 @@ export async function requestWalkthrough(
     };
   }
 
-  return {
-    status: "ok",
-    message: "That's booked on our side.",
-  };
+  /* The thank-you page is the conversion URL Google Ads and GA count. */
+  redirect("/thank-you?form=walkthrough-request");
 }

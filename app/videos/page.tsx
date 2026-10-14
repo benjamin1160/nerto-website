@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { ContactBand } from "@/components/contact-band";
+import { ContactSection } from "@/components/contact-band";
 import { PageHero } from "@/components/page-hero";
 import { Reveal } from "@/components/reveal";
 import { VideoCard } from "@/components/video-library";
@@ -67,7 +67,7 @@ export default function VideosPage() {
         </section>
       ))}
 
-      <ContactBand />
+      <ContactSection />
     </>
   );
 }
