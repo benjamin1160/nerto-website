@@ -134,9 +134,9 @@ export const pages: Record<OptionalPage, boolean> = {
   /* On: `lib/projects.ts` carries the NETR G-3160 job. `/projects`, the nav
      links and the landing band all appear together. */
   projects: true,
-  /* Off because `lib/videos.ts` is empty. Turn on once the explainers — the
-     process, construction loan versus end loan — are up. */
-  videos: false,
+  /* On: `lib/videos.ts` carries the team introductions and the financing
+     conversation. */
+  videos: true,
   /* Off because `lib/communities.ts` is empty — NERTO publishes no
      communities. Write real properties into that file, then turn this on. */
   communities: false,

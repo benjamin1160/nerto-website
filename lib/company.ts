@@ -40,6 +40,15 @@ export type Principle = {
   body: string;
 };
 
+export type Award = {
+  /** As the issuer words it, e.g. "Best of 2026 — Mobile Home Dealer". */
+  title: string;
+  /** Who gave it, and where — the claim is only as good as its source. */
+  issuer: string;
+  /** The issuer's badge, a path under `public/`. */
+  image: string;
+};
+
 export type Company = {
   /** Year the business started trading. Drives the About hero, the story and the "Years" stat. */
   founded?: number;
@@ -83,6 +92,9 @@ export type Company = {
   reviewsUrl?: string;
   /** What to call that source in the link — "Google", "Facebook". */
   reviewsLabel?: string;
+  /** Awards the business has actually been given, shown as badges in the
+      hero's trust row. Only ones it can show the certificate for. */
+  awards?: Award[];
 
   /** Structural warranty on a new home, in months. Omit to make no warranty claim. */
   warrantyMonths?: number;
@@ -103,6 +115,14 @@ export const company: Company = {
   /* The Google place NERTO's own site links its reviews to. */
   reviewsUrl: "https://search.google.com/local/reviews?placeid=ChIJLR4eJnwCskwRZU1grVk6HLk",
   reviewsLabel: "Google",
+  /* BusinessRate's award, from Google reviews, as NERTO received it. */
+  awards: [
+    {
+      title: "Best of 2026 — Mobile Home Dealer, Kennebec County",
+      issuer: "BusinessRate, from Google reviews",
+      image: "/awards/businessrate-best-of-2026.png",
+    },
+  ],
 
   /* NERTO's own mission statement, as the business writes it today. It
      deliberately replaces the rent-to-own storage story the company started

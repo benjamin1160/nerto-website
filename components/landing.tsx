@@ -311,6 +311,26 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
                     ))}
                   </ul>
                 )}
+
+                {(company.awards ?? []).length > 0 && (
+                  <ul className="flex flex-wrap justify-center gap-4 md:justify-start">
+                    {(company.awards ?? []).map((award) => (
+                      <li key={award.title} className="flex items-center gap-3">
+                        <Image
+                          src={award.image}
+                          alt={`${award.issuer}: ${award.title}`}
+                          width={64}
+                          height={80}
+                          className="h-20 w-auto shrink-0 drop-shadow-lg"
+                        />
+                        <span className="text-sm leading-snug text-white/85">
+                          <span className="block font-semibold text-white">{award.title}</span>
+                          {award.issuer}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
 
               <QuoteForm />
