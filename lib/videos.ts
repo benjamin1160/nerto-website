@@ -20,13 +20,18 @@
  *   A file under `public/`, e.g. `/videos/the-process.mp4`, which plays in
  *   the browser's own player with nothing third-party involved at all.
  *
+ *   A direct link to a video file (`.mp4`, `.webm`, `.mov`) on a media CDN —
+ *   NERTO's own clips live in its GoHighLevel media library, too large to
+ *   commit. These play in the browser's own player as well, and nothing is
+ *   requested until play is pressed.
+ *
  * This is separate from `videoShowcase` in `lib/page-config.ts`, which is one
  * silent background clip behind a headline on the landing page. That is
  * decoration; this is content somebody sat down to watch.
  */
 
 /** The shelf a video sits on. Topics with nothing in them are not rendered. */
-export type VideoTopic = "process" | "financing" | "land" | "homes";
+export type VideoTopic = "team" | "process" | "financing" | "land" | "homes";
 
 export type Video = {
   /** URL fragment and React key, kebab-case. */
@@ -49,13 +54,45 @@ export type Video = {
   publishedOn?: string;
 };
 
-export const videos: Video[] = [];
+const MEDIA = "https://assets.cdn.filesafe.space/jGfa0Gfp5vn6zVQa95tj/media";
+
+export const videos: Video[] = [
+  {
+    slug: "meet-anna-and-john",
+    title: "Meet the NERTO Homes team: Anna & John",
+    summary:
+      "Anna and John introduce themselves — the people behind NERTO Homes, speaking directly to you.",
+    topic: "team",
+    url: `${MEDIA}/6acfac5a9d1e6954dd79702b.mp4`,
+  },
+  {
+    slug: "real-estate-insights",
+    title: "Real estate insights and industry experience",
+    summary:
+      "A NERTO Homes representative on real estate projects and the housing industry, and why experience, communication and personal service matter to a buyer.",
+    topic: "team",
+    url: `${MEDIA}/6acfac5a3cd85e1fe3419190.mp4`,
+  },
+  {
+    slug: "financing-and-lender-conversation",
+    title: "Financing and lending: a conversation",
+    summary:
+      "Two NERTO Homes representatives talk through financing and lending, and the people and resources there to help you through it.",
+    topic: "financing",
+    url: `${MEDIA}/6acfac5ad2cf284502a86667.mp4`,
+  },
+];
 
 /**
- * The shelves, in the order they should be read: what happens, then how it is
- * paid for, then the two things people ask about afterwards.
+ * The shelves, in the order they should be read: who you are dealing with,
+ * what happens, then how it is paid for, then the two things people ask about afterwards.
  */
 export const videoTopics: { id: VideoTopic; label: string; blurb: string }[] = [
+  {
+    id: "team",
+    label: "Meet the team",
+    blurb: "The people you will actually be working with.",
+  },
   {
     id: "process",
     label: "How it works",
@@ -93,9 +130,11 @@ export function populatedTopics() {
     .filter((t) => t.videos.length > 0);
 }
 
-/** A file we can hand to `<video>` rather than an iframe. */
+const VIDEO_FILE = /\.(?:mp4|webm|mov)(?:[?#]|$)/i;
+
+/** A file we can hand to `<video>` rather than an iframe — local or a direct CDN link. */
 export function isSelfHosted(url: string): boolean {
-  return url.startsWith("/");
+  return url.startsWith("/") || VIDEO_FILE.test(url);
 }
 
 const YOUTUBE =
