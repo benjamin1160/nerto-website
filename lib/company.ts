@@ -49,6 +49,35 @@ export type Award = {
   image: string;
 };
 
+/**
+ * The loan officer the business refers buyers to. Every line is what the
+ * lender publishes on their own page — copy it from there, never retype it
+ * from memory, because an NMLS number is a licence and a wrong one is a
+ * compliance problem rather than a typo.
+ */
+export type PreferredLender = {
+  name: string;
+  title: string;
+  /** The officer's own NMLS ID. Required by law wherever they are advertised. */
+  nmls: string;
+  company: string;
+  /** The lender's company NMLS ID, shown in the disclosure line. */
+  companyNmls: string;
+  phone: string;
+  mobile?: string;
+  email: string;
+  /** Office address, one line. */
+  office?: string;
+  /** States the officer is licensed in, as they list them. */
+  licensedIn?: string;
+  /** Headshot under `public/`, from the lender's own profile. */
+  photo?: string;
+  /** Their profile page on the lender's site. */
+  profileUrl: string;
+  /** Their personal application link, so the file lands with them. */
+  applyUrl?: string;
+};
+
 export type Company = {
   /** Year the business started trading. Drives the About hero, the story and the "Years" stat. */
   founded?: number;
@@ -96,6 +125,9 @@ export type Company = {
       hero's trust row. Only ones it can show the certificate for. */
   awards?: Award[];
 
+  /** Shown as its own section on `/financing`. Omit and the section goes. */
+  preferredLender?: PreferredLender;
+
   /** Structural warranty on a new home, in months. Omit to make no warranty claim. */
   warrantyMonths?: number;
   /** Transport included in the listed price, in miles from the lot. */
@@ -123,6 +155,23 @@ export const company: Company = {
       image: "/awards/businessrate-best-of-2026.png",
     },
   ],
+
+  /* As published on his Guild Mortgage profile page. */
+  preferredLender: {
+    name: "Brendan Fontaine",
+    title: "Loan Officer",
+    nmls: "102571",
+    company: "Guild Mortgage Company LLC",
+    companyNmls: "3274",
+    phone: "(207) 808-4070",
+    mobile: "(207) 272-9949",
+    email: "brendan.fontaine@guildmortgage.net",
+    office: "50 Depot Road, 1st Floor, Falmouth, ME 04105",
+    licensedIn: "Maine, New Hampshire and Florida",
+    photo: "/photos/lender/brendan-fontaine.jpg",
+    profileUrl: "https://branches.guildmortgage.com/me/falmouth/brendan-fontaine-304-rgbfo.html",
+    applyUrl: "https://myaccount.guildmortgage.com/officers/brendanfontaine/apply-online/?v=2",
+  },
 
   /* NERTO's own mission statement, as the business writes it today. It
      deliberately replaces the rent-to-own storage story the company started
