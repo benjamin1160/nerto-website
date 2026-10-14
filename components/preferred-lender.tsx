@@ -75,6 +75,34 @@ export function PreferredLender({ index, lender }: { index: string; lender: Lend
               )}
             </ul>
 
+            {lender.loanPrograms && lender.loanPrograms.length > 0 && (
+              <div className="mt-7 border-t border-line pt-6">
+                <p className="eyebrow">Loans {lender.name.split(" ")[0]} offers</p>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {lender.loanPrograms.map((p) => (
+                    <li
+                      key={p.name}
+                      className="rounded-full border border-line bg-paper px-3.5 py-1.5 text-sm font-medium text-ink"
+                    >
+                      {p.name}
+                    </li>
+                  ))}
+                </ul>
+                {lender.loanPrograms.some((p) => p.note) && (
+                  <dl className="mt-4 space-y-1.5 text-sm leading-relaxed text-muted">
+                    {lender.loanPrograms
+                      .filter((p) => p.note)
+                      .map((p) => (
+                        <div key={p.name}>
+                          <dt className="inline font-semibold text-ink">{p.name}: </dt>
+                          <dd className="inline">{p.note}</dd>
+                        </div>
+                      ))}
+                  </dl>
+                )}
+              </div>
+            )}
+
             <div className="mt-8 flex flex-wrap gap-3">
               {lender.applyUrl && (
                 <ButtonLink
