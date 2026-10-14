@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ContactBand } from "@/components/contact-band";
+import { ContactSection } from "@/components/contact-band";
 import { InquiryForm } from "@/components/inquiry-form";
 import { Badge, ButtonLink, Container, Eyebrow, Icon, SpecRow } from "@/components/ui";
 import { getListing } from "@/lib/homes";
@@ -254,9 +254,7 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
         </section>
       )}
 
-      <div id="contact" className="scroll-mt-[calc(var(--chrome-h)+1.5rem)]">
-        <ContactBand />
-      </div>
+      <ContactSection id="contact" />
     </>
   );
 }

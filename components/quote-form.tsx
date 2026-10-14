@@ -18,7 +18,7 @@ const BUYER_TYPES = [
 ];
 
 const BUDGETS = [
-  { value: "", label: "Budget" },
+  { value: "", label: "Budget *" },
   { value: "under-50k", label: "Under $50,000" },
   { value: "50-100k", label: "$50,000 – $100,000" },
   { value: "100-150k", label: "$100,000 – $150,000" },
@@ -99,9 +99,10 @@ export function QuoteForm() {
               name="email"
               type="email"
               autoComplete="email"
-              placeholder="Email"
+              placeholder="Email *"
               aria-label="Email"
               defaultValue={was.email}
+              required
               aria-invalid={!!err.email}
               className={cx(field, err.email && "!border-[var(--ember)]")}
             />
@@ -123,42 +124,62 @@ export function QuoteForm() {
             {err.phone && <p className="mt-1.5 text-xs text-white/80">{err.phone}</p>}
           </div>
 
-          <select
-            name="landStatus"
-            aria-label="What best describes you?"
-            defaultValue={was.landStatus ?? ""}
-            className={cx(field, "appearance-none")}
-          >
-            {BUYER_TYPES.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
-
-          <div className="grid grid-cols-2 gap-3">
+          <div>
+            {/* Keyed on the echoed answer: React re-applies a select's
+                `defaultValue` only on mount, so after a rejected submission
+                the form reset would otherwise blank it. */}
             <select
-              name="budget"
-              aria-label="Budget"
-              defaultValue={was.budget ?? ""}
-              className={cx(field, "appearance-none")}
+              key={`landStatus-${was.landStatus ?? ""}`}
+              name="landStatus"
+              aria-label="What best describes you?"
+              defaultValue={was.landStatus ?? ""}
+              required
+              aria-invalid={!!err.landStatus}
+              className={cx(field, "appearance-none", err.landStatus && "!border-[var(--ember)]")}
             >
-              {BUDGETS.map((o) => (
-                <option key={o.value} value={o.value}>
+              {BUYER_TYPES.map((o) => (
+                <option key={o.value} value={o.value} disabled={o.value === ""}>
                   {o.label}
                 </option>
               ))}
             </select>
-            <input
-              name="location"
-              placeholder="Location"
-              aria-label="Location"
-              defaultValue={was.location}
-              className={field}
-            />
+            {err.landStatus && <p className="mt-1.5 text-xs text-white/80">{err.landStatus}</p>}
           </div>
 
-          {state.status === "error" && !err.name && !err.phone && !err.email && (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <select
+                key={`budget-${was.budget ?? ""}`}
+                name="budget"
+                aria-label="Budget"
+                defaultValue={was.budget ?? ""}
+                required
+                aria-invalid={!!err.budget}
+                className={cx(field, "appearance-none", err.budget && "!border-[var(--ember)]")}
+              >
+                {BUDGETS.map((o) => (
+                  <option key={o.value} value={o.value} disabled={o.value === ""}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+              {err.budget && <p className="mt-1.5 text-xs text-white/80">{err.budget}</p>}
+            </div>
+            <div>
+              <input
+                name="location"
+                placeholder="Location *"
+                aria-label="Location"
+                defaultValue={was.location}
+                required
+                aria-invalid={!!err.location}
+                className={cx(field, err.location && "!border-[var(--ember)]")}
+              />
+              {err.location && <p className="mt-1.5 text-xs text-white/80">{err.location}</p>}
+            </div>
+          </div>
+
+          {state.status === "error" && Object.keys(err).length === 0 && (
             <p className="text-sm text-white/80">{state.message}</p>
           )}
 

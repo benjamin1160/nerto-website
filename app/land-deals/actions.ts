@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { AREAS } from "@/lib/land/areas";
 import { LEAD_SOURCES, type LeadField, type LeadSource, type LeadState } from "@/lib/land/lead";
 import { parseAttribution } from "@/lib/attribution";
@@ -48,6 +49,26 @@ export async function requestPreApproval(
   if (lead.county && !AREAS.some((a) => a.slug === lead.county))
     fieldErrors.county = "Pick a county from the list.";
 
+  /* Which form the lead came off, so the CRM can tell the map's pre-approval
+     request from the landing page's quote band. Allowlisted rather than
+     echoed: this arrives from the client like everything else here. */
+  const submitted = clean(formData.get("source"), 40);
+  const source = LEAD_SOURCES.includes(submitted as LeadSource)
+    ? submitted
+    : "land-deals-map";
+
+  /* The two landing-page forms feed the new-lead text NERTO's GHL workflow
+     sends, which reads email, budget and location — so those forms require
+     them, and the hero card its "What best describes you?" as well. Checked
+     here as well as in the browser, which is only a courtesy. */
+  if (source === "landing-quote" || source === "landing-contact") {
+    if (!lead.email) fieldErrors.email = "An email, please.";
+    if (!lead.budget) fieldErrors.budget = "Pick a budget range.";
+    if (lead.location.length < 2) fieldErrors.location = "Where are you looking?";
+  }
+  if (source === "landing-quote" && !lead.landStatus)
+    fieldErrors.landStatus = "Pick the one that fits best.";
+
   if (Object.keys(fieldErrors).length > 0) {
     // React resets an uncontrolled form after every action, so hand the
     // values back for the inputs to re-seed themselves from.
@@ -58,14 +79,6 @@ export async function requestPreApproval(
       values: lead,
     };
   }
-
-  /* Which form the lead came off, so the CRM can tell the map's pre-approval
-     request from the landing page's quote band. Allowlisted rather than
-     echoed: this arrives from the client like everything else here. */
-  const submitted = clean(formData.get("source"), 40);
-  const source = LEAD_SOURCES.includes(submitted as LeadSource)
-    ? submitted
-    : "land-deals-map";
 
   const result = await submitLead({
     /* The two vocabularies agree: every `LeadSource` is also a `LeadForm`. */
@@ -90,8 +103,7 @@ export async function requestPreApproval(
     };
   }
 
-  return {
-    status: "ok",
-    message: `Got it, ${lead.name.split(" ")[0]}. We'll call you with a pre-approval range — usually same day.`,
-  };
+  /* Outside any try: `redirect` throws by design. The thank-you page is the
+     conversion URL Google Ads and GA count. */
+  redirect(`/thank-you?form=${source}`);
 }
