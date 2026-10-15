@@ -15,7 +15,7 @@ import {
   SectionHeading,
 } from "@/components/ui";
 import { communities } from "@/lib/communities";
-import { company, spellCount, yearsTrading } from "@/lib/company";
+import { company, spellCount, yearsTrading, type TeamMember } from "@/lib/company";
 import { listings, seriesList } from "@/lib/homes";
 import { site } from "@/lib/site";
 import { pages } from "@/lib/page-config";
@@ -44,6 +44,12 @@ export default function AboutPage() {
   if (!pages.about) redirect("/");
 
   const years = yearsTrading();
+
+  /* Each portrait is `page/about-team-N` by position in `company.team`, so
+     the index is taken before staff and partners are split apart. */
+  const team = (company.team ?? []).map((member, i) => ({ member, photo: i + 1 }));
+  const staff = team.filter((t) => !t.member.partner);
+  const partners = team.filter((t) => t.member.partner);
 
   /* Section numbering has to survive a missing section, so it counts up as
      the page renders rather than being written into each heading. */
@@ -175,8 +181,8 @@ export default function AboutPage() {
         </section>
       )}
 
-      {/* Team */}
-      {company.team && company.team.length > 0 && (
+      {/* Team — staff, then the outside professionals NERTO works alongside. */}
+      {staff.length > 0 && (
         <Section>
           <Reveal>
             <SectionHeading
@@ -184,73 +190,25 @@ export default function AboutPage() {
               eyebrow="Who you'll actually meet"
               title={
                 company.teamSize
-                  ? `${sentenceCase(spellCount(company.teamSize))} people. No sales floor.`
-                  : "No sales floor."
+                  ? `${sentenceCase(spellCount(company.teamSize))} people, one team.`
+                  : "The people behind your home."
               }
               lede={company.teamNote}
             />
           </Reveal>
+          <TeamGrid members={staff} />
+        </Section>
+      )}
 
-          {/* As many columns as people, up to four: the grid's gutters are its
-              background, so an empty column would read as a grey slab. */}
-          <div
-            className={cx(
-              "mt-14 grid gap-px overflow-hidden rounded-2xl bg-line sm:grid-cols-2",
-              company.team.length >= 4
-                ? "lg:grid-cols-4"
-                : company.team.length === 3
-                  ? "lg:grid-cols-3"
-                  : "max-w-4xl",
-            )}
-          >
-            {company.team.map((t, i) => (
-              <Reveal key={t.name} delay={i * 80} className="bg-paper">
-                <div className="flex h-full flex-col">
-                  <div className="grain relative aspect-[4/5] overflow-hidden bg-surface-2">
-                    <Scene
-                      kind={(["living", "porch", "kitchen", "bedroom"] as const)[i % 4]}
-                      photoKey={`page/about-team-${i + 1}`}
-                      sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                      label={t.name}
-                      className="size-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                    <div className="absolute inset-x-0 bottom-0 p-5">
-                      {t.since && (
-                        <p className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-white/65">
-                          Since {t.since}
-                        </p>
-                      )}
-                      <p className="mt-1 font-display text-xl leading-tight text-white">
-                        {t.name}
-                      </p>
-                      <p className="font-mono text-[0.7rem] text-white/70">{t.role}</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-1 flex-col gap-4 p-6">
-                    <p className="flex-1 text-[0.92rem] leading-relaxed text-muted">{t.body}</p>
-                    {t.link && (
-                      <Link
-                        href={t.link.href}
-                        {...(t.link.href.startsWith("http")
-                          ? { target: "_blank", rel: "noopener noreferrer" }
-                          : {})}
-                        className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink underline-offset-4 hover:underline"
-                      >
-                        {t.link.label}
-                        {t.link.href.startsWith("http") ? (
-                          <Icon.External className="size-3.5" />
-                        ) : (
-                          <Icon.Arrow className="size-3.5" />
-                        )}
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
+      {partners.length > 0 && (
+        <Section className="!pt-0">
+          <Reveal>
+            <SectionHeading
+              eyebrow="Trusted local partners"
+              title="The lender and agent we work alongside."
+            />
+          </Reveal>
+          <TeamGrid members={partners} />
         </Section>
       )}
 
@@ -322,5 +280,67 @@ export default function AboutPage() {
         </Container>
       </section>
     </>
+  );
+}
+
+/* Cards with real gaps rather than hairline gutters: a team of seven never
+   fills its last row, and hairline gutters would show the gap as a slab. */
+function TeamGrid({ members }: { members: { member: TeamMember; photo: number }[] }) {
+  return (
+    <div
+      className={cx(
+        "mt-14 grid gap-6 sm:grid-cols-2",
+        members.length >= 3 ? "lg:grid-cols-3" : "max-w-4xl",
+      )}
+    >
+      {members.map(({ member: t, photo }, i) => (
+        <Reveal key={t.name} delay={(i % 3) * 80}>
+          <div className="flex h-full flex-col overflow-hidden rounded-card border border-line bg-paper">
+            <div className="grain relative aspect-[4/5] overflow-hidden bg-surface-2">
+              <Scene
+                kind={(["living", "porch", "kitchen", "bedroom"] as const)[i % 4]}
+                photoKey={`page/about-team-${photo}`}
+                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                label={t.name}
+                className="size-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 p-5">
+                {t.since && (
+                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-white/65">
+                    Since {t.since}
+                  </p>
+                )}
+                <p className="mt-1 font-display text-xl leading-tight text-white">{t.name}</p>
+                <p className="font-mono text-[0.7rem] text-white/70">{t.role}</p>
+              </div>
+            </div>
+            <div className="flex flex-1 flex-col gap-4 p-6">
+              <div className="flex-1 space-y-3 text-[0.92rem] leading-relaxed text-muted">
+                {(Array.isArray(t.body) ? t.body : [t.body]).map((p, j) => (
+                  <p key={j}>{p}</p>
+                ))}
+              </div>
+              {t.link && (
+                <Link
+                  href={t.link.href}
+                  {...(t.link.href.startsWith("http")
+                    ? { target: "_blank", rel: "noopener noreferrer" }
+                    : {})}
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink underline-offset-4 hover:underline"
+                >
+                  {t.link.label}
+                  {t.link.href.startsWith("http") ? (
+                    <Icon.External className="size-3.5" />
+                  ) : (
+                    <Icon.Arrow className="size-3.5" />
+                  )}
+                </Link>
+              )}
+            </div>
+          </div>
+        </Reveal>
+      ))}
+    </div>
   );
 }

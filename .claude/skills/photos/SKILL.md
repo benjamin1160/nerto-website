@@ -29,7 +29,8 @@ kept its old name), `page/faq`, `page/promotions`, `page/prequalify`,
 `page/address`, `page/blog`, `blog/<slug>`, `page/communities`,
 `page/start-here`, `page/why-manufactured`, `page/financing`, `page/about`,
 `page/contact`, `page/saved`, `page/not-found`, `page/home-closing` (the
-closing band on the homepage), and `page/about-team-1` … `page/about-team-4`.
+closing band on the homepage), and `page/about-team-1` … `page/about-team-N`,
+one per entry in `company.team`, in order.
 
 ## Recipes
 
