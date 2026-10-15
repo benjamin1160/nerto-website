@@ -89,6 +89,9 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image" },
   robots: { index: true, follow: true },
+  verification: {
+    google: "fgHC_z6HiJsFylEv4EQ37SmIKbT2Aeur8BgZw-ChYlY",
+  },
 };
 
 export const viewport: Viewport = {
