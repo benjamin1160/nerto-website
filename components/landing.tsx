@@ -49,6 +49,7 @@ import { projectCover, publishedProjects } from "@/lib/projects";
 import { featuredPromotion } from "@/lib/promotions";
 import { site } from "@/lib/site";
 import heroPhoto from "@/public/photos/hero-home.jpg";
+import { HalloweenNight } from "./halloween-decor";
 
 /* The hero claims and the ticker describe how HUD-code homes are built as a
    category, not options or tolerances on any particular plan. Anything
@@ -247,6 +248,7 @@ export function Landing({ listingSeries, listingsHeadline, listingsLede }: Landi
                 badge and the headline, darker still at the foot where the
                 trust row sits on grass. */}
             <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(0,0,0,0.55)_0%,rgba(0,0,0,0.7)_100%)]" />
+            <HalloweenNight />
           </div>
 
           <Container className="py-12 pb-24 md:py-20 md:pb-32">
