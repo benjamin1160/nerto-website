@@ -113,6 +113,9 @@ export const viewport: Viewport = {
  */
 const THEME_BOOT = `(function(){try{var s=localStorage.getItem("nerto:theme");document.documentElement.classList.toggle("dark",s==="dark");}catch(e){}})();`;
 
+const GOOGLE_ADS_ID = "AW-18513483485";
+const GOOGLE_ADS_BOOT = `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GOOGLE_ADS_ID}');`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -145,6 +148,14 @@ export default function RootLayout({
         </noscript>
       </head>
       <body className="flex min-h-full flex-col bg-paper font-sans text-ink">
+        <Script
+          id="google-ads-library"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GOOGLE_ADS_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-tag" strategy="afterInteractive">
+          {GOOGLE_ADS_BOOT}
+        </Script>
         <SavedHomesProvider>
           <SiteHeader />
           <main id="main" className="flex-1">
