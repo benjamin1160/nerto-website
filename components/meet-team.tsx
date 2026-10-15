@@ -76,7 +76,10 @@ export function MeetTeam({
                   <p className="text-sm text-white/75">{member.role}</p>
                 </div>
               </div>
-              <p className="flex-1 p-6 text-[0.95rem] leading-relaxed text-muted">{member.body}</p>
+              {/* A teaser, so a several-paragraph bio shows its first paragraph. */}
+              <p className="flex-1 p-6 text-[0.95rem] leading-relaxed text-muted">
+                {Array.isArray(member.body) ? member.body[0] : member.body}
+              </p>
             </div>
           </Reveal>
         ))}

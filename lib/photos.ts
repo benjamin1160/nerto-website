@@ -68,8 +68,8 @@ const feedPhotos: Record<string, string> = Object.fromEntries(
  * `page/projects`, `page/videos`, `page/not-found`,
  * `page/home-closing` (the wide band under the hero),
  * `page/reviews` (behind the testimonials),
- * `page/about-team-1` … `page/about-team-4`, and `blog/<slug>` for a post's
- * hero. Every one of those with no photograph renders as the empty plate,
+ * `page/about-team-N` (one per `company.team` entry, in order), and
+ * `blog/<slug>` for a post's hero. Every one of those with no photograph renders as the empty plate,
  * which is the correct outcome — it is never filled with a stand-in.
  *
  * The homepage hero is the one image that is NOT listed here: it is
@@ -96,8 +96,15 @@ export const photos: Record<string, string> = {
   "page/not-found": "/photos/pages/not-found.webp",
   "page/home-closing": "/photos/pages/home-closing.webp",
   /* Team portraits, in the order of `company.team`. */
-  "page/about-team-1": "/photos/team/anna-boucher.webp",
-  "page/about-team-2": "/photos/team/brendan-fontaine.webp",
+  "page/about-team-1": "/photos/team/jeremy-turner.webp",
+  "page/about-team-2": "/photos/team/jonathan-henderson.webp",
+  "page/about-team-3": "/photos/team/jordan-cloutier.webp",
+  "page/about-team-4": "/photos/team/shawna-allen.webp",
+  "page/about-team-5": "/photos/team/travis-turner.webp",
+  "page/about-team-6": "/photos/team/orion-poulin.webp",
+  "page/about-team-7": "/photos/team/sandra-carpenter.webp",
+  "page/about-team-8": "/photos/team/brendan-fontaine.webp",
+  "page/about-team-9": "/photos/team/anna-boucher.webp",
   /* The NETR G-3160 job, delivered and standing — an actual project photo
      rather than a stock plate, since that is the page's whole argument. */
   "page/projects": "/photos/projects/netr-g-3160/24.jpg",
