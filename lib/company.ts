@@ -258,6 +258,36 @@ export const company: Company = {
       body: "Hi, I'm Sandra Carpenter! I recently joined New England Rent to Own and am excited to get to know the team, learn new things, and grow in my role. Outside of work, I enjoy scrapbooking and crafting — creative outlets that let me add a personal touch and preserve special memories. I also love outdoor adventures with my three boys, exploring together and making memories along the way.",
     },
     {
+      name: "Adam",
+      role: "Set Crew",
+      body: "Member of NERTO Homes' set crew.",
+    },
+    {
+      name: "Courtney",
+      role: "Set Crew",
+      body: "Member of NERTO Homes' set crew.",
+    },
+    {
+      name: "Devon",
+      role: "Set Crew",
+      body: "Member of NERTO Homes' set crew.",
+    },
+    {
+      name: "Kenny Tuttle",
+      role: "Set Crew",
+      body: "Member of NERTO Homes' set crew.",
+    },
+    {
+      name: "Michael Trytek",
+      role: "Set Crew",
+      body: "Member of NERTO Homes' set crew.",
+    },
+    {
+      name: "Justin Foster",
+      role: "Set Crew",
+      body: "Member of NERTO Homes' set crew.",
+    },
+    {
       name: "Brendan Fontaine",
       role: "Loan Officer · Guild Mortgage · NMLS #102571",
       partner: true,
