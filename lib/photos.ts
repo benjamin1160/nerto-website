@@ -103,8 +103,14 @@ export const photos: Record<string, string> = {
   "page/about-team-5": "/photos/team/travis-turner.webp",
   "page/about-team-6": "/photos/team/orion-poulin.webp",
   "page/about-team-7": "/photos/team/sandra-carpenter.webp",
-  "page/about-team-8": "/photos/team/brendan-fontaine.webp",
-  "page/about-team-9": "/photos/team/anna-boucher.webp",
+  "page/about-team-8": "/photos/team/adam.webp",
+  "page/about-team-9": "/photos/team/courtney.webp",
+  "page/about-team-10": "/photos/team/devon.webp",
+  "page/about-team-11": "/photos/team/kenny-tuttle.webp",
+  "page/about-team-12": "/photos/team/michael-trytek.webp",
+  "page/about-team-13": "/photos/team/justin-foster.webp",
+  "page/about-team-14": "/photos/team/brendan-fontaine.webp",
+  "page/about-team-15": "/photos/team/anna-boucher.webp",
   /* The NETR G-3160 job, delivered and standing — an actual project photo
      rather than a stock plate, since that is the page's whole argument. */
   "page/projects": "/photos/projects/netr-g-3160/24.jpg",
