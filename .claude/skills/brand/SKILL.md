@@ -95,6 +95,14 @@ is right depends on the ask:
   block in `lib/skin.ts`, change the values, add the id to `SkinId`. Now
   every future deployment can wear it by changing one line.
 
+- **"Wear X until a date"** — seasonal. `seasonalSkin` in `lib/skin.ts`
+  names a skin and an `until`; its colours are laid over the active skin
+  (fonts and corners stay) while a `.<id>` class is on `<html>`, and the boot
+  script in `app/layout.tsx` adds that class only before `until` by the
+  visitor's clock — so the season ends on time without a redeploy.
+  `preferDark` opens it in dark unless the visitor chose light. Set
+  `seasonalSkin` to `null` to clear it. `halloween` ships for this.
+
 Whichever you choose: never hardcode a hex in a component. `--btn-bg`,
 `--corner-button` and `--corner-card` exist precisely so buttons and cards
 follow the skin rather than pinning a shape the next skin has to fight.

@@ -24,7 +24,7 @@
  * name here.
  */
 
-export type SkinId = "hearthline" | "nerto";
+export type SkinId = "hearthline" | "nerto" | "halloween";
 
 /**
  * Font stacks a skin can choose between. All but `system` are self-hosted by
@@ -329,6 +329,76 @@ export const skins: Record<SkinId, Skin> = {
     fonts: { display: "system", sans: "system", mono: "system" },
     radius: { button: "0.75rem", card: "1rem" },
   },
+  /**
+   * Halloween — the Trunk or Treat flyer: a night-sky navy, pumpkin orange,
+   * candlelit cream. Not picked by `activeSkin`; `seasonalSkin` below lays it
+   * over the active skin for a fixed window and then it falls away. Fonts and
+   * corners match `nerto`, so only the colour changes.
+   */
+  halloween: {
+    id: "halloween",
+    name: "Halloween",
+    description:
+      "Night-sky navy, pumpkin orange and candlelit cream, from the Trunk or Treat flyer. Seasonal.",
+    light: {
+      paper: "#fffaf3",
+      surface: "#fdf1e2",
+      surface2: "#f9e4cb",
+      ink: "#1b1838",
+      inkSoft: "#3a3560",
+      muted: "#6b6488",
+      line: "#f0dcc2",
+      lineStrong: "#e2c29c",
+      ember: "#c2410c",
+      emberSoft: "#ea580c",
+      emberWash: "#fff1e6",
+      accent: "#f59e0b",
+      accentSoft: "#fbbf24",
+      moss: "#15803d",
+      mossSoft: "#4ade80",
+      sky: "#6d28d9",
+      gold: "#d97706",
+      onEmber: "#ffffff",
+      shadowColor: "27 24 56",
+    },
+    dark: {
+      paper: "#0e1028",
+      surface: "#171a3a",
+      surface2: "#212450",
+      ink: "#fdf2e2",
+      inkSoft: "#f1dfc6",
+      muted: "#a7a2c7",
+      line: "#262a52",
+      lineStrong: "#383d6e",
+      ember: "#f97316",
+      emberSoft: "#fb923c",
+      emberWash: "#2a1a24",
+      accent: "#fbbf24",
+      accentSoft: "#fcd34d",
+      moss: "#4ade80",
+      mossSoft: "#86efac",
+      sky: "#a78bfa",
+      gold: "#fbbf24",
+      onEmber: "#1a1033",
+      shadowColor: "0 0 0",
+    },
+    button: { bg: "#c2410c", fg: "#ffffff", hoverBg: "#ea580c", hoverFg: "#ffffff" },
+    buttonDark: { bg: "#ea580c", fg: "#ffffff", hoverBg: "#f97316", hoverFg: "#ffffff" },
+    gradient: {
+      gradient: "linear-gradient(135deg, #2b2463 0%, #ea580c 100%)",
+      gradientHover: "linear-gradient(135deg, #3b3185 0%, #f97316 100%)",
+      buttonShadow: "0 10px 25px -5px rgba(234, 88, 12, 0.4)",
+      cardShadow: "0 4px 6px -1px rgba(27, 24, 56, 0.12)",
+    },
+    gradientDark: {
+      gradient: "linear-gradient(135deg, #6d28d9 0%, #ea580c 100%)",
+      gradientHover: "linear-gradient(135deg, #7c3aed 0%, #f97316 100%)",
+      buttonShadow: "0 10px 25px -5px rgba(249, 115, 22, 0.45)",
+      cardShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.5)",
+    },
+    fonts: { display: "system", sans: "system", mono: "system" },
+    radius: { button: "0.75rem", card: "1rem" },
+  },
 };
 
 /**
@@ -337,6 +407,30 @@ export const skins: Record<SkinId, Skin> = {
 export const activeSkin: SkinId = "nerto";
 
 export const skin = skins[activeSkin];
+
+/**
+ * A skin worn for a fixed window on top of `activeSkin` — colours only; the
+ * active skin's fonts and corners stay. Set to `null` when there is none.
+ *
+ * The date is checked in the visitor's browser by the boot script in
+ * `app/layout.tsx`, not at build time, because the site is built statically:
+ * a build check would leave the season on until somebody redeployed. A build
+ * after `until` stops shipping it at all.
+ *
+ * `preferDark` opens the site in the skin's dark theme unless the visitor has
+ * picked light with the toggle — the flyer is a night scene.
+ */
+export const seasonalSkin: { id: SkinId; until: string; preferDark: boolean } | null = {
+  id: "halloween",
+  until: "2026-11-01T00:00:00-04:00",
+  preferDark: true,
+};
+
+/** The seasonal skin, if one is set and its window has not closed. */
+export function activeSeason(now = new Date()) {
+  if (!seasonalSkin || now.getTime() >= new Date(seasonalSkin.until).getTime()) return null;
+  return { ...seasonalSkin, skin: skins[seasonalSkin.id] };
+}
 
 /* ------------------------------------------------------------------ *
  * Emitting the tokens
@@ -422,11 +516,18 @@ const block = (
  * always beat the fallback values in `app/globals.css` regardless of which
  * order the two end up in. Without that, whether the skin applies would
  * depend on stylesheet ordering, which is not a thing to leave to chance.
+ *
+ * With `scope` (a class such as `.halloween`) the colours apply only while
+ * that class is on `<html>`, and the corners are left to the base skin. It
+ * has to be emitted after the base: the scoped light rule ties the base dark
+ * rule on specificity and wins on order, and the scoped dark rule beats both.
  */
-export function skinStyles(active: Skin = skin): string {
+export function skinStyles(active: Skin = skin, scope = ""): string {
+  const radius = scope
+    ? ""
+    : `;--corner-button:${active.radius.button};--corner-card:${active.radius.card}`;
   return [
-    `:root:root{${block(active.light, active.landLight, active.button, active.gradient)};` +
-      `--corner-button:${active.radius.button};--corner-card:${active.radius.card}}`,
-    `:root:root.dark{${block(active.dark, active.landDark, active.buttonDark ?? active.button, active.gradientDark ?? active.gradient)}}`,
+    `:root:root${scope}{${block(active.light, active.landLight, active.button, active.gradient)}${radius}}`,
+    `:root:root${scope}.dark{${block(active.dark, active.landDark, active.buttonDark ?? active.button, active.gradientDark ?? active.gradient)}}`,
   ].join("");
 }
