@@ -48,7 +48,9 @@ export default function AboutPage() {
   /* Each portrait is `page/about-team-N` by position in `company.team`, so
      the index is taken before staff and partners are split apart. */
   const team = (company.team ?? []).map((member, i) => ({ member, photo: i + 1 }));
-  const staff = team.filter((t) => !t.member.partner);
+  const staff = team.filter((t) => !t.member.partner && !t.member.crew);
+  const concreteCrew = team.filter((t) => t.member.crew === "Concrete Crew");
+  const earthworkCrew = team.filter((t) => t.member.crew === "Earthwork Crew");
   const partners = team.filter((t) => t.member.partner);
 
   /* Section numbering has to survive a missing section, so it counts up as
@@ -197,6 +199,24 @@ export default function AboutPage() {
             />
           </Reveal>
           <TeamGrid members={staff} />
+        </Section>
+      )}
+
+      {concreteCrew.length > 0 && (
+        <Section className="!pt-0">
+          <Reveal>
+            <SectionHeading eyebrow="In the field" title="Concrete Crew" />
+          </Reveal>
+          <TeamGrid members={concreteCrew} />
+        </Section>
+      )}
+
+      {earthworkCrew.length > 0 && (
+        <Section className="!pt-0">
+          <Reveal>
+            <SectionHeading eyebrow="In the field" title="Earthwork Crew" />
+          </Reveal>
+          <TeamGrid members={earthworkCrew} />
         </Section>
       )}
 
