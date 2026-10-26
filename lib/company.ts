@@ -30,6 +30,8 @@ export type PrincipleIcon = "Shield" | "Wrench" | "Truck" | "Bolt" | "Leaf" | "P
 export type TeamMember = {
   name: string;
   role: string;
+  /** Field crew grouping on the About page. Omit for office and leadership staff. */
+  crew?: "Concrete Crew" | "Earthwork Crew";
   /** Year they joined. Omit if you don't know it — the card drops the line. */
   since?: string;
   /** One paragraph, or several. */
@@ -258,9 +260,22 @@ export const company: Company = {
       body: "Hi, I'm Sandra Carpenter! I recently joined New England Rent to Own and am excited to get to know the team, learn new things, and grow in my role. Outside of work, I enjoy scrapbooking and crafting — creative outlets that let me add a personal touch and preserve special memories. I also love outdoor adventures with my three boys, exploring together and making memories along the way.",
     },
     {
-      name: "Adam",
-      role: "Set Crew",
-      body: "Member of NERTO Homes' set crew.",
+      name: "Shawn Morey",
+      role: "Concrete Crew",
+      crew: "Concrete Crew",
+      body: "Member of NERTO Homes' concrete crew.",
+    },
+    {
+      name: "Nick Jones",
+      role: "Concrete Crew",
+      crew: "Concrete Crew",
+      body: "Member of NERTO Homes' concrete crew.",
+    },
+    {
+      name: "Adam Kalloch",
+      role: "Concrete Crew",
+      crew: "Concrete Crew",
+      body: "Member of NERTO Homes' concrete crew.",
     },
     {
       name: "Courtney",
@@ -286,6 +301,66 @@ export const company: Company = {
       name: "Justin Foster",
       role: "Set Crew",
       body: "Member of NERTO Homes' set crew.",
+    },
+    {
+      name: "Jamie Labbe",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
+    },
+    {
+      name: "Casey",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
+    },
+    {
+      name: "Chris Mason",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
+    },
+    {
+      name: "Ethan",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
+    },
+    {
+      name: "Jacob",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
+    },
+    {
+      name: "John Lappan",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
+    },
+    {
+      name: "Mike",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
+    },
+    {
+      name: "Michael Davis",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
+    },
+    {
+      name: "Travis Works",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
+    },
+    {
+      name: "Earthwork Crew Member",
+      role: "Earthwork Crew",
+      crew: "Earthwork Crew",
+      body: "Member of NERTO Homes' earthwork crew.",
     },
     {
       name: "Brendan Fontaine",
