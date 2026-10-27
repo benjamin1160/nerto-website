@@ -163,17 +163,12 @@ export type CatalogueEntry = Omit<Listing, "status">;
  * the lot.
  */
 const lotState: Record<string, Partial<Listing>> = {
-  /* The four homes open to walk through on the lot. */
-  "netr-g-3157": { status: "available", onLot: true, featured: true },
-  /* CHECK THIS ONE. NERTO named it as "3465", and Pine Grove publishes two
-     plans by that number: NETR G-3465 (the northern-states specification,
-     1,493 sq ft) and G-3465 (the standard one, 1,568 sq ft). The NETR is the
-     Maine build and matches the other NETR home on the lot, so it is the one
-     flagged here — but it is a claim about which house a visitor will find in
-     the yard, so confirm it and move this line to "g-3465" if it is wrong. */
-  "netr-g-3465": { status: "available", onLot: true, featured: true },
-  "zk-1100": { status: "available", onLot: true, featured: true },
-  "g-3002": { status: "available", onLot: true, featured: true },
+  /* The five homes open to walk through on the lot. */
+  "netr-g-624": { status: "available", onLot: true, featured: true },
+  "netr-g-618": { status: "available", onLot: true, featured: true },
+  "g-489": { status: "available", onLot: true, featured: true },
+  "g-3154": { status: "available", onLot: true, featured: true },
+  "g-3555": { status: "available", onLot: true, featured: true },
 };
 
 /**
@@ -346,7 +341,7 @@ export function relatedListings(listing: Listing, count = 3): Listing[] {
 
 export const statusLabels: Record<ListingStatus, string> = {
   available: "Available",
-  /* The catalogue's default. NERTO stocks four homes and orders the rest, so
+  /* The catalogue's default. NERTO stocks five homes and orders the rest, so
      "available to order" is the honest word for almost every plan on the
      site — it is a home the dealership can build for you, not one standing
      on the lot today. */

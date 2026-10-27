@@ -138,7 +138,7 @@ the site currently shows four — there are no triple-section plans.
 
 Two statuses matter. `to-order` — "Available to order" — is the catalogue's
 default and true of almost everything: a plan NERTO can build for you.
-`onLot` is the four homes standing on River Road, open to walk through, and
+`onLot` is the five homes standing on River Road, open to walk through, and
 it is the strongest thing a card can say. Both are set in `lotState`.
 
 Re-importing the catalogue is three commands, in this order:

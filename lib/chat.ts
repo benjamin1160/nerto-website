@@ -65,7 +65,7 @@ export const CHAT_SCRIPT: ChatStep[] = [
     choices: [
       {
         label: "I want to see a home",
-        reply: "Four homes are standing on the lot, and everything else in the catalogue we can order in.",
+        reply: "Five homes are standing on the lot, and everything else in the catalogue we can order in.",
       },
       {
         label: "Financing and rent to own",
