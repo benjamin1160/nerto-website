@@ -153,10 +153,10 @@ export const company: Company = {
   /* Shown in the trust row under the hero, exactly as NERTO publishes it. */
   licenseId: "452769500",
   badges: ["Financing available", "Delivery included"],
-  /* The four models standing on River Road, open to walk through. Keep this
+  /* The five models standing on River Road, open to walk through. Keep this
      in step with `onLot` in `lotState` (lib/homes.ts) — they are the same
      fact, and a visitor who finds them disagreeing will believe neither. */
-  homesOpenOnLot: 4,
+  homesOpenOnLot: 5,
   /* The Google place NERTO's own site links its reviews to. */
   reviewsUrl: "https://search.google.com/local/reviews?placeid=ChIJLR4eJnwCskwRZU1grVk6HLk",
   reviewsLabel: "Google",
