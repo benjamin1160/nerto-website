@@ -309,7 +309,7 @@ export const company: Company = {
       body: "Member of NERTO Homes' earthwork crew.",
     },
     {
-      name: "Casey",
+      name: "Hunter",
       role: "Earthwork Crew",
       crew: "Earthwork Crew",
       body: "Member of NERTO Homes' earthwork crew.",
@@ -357,7 +357,7 @@ export const company: Company = {
       body: "Member of NERTO Homes' earthwork crew.",
     },
     {
-      name: "Earthwork Crew Member",
+      name: "Casey",
       role: "Earthwork Crew",
       crew: "Earthwork Crew",
       body: "Member of NERTO Homes' earthwork crew.",
