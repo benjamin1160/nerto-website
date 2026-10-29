@@ -4,8 +4,9 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { ContactSection } from "@/components/contact-band";
 import { InquiryForm } from "@/components/inquiry-form";
+import { TourEmbed } from "@/components/tour-embed";
 import { Badge, ButtonLink, Container, Eyebrow, Icon, SpecRow } from "@/components/ui";
-import { getListing } from "@/lib/homes";
+import { getListing, tourEmbedUrl, tourShareUrl } from "@/lib/homes";
 import { pages } from "@/lib/page-config";
 import { projectBySlug, projects } from "@/lib/projects";
 import { site } from "@/lib/site";
@@ -51,6 +52,12 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
      rather than breaking the page. */
   const home = project.homeSlug ? getListing(project.homeSlug) : undefined;
   const [cover, ...rest] = project.photos ?? [];
+  const tourEmbed = project.tourUrl ? tourEmbedUrl(project.tourUrl) : undefined;
+  const tourShare = project.tourUrl ? tourShareUrl(project.tourUrl) : undefined;
+  /* Section numbers count up as the page renders, so a project without a
+     tour or clips does not skip one. */
+  let n = 2;
+  const index = () => String(n++).padStart(2, "0");
 
   return (
     <>
@@ -126,9 +133,36 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
               </blockquote>
             )}
 
+            {tourShare && (
+              <div id="walkthrough" className="mt-14 scroll-mt-[calc(var(--chrome-h)+1.5rem)]">
+                <Eyebrow index={index()}>3D walkthrough</Eyebrow>
+                {tourEmbed ? (
+                  <>
+                    <div className="mt-6 aspect-[16/10] overflow-hidden rounded-card border border-line bg-surface-2">
+                      <TourEmbed src={tourEmbed} name={project.title} />
+                    </div>
+                    <a
+                      href={tourShare}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-3 inline-flex items-center gap-1.5 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted transition-colors hover:text-ink"
+                    >
+                      Open the tour full screen
+                      <Icon.External className="size-3.5" />
+                    </a>
+                  </>
+                ) : (
+                  <ButtonLink href={tourShare} target="_blank" rel="noreferrer" variant="outline" className="mt-6">
+                    Open the walkthrough
+                    <Icon.External className="size-4" />
+                  </ButtonLink>
+                )}
+              </div>
+            )}
+
             {project.videos && project.videos.length > 0 && (
               <div className="mt-14">
-                <Eyebrow index="02">Walk through it</Eyebrow>
+                <Eyebrow index={index()}>Walk through it</Eyebrow>
                 {/* Phone footage, so portrait tiles: two across on a phone,
                     three on anything wider. Nothing downloads until play. */}
                 <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3">
@@ -156,7 +190,7 @@ export default async function ProjectPage(props: PageProps<"/projects/[slug]">) 
 
             {rest.length > 0 && (
               <div className="mt-14">
-                <Eyebrow index={project.videos?.length ? "03" : "02"}>On site</Eyebrow>
+                <Eyebrow index={index()}>On site</Eyebrow>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {rest.map((photo) => (
                     <div
