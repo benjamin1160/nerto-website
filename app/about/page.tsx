@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Scene } from "@/components/artwork/scene";
@@ -8,25 +9,31 @@ import { Reveal } from "@/components/reveal";
 import {
   ButtonLink,
   Container,
-  cx,
   Eyebrow,
   Icon,
-  Section,
   SectionHeading,
 } from "@/components/ui";
-import { communities } from "@/lib/communities";
 import { company, spellCount, yearsTrading, type TeamMember } from "@/lib/company";
-import { listings, seriesList } from "@/lib/homes";
-import { site } from "@/lib/site";
+import { listings } from "@/lib/homes";
 import { pages } from "@/lib/page-config";
+import { projectCover, publishedProjects } from "@/lib/projects";
+import { site } from "@/lib/site";
+import { TESTIMONIALS } from "@/lib/testimonials";
 
 /* Every section below is conditional on the matching field in
    `lib/company.ts`. A dealership that publishes nothing about its staff or
    its founding year gets a shorter page, not an invented one — see the note
-   at the top of that file. */
+   at the top of that file.
 
+   The page is ordered by what a sceptical buyer needs, fastest first: the
+   facts they can check (years, licence, award, reviews), houses that exist,
+   a customer in their own words, and then the people. Long copy — the full
+   mission, each bio — is one tap away rather than in the scroll, so the page
+   reads in a minute and still holds everything the business has written. */
 
 const sentenceCase = (s: string) => s.replace(/^./, (c) => c.toUpperCase());
+
+const CREWS = ["Set Crew", "Concrete Crew", "Earthwork Crew"] as const;
 
 export const metadata: Metadata = {
   title: "About",
@@ -46,34 +53,39 @@ export default function AboutPage() {
   const years = yearsTrading();
 
   /* Each portrait is `page/about-team-N` by position in `company.team`, so
-     the index is taken before staff and partners are split apart. */
+     the index is taken before staff, crews and partners are split apart. */
   const team = (company.team ?? []).map((member, i) => ({ member, photo: i + 1 }));
   const staff = team.filter((t) => !t.member.partner && !t.member.crew);
-  const concreteCrew = team.filter((t) => t.member.crew === "Concrete Crew");
-  const earthworkCrew = team.filter((t) => t.member.crew === "Earthwork Crew");
+  const crews = CREWS.map((name) => ({
+    name,
+    members: team.filter((t) => t.member.crew === name),
+  })).filter((c) => c.members.length > 0);
   const partners = team.filter((t) => t.member.partner);
+
+  const projects = pages.projects ? publishedProjects() : [];
+  const quote = TESTIMONIALS[0];
 
   /* Section numbering has to survive a missing section, so it counts up as
      the page renders rather than being written into each heading. */
   let n = 1;
   const index = () => String(n++).padStart(2, "0");
 
-  /* A stat that would read zero is a stat we do not have, so it is dropped
-     rather than printed — the same rule the rest of this page follows about
-     an absent fact. With an empty catalogue that leaves the row empty, and
-     the row hides itself. */
-  const onLot = listings.filter((l) => l.onLot).length;
+  /* Only `onLot` homes count as open to walk through — the catalogue is what
+     NERTO can order, and counting it as lot stock would be a lie a visitor
+     finds out on arrival. A fact that would read zero is dropped. */
+  const onLot = company.homesOpenOnLot ?? listings.filter((l) => l.onLot).length;
 
-  const stats = [
-    ...(years ? [{ v: <CountUp to={years} />, k: "Years" }] : []),
-    /* "Plans we build", not "homes on the lot": the catalogue is what NERTO
-       can order, and only the handful flagged `onLot` are standing on River
-       Road. Counting the catalogue as lot stock would be a lie a visitor
-       finds out on arrival. */
-    ...(listings.length ? [{ v: <CountUp to={listings.length} />, k: "Plans we build" }] : []),
-    ...(onLot ? [{ v: <CountUp to={onLot} />, k: "Open to walk through" }] : []),
-    ...(seriesList.length ? [{ v: <CountUp to={seriesList.length} />, k: "Series" }] : []),
-    ...(communities.length ? [{ v: <CountUp to={communities.length} />, k: "Communities" }] : []),
+  const facts = [
+    ...(years
+      ? [{ v: <CountUp to={years} />, k: `Years building in ${site.stateName}`, note: `Since ${company.founded}` }]
+      : []),
+    ...(projects.length
+      ? [{ v: <CountUp to={projects.length} />, k: "Finished homes to look through", note: "Photos and tours", href: "/projects" }]
+      : []),
+    ...(onLot ? [{ v: <CountUp to={onLot} />, k: "Homes open on our lot", note: "Walk in, no appointment", href: "/address" }] : []),
+    ...(company.licenseId
+      ? [{ v: <>Licensed</>, k: `${site.stateName} manufactured-home dealer`, note: `#${company.licenseId}` }]
+      : []),
   ];
 
   return (
@@ -94,9 +106,6 @@ export default function AboutPage() {
               one job.
             </>
           ) : (
-            /* Not the mission heading — that is `company.story.heading` and
-               it lands two screens down. A hero that repeats the next
-               headline verbatim reads as a page that stuttered. */
             <>
               We are not just
               <br />
@@ -104,7 +113,7 @@ export default function AboutPage() {
             </>
           )
         }
-        lede="Buying and building a home means coordinating land, financing, permits, site work and a stack of contractors. We do that part, so you do not have to."
+        lede="Land, financing, permits, site work, delivery and setup. We coordinate all of it, so you do not have to."
         kind="exterior"
         size="tall"
         breadcrumb={[
@@ -113,68 +122,174 @@ export default function AboutPage() {
         ]}
       />
 
-      {/* Story — dropped entirely when the business has no story on file. */}
-      {company.story && (
-        <Section>
-          <div className="grid gap-14 lg:grid-cols-[1fr_1.15fr] lg:gap-20">
-            <Reveal>
-              <Eyebrow index={index()}>{company.story.eyebrow}</Eyebrow>
-              <h2 className="mt-5 font-display text-headline text-balance text-ink">
-                {company.story.heading}
-              </h2>
-            </Reveal>
-
-            <Reveal delay={100}>
-              <div className="space-y-6 text-lg leading-relaxed text-muted">
-                {company.story.paragraphs.map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-
-              {stats.length > 0 && (
-                <dl className="mt-12 grid grid-cols-2 gap-x-8 gap-y-10 border-t border-line pt-10 sm:grid-cols-4">
-                  {stats.map((s) => (
-                    <div key={s.k}>
+      {/* Proof first — the things a visitor can check for themselves. */}
+      {(facts.length > 0 || (company.awards ?? []).length > 0 || company.reviewsUrl) && (
+        <section className="border-b border-line bg-surface">
+          <Container className="py-10 sm:py-12">
+            {facts.length > 0 && (
+              <dl className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-4">
+                {facts.map((f) => {
+                  const body = (
+                    <>
                       <dd className="font-display text-4xl leading-none tracking-tight text-ink">
-                        {s.v}
+                        {f.v}
                       </dd>
-                      <dt className="eyebrow mt-3">{s.k}</dt>
+                      <dt className="mt-3 text-[0.92rem] font-semibold leading-snug text-ink">
+                        {f.k}
+                      </dt>
+                      <dd className="mt-1 font-mono text-[0.68rem] uppercase tracking-[0.16em] text-muted">
+                        {f.note}
+                      </dd>
+                    </>
+                  );
+                  return (
+                    <div key={f.k}>
+                      {f.href ? (
+                        <Link href={f.href} className="block transition-opacity hover:opacity-75">
+                          {body}
+                        </Link>
+                      ) : (
+                        body
+                      )}
                     </div>
-                  ))}
-                </dl>
-              )}
-            </Reveal>
-          </div>
-        </Section>
+                  );
+                })}
+              </dl>
+            )}
+
+            {((company.awards ?? []).length > 0 || company.reviewsUrl) && (
+              <div className="mt-10 flex flex-col gap-6 border-t border-line pt-8 sm:flex-row sm:items-center sm:justify-between">
+                {(company.awards ?? []).map((award) => (
+                  <div key={award.title} className="flex items-center gap-4">
+                    <Image
+                      src={award.image}
+                      alt={`${award.issuer}: ${award.title}`}
+                      width={64}
+                      height={80}
+                      className="h-16 w-auto shrink-0"
+                    />
+                    <p className="text-sm leading-snug text-muted">
+                      <span className="block font-semibold text-ink">{award.title}</span>
+                      {award.issuer}
+                    </p>
+                  </div>
+                ))}
+                {company.reviewsUrl && (
+                  <a
+                    href={company.reviewsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm font-semibold text-ink underline-offset-4 hover:underline"
+                  >
+                    Read our reviews on {company.reviewsLabel ?? "the web"}
+                    <Icon.External className="size-3.5" />
+                  </a>
+                )}
+              </div>
+            )}
+          </Container>
+        </section>
       )}
 
-      {/* Principles */}
-      {company.principles && company.principles.length > 0 && (
+      {/* Mission and how we work, side by side. The opening paragraph is
+          shown; the rest of NERTO's own words are one tap away. */}
+      {(company.story || (company.principles ?? []).length > 0) && (
+        <section>
+          <Container className="py-16 sm:py-20">
+            <div className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
+              {company.story && (
+                <Reveal>
+                  <Eyebrow index={index()}>{company.story.eyebrow}</Eyebrow>
+                  <h2 className="mt-5 font-display text-headline text-balance text-ink">
+                    {company.story.heading}
+                  </h2>
+                  <p className="mt-6 text-lg leading-relaxed text-muted">
+                    {company.story.paragraphs[0]}
+                  </p>
+                  {company.story.paragraphs.length > 1 && (
+                    <details className="group mt-4">
+                      <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 text-sm font-semibold text-ink underline-offset-4 hover:underline [&::-webkit-details-marker]:hidden">
+                        Read our full mission
+                        <Icon.Chevron className="size-3.5 transition-transform group-open:rotate-90" />
+                      </summary>
+                      <div className="mt-4 space-y-4 leading-relaxed text-muted">
+                        {company.story.paragraphs.slice(1).map((p, i) => (
+                          <p key={i}>{p}</p>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </Reveal>
+              )}
+
+              {company.principles && company.principles.length > 0 && (
+                <Reveal delay={100}>
+                  <ul className="grid gap-px overflow-hidden rounded-card border border-line bg-line sm:grid-cols-2">
+                    {company.principles.map((p) => {
+                      const PrincipleIcon = Icon[p.icon];
+                      return (
+                        <li key={p.title} className="bg-paper p-6">
+                          <span className="grid size-10 place-items-center rounded-full bg-ember text-on-ember">
+                            <PrincipleIcon className="size-[1.1rem]" />
+                          </span>
+                          <h3 className="mt-4 font-display text-xl leading-snug tracking-tight text-ink">
+                            {p.title}
+                          </h3>
+                          <p className="mt-2 text-[0.92rem] leading-relaxed text-muted">{p.body}</p>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </Reveal>
+              )}
+            </div>
+          </Container>
+        </section>
+      )}
+
+      {/* Houses that exist — the strongest evidence a builder has. */}
+      {projects.length > 0 && (
         <section className="border-y border-line bg-surface">
-          <Container className="py-20 sm:py-28">
+          <Container className="py-16 sm:py-20">
             <Reveal>
               <SectionHeading
                 index={index()}
-                eyebrow="How we work"
-                title={`${sentenceCase(spellCount(company.principles.length))} rules we don't bend.`}
+                eyebrow="Our work"
+                title="Homes we've put on the ground."
+                action={
+                  <ButtonLink href="/projects" variant="outline">
+                    See all {projects.length}
+                    <Icon.Arrow className="size-4" />
+                  </ButtonLink>
+                }
               />
             </Reveal>
-            <div className="mt-14 grid gap-6 sm:grid-cols-2">
-              {company.principles.map((p, i) => {
-                const PrincipleIcon = Icon[p.icon];
+            <div className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              {projects.slice(0, 4).map((project, i) => {
+                const cover = projectCover(project);
                 return (
-                  <Reveal key={p.title} delay={i * 90}>
-                    <div className="flex h-full gap-5 rounded-card border border-line bg-paper p-8">
-                      <span className="grid size-11 shrink-0 place-items-center rounded-full bg-ember text-on-ember">
-                        <PrincipleIcon className="size-5" />
-                      </span>
-                      <div>
-                        <h3 className="font-display text-2xl leading-snug tracking-tight text-ink">
-                          {p.title}
-                        </h3>
-                        <p className="mt-3 leading-relaxed text-muted">{p.body}</p>
+                  <Reveal key={project.slug} delay={i * 70}>
+                    <Link href={`/projects/${project.slug}`} className="group block">
+                      <div className="grain relative aspect-[4/3] overflow-hidden rounded-card bg-surface-2">
+                        {cover && (
+                          <Image
+                            src={cover}
+                            alt={project.title}
+                            fill
+                            sizes="(min-width: 1024px) 25vw, 50vw"
+                            className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+                          />
+                        )}
                       </div>
-                    </div>
+                      <p className="mt-3 font-display text-lg leading-snug tracking-tight text-ink transition-colors group-hover:text-ember">
+                        {project.title}
+                      </p>
+                      {project.location && (
+                        <p className="font-mono text-[0.68rem] uppercase tracking-[0.16em] text-muted">
+                          {project.location}
+                        </p>
+                      )}
+                    </Link>
                   </Reveal>
                 );
               })}
@@ -183,57 +298,123 @@ export default function AboutPage() {
         </section>
       )}
 
-      {/* Team — staff, then the outside professionals NERTO works alongside. */}
-      {staff.length > 0 && (
-        <Section>
-          <Reveal>
-            <SectionHeading
-              index={index()}
-              eyebrow="Who you'll actually meet"
-              title={
-                company.teamSize
-                  ? `${sentenceCase(spellCount(company.teamSize))} people, one team.`
-                  : "The people behind your home."
-              }
-              lede={company.teamNote}
-            />
-          </Reveal>
-          <TeamGrid members={staff} />
-        </Section>
+      {/* One customer, in their own words, with the source a click away. */}
+      {quote && (
+        <section>
+          <Container className="py-16 sm:py-20">
+            <Reveal>
+              <figure className="mx-auto max-w-3xl text-center">
+                <blockquote className="font-display text-2xl leading-snug tracking-tight text-balance text-ink sm:text-3xl">
+                  &ldquo;{quote.quote}&rdquo;
+                </blockquote>
+                <figcaption className="mt-6 font-mono text-[0.7rem] uppercase tracking-[0.18em] text-muted">
+                  {quote.name} · {quote.detail}
+                </figcaption>
+              </figure>
+            </Reveal>
+          </Container>
+        </section>
       )}
 
-      {concreteCrew.length > 0 && (
-        <Section className="!pt-0">
-          <Reveal>
-            <SectionHeading eyebrow="In the field" title="Concrete Crew" />
-          </Reveal>
-          <TeamGrid members={concreteCrew} />
-        </Section>
-      )}
+      {/* The people: faces, names and roles at a glance; each bio opens on a tap. */}
+      {(staff.length > 0 || crews.length > 0) && (
+        <section className="border-t border-line bg-surface">
+          <Container className="py-16 sm:py-20">
+            <Reveal>
+              <SectionHeading
+                index={index()}
+                eyebrow="Who you'll actually meet"
+                title="The people behind your home."
+                lede={company.teamNote}
+              />
+            </Reveal>
 
-      {earthworkCrew.length > 0 && (
-        <Section className="!pt-0">
-          <Reveal>
-            <SectionHeading eyebrow="In the field" title="Earthwork Crew" />
-          </Reveal>
-          <TeamGrid members={earthworkCrew} />
-        </Section>
+            {staff.length > 0 && (
+              <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                {staff.map(({ member, photo }, i) => (
+                  <Reveal key={member.name} delay={(i % 4) * 60}>
+                    <StaffCard member={member} photo={photo} />
+                  </Reveal>
+                ))}
+              </div>
+            )}
+
+            {crews.length > 0 && (
+              <div className="mt-14 border-t border-line pt-10">
+                <p className="eyebrow">In the field</p>
+                <p className="mt-3 max-w-2xl leading-relaxed text-muted">
+                  The crews who pour the foundation, cut the driveway and set and finish the
+                  house are ours — not a list of subcontractors you have to chase.
+                </p>
+                <div className="mt-8 grid gap-10 md:grid-cols-3">
+                  {crews.map((crew) => (
+                    <div key={crew.name}>
+                      <h3 className="font-display text-xl tracking-tight text-ink">{crew.name}</h3>
+                      <ul className="mt-5 grid grid-cols-4 gap-x-3 gap-y-5 sm:grid-cols-5 md:grid-cols-3 lg:grid-cols-4">
+                        {crew.members.map(({ member, photo }) => (
+                          <li key={member.name} className="text-center">
+                            <Scene
+                              kind="porch"
+                              photoKey={`page/about-team-${photo}`}
+                              sizes="80px"
+                              label={member.name}
+                              className="mx-auto aspect-square w-full max-w-20 rounded-full"
+                            />
+                            <p className="mt-2 text-[0.78rem] leading-tight text-ink">
+                              {member.name}
+                            </p>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </Container>
+        </section>
       )}
 
       {partners.length > 0 && (
-        <Section className="!pt-0">
-          <Reveal>
-            <SectionHeading
-              eyebrow="Trusted local partners"
-              title="The lender and agent we work alongside."
-            />
-          </Reveal>
-          <TeamGrid members={partners} />
-        </Section>
+        <section>
+          <Container className="py-16 sm:py-20">
+            <Reveal>
+              <SectionHeading
+                eyebrow="Trusted local partners"
+                title="The lender and agent we work alongside."
+              />
+            </Reveal>
+            <div className="mt-10 grid gap-4 md:grid-cols-2">
+              {partners.map(({ member, photo }) => (
+                <Reveal key={member.name}>
+                  <div className="flex h-full gap-5 rounded-card border border-line bg-paper p-6">
+                    <Scene
+                      kind="living"
+                      photoKey={`page/about-team-${photo}`}
+                      sizes="96px"
+                      label={member.name}
+                      className="size-20 shrink-0 rounded-full sm:size-24"
+                    />
+                    <div className="min-w-0">
+                      <p className="font-display text-xl leading-tight tracking-tight text-ink">
+                        {member.name}
+                      </p>
+                      <p className="mt-1 font-mono text-[0.68rem] text-muted">{member.role}</p>
+                      <p className="mt-3 line-clamp-4 text-[0.92rem] leading-relaxed text-muted">
+                        {Array.isArray(member.body) ? member.body[0] : member.body}
+                      </p>
+                      {member.link && <MemberLink link={member.link} />}
+                    </div>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+          </Container>
+        </section>
       )}
 
       {/* Visit */}
-      <section className="border-t border-line bg-ink py-20 text-paper dark:bg-surface dark:text-ink sm:py-28">
+      <section className="border-t border-line bg-ink py-16 text-paper dark:bg-surface dark:text-ink sm:py-20">
         <Container>
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-20">
             <Reveal>
@@ -241,9 +422,7 @@ export default function AboutPage() {
                 The lot
               </Eyebrow>
               <h2 className="mt-5 font-display text-headline text-balance">
-                {company.homesOpenOnLot
-                  ? `${sentenceCase(spellCount(company.homesOpenOnLot))} homes open to walk through.`
-                  : "Come and walk the lot."}
+                {onLot ? `${sentenceCase(spellCount(onLot))} homes open to walk through.` : "Come and walk the lot."}
               </h2>
               <p className="mt-6 max-w-lg text-lg leading-relaxed opacity-70">
                 No appointment needed to walk the lot. Book one if you want somebody to
@@ -303,64 +482,54 @@ export default function AboutPage() {
   );
 }
 
-/* Cards with real gaps rather than hairline gutters: a team of seven never
-   fills its last row, and hairline gutters would show the gap as a slab. */
-function TeamGrid({ members }: { members: { member: TeamMember; photo: number }[] }) {
+/* A face, a name and a role in the grid; the bio opens in place on a tap,
+   so the team reads at a glance and nothing the team wrote is dropped. */
+function StaffCard({ member, photo }: { member: TeamMember; photo: number }) {
+  const paragraphs = Array.isArray(member.body) ? member.body : [member.body];
+  const first = member.name.split(" ")[0];
   return (
-    <div
-      className={cx(
-        "mt-14 grid gap-6 sm:grid-cols-2",
-        members.length >= 3 ? "lg:grid-cols-3" : "max-w-4xl",
-      )}
-    >
-      {members.map(({ member: t, photo }, i) => (
-        <Reveal key={t.name} delay={(i % 3) * 80}>
-          <div className="flex h-full flex-col overflow-hidden rounded-card border border-line bg-paper">
-            <div className="grain relative aspect-[4/5] overflow-hidden bg-surface-2">
-              <Scene
-                kind={(["living", "porch", "kitchen", "bedroom"] as const)[i % 4]}
-                photoKey={`page/about-team-${photo}`}
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                label={t.name}
-                className="size-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-5">
-                {t.since && (
-                  <p className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-white/65">
-                    Since {t.since}
-                  </p>
-                )}
-                <p className="mt-1 font-display text-xl leading-tight text-white">{t.name}</p>
-                <p className="font-mono text-[0.7rem] text-white/70">{t.role}</p>
-              </div>
-            </div>
-            <div className="flex flex-1 flex-col gap-4 p-6">
-              <div className="flex-1 space-y-3 text-[0.92rem] leading-relaxed text-muted">
-                {(Array.isArray(t.body) ? t.body : [t.body]).map((p, j) => (
-                  <p key={j}>{p}</p>
-                ))}
-              </div>
-              {t.link && (
-                <Link
-                  href={t.link.href}
-                  {...(t.link.href.startsWith("http")
-                    ? { target: "_blank", rel: "noopener noreferrer" }
-                    : {})}
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink underline-offset-4 hover:underline"
-                >
-                  {t.link.label}
-                  {t.link.href.startsWith("http") ? (
-                    <Icon.External className="size-3.5" />
-                  ) : (
-                    <Icon.Arrow className="size-3.5" />
-                  )}
-                </Link>
-              )}
-            </div>
+    <div className="flex h-full flex-col overflow-hidden rounded-card border border-line bg-paper">
+      <Scene
+        kind="living"
+        photoKey={`page/about-team-${photo}`}
+        sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+        label={member.name}
+        className="aspect-square w-full"
+      />
+      <div className="flex flex-1 flex-col p-4 sm:p-5">
+        <p className="font-display text-lg leading-tight tracking-tight text-ink">{member.name}</p>
+        <p className="mt-1 text-[0.8rem] leading-snug text-muted">
+          {member.role.split(" · ")[0]}
+          {member.since && <> · since {member.since}</>}
+        </p>
+        <details className="group mt-3">
+          <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-[0.8rem] font-semibold text-ink underline-offset-4 hover:underline [&::-webkit-details-marker]:hidden">
+            About {first}
+            <Icon.Chevron className="size-3 transition-transform group-open:rotate-90" />
+          </summary>
+          <div className="mt-3 space-y-3 text-[0.85rem] leading-relaxed text-muted">
+            {member.role.includes(" · ") && <p className="text-ink">{member.role}</p>}
+            {paragraphs.map((p, j) => (
+              <p key={j}>{p}</p>
+            ))}
+            {member.link && <MemberLink link={member.link} />}
           </div>
-        </Reveal>
-      ))}
+        </details>
+      </div>
     </div>
+  );
+}
+
+function MemberLink({ link }: { link: { href: string; label: string } }) {
+  const external = link.href.startsWith("http");
+  return (
+    <Link
+      href={link.href}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      className="mt-3 inline-flex items-center gap-1.5 text-sm font-semibold text-ink underline-offset-4 hover:underline"
+    >
+      {link.label}
+      {external ? <Icon.External className="size-3.5" /> : <Icon.Arrow className="size-3.5" />}
+    </Link>
   );
 }

@@ -31,7 +31,7 @@ export type TeamMember = {
   name: string;
   role: string;
   /** Field crew grouping on the About page. Omit for office and leadership staff. */
-  crew?: "Concrete Crew" | "Earthwork Crew";
+  crew?: "Set Crew" | "Concrete Crew" | "Earthwork Crew";
   /** Year they joined. Omit if you don't know it — the card drops the line. */
   since?: string;
   /** One paragraph, or several. */
@@ -280,26 +280,25 @@ export const company: Company = {
     {
       name: "Courtney",
       role: "Set Crew",
+      crew: "Set Crew",
       body: "Member of NERTO Homes' set crew.",
     },
     {
       name: "Devon",
       role: "Set Crew",
+      crew: "Set Crew",
       body: "Member of NERTO Homes' set crew.",
     },
     {
       name: "Kenny Tuttle",
       role: "Set Crew",
+      crew: "Set Crew",
       body: "Member of NERTO Homes' set crew.",
     },
     {
       name: "Michael Trytek",
       role: "Set Crew",
-      body: "Member of NERTO Homes' set crew.",
-    },
-    {
-      name: "Justin Foster",
-      role: "Set Crew",
+      crew: "Set Crew",
       body: "Member of NERTO Homes' set crew.",
     },
     {

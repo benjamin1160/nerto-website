@@ -83,11 +83,29 @@ export type Project = {
    * faststart) because they play on phones; nothing loads until play.
    */
   videos?: ProjectVideo[];
+  /**
+   * A Matterport walkthrough of this house, either URL shape Matterport hands
+   * out (see `tourEmbedUrl` in `lib/homes.ts`). Shown before the clips and the
+   * photographs, because a tour shows the house rather than describing it.
+   */
+  tourUrl?: string;
   /** What the customer said, if they said something and agreed to be quoted. */
   testimonial?: { quote: string; attribution: string };
 };
 
 export const projects: Project[] = [
+  {
+    slug: "boothbay-flores",
+    title: "Boothbay Flores",
+    location: "Boothbay, Maine",
+    summary:
+      "A ranch NERTO set over a walkout basement on a wooded hillside in Boothbay, with a covered deck off the back.",
+    tourUrl: "https://my.matterport.com/show/?m=omVVzRLF8Kh",
+    photos: [
+      "/photos/projects/boothbay-flores/01.jpg",
+      "/photos/projects/boothbay-flores/02.jpg",
+    ],
+  },
   {
     slug: "netr-g-3160",
     title: "NETR G-3160",
