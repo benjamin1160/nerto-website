@@ -273,7 +273,7 @@ export const company: Company = {
     },
     {
       name: "Adam Kalloch",
-      role: "Concrete Crew",
+      role: "Concrete foreman",
       crew: "Concrete Crew",
       body: "Member of NERTO Homes' concrete crew.",
     },
@@ -298,18 +298,13 @@ export const company: Company = {
       body: "Member of NERTO Homes' set crew.",
     },
     {
-      name: "Justin Foster",
-      role: "Set Crew",
-      body: "Member of NERTO Homes' set crew.",
-    },
-    {
       name: "Jamie Labbe",
       role: "Earthwork Crew",
       crew: "Earthwork Crew",
       body: "Member of NERTO Homes' earthwork crew.",
     },
     {
-      name: "Hunter",
+      name: "Casey",
       role: "Earthwork Crew",
       crew: "Earthwork Crew",
       body: "Member of NERTO Homes' earthwork crew.",
@@ -357,7 +352,7 @@ export const company: Company = {
       body: "Member of NERTO Homes' earthwork crew.",
     },
     {
-      name: "Casey",
+      name: "Earthwork Crew Member",
       role: "Earthwork Crew",
       crew: "Earthwork Crew",
       body: "Member of NERTO Homes' earthwork crew.",
