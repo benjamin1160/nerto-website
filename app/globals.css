@@ -484,3 +484,98 @@
     animation: none;
   }
 }
+
+/* Halloween dressing — `components/halloween-decor.tsx`. Hidden unless the
+   seasonal boot script has put `.halloween` on <html>. */
+.season-halloween {
+  display: none;
+}
+
+.halloween .season-halloween {
+  display: block;
+}
+
+@keyframes hw-spider-drop {
+  0%, 100% { transform: translateY(0); }
+  45%, 60% { transform: translateY(2.2rem); }
+}
+
+@keyframes hw-sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+
+@keyframes hw-bat-fly {
+  0% { transform: translate3d(-15vw, 2rem, 0); }
+  10% { transform: translate3d(15vw, -1rem, 0); }
+  20% { transform: translate3d(45vw, 1.5rem, 0); }
+  30% { transform: translate3d(75vw, -1.5rem, 0); }
+  40%, 100% { transform: translate3d(115vw, 0.5rem, 0); }
+}
+
+@keyframes hw-flap {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.35); }
+}
+
+@keyframes hw-flicker {
+  0%, 100% { opacity: 1; }
+  40% { opacity: 0.75; }
+  45% { opacity: 0.95; }
+  70% { opacity: 0.8; }
+}
+
+.hw-spider {
+  transform-origin: top center;
+  animation: hw-spider-drop 7s ease-in-out infinite, hw-sway 3s ease-in-out infinite;
+}
+
+.hw-thread {
+  height: 1.75rem;
+}
+
+.hw-bat {
+  transform: translate3d(-15vw, 0, 0);
+  animation: hw-bat-fly 12s linear infinite;
+}
+
+.hw-bat-wings {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: hw-flap 220ms ease-in-out infinite;
+}
+
+.hw-pumpkin {
+  filter: drop-shadow(0 0 10px rgb(249 115 22 / 0.55));
+}
+
+.hw-glow {
+  animation: hw-flicker 2.6s ease-in-out infinite;
+  animation-delay: inherit;
+}
+
+.hw-moon {
+  background: radial-gradient(circle at 38% 36%, #fff7e0 0%, #fde68a 45%, #f59e0b 100%);
+  box-shadow: 0 0 40px 12px rgb(253 230 138 / 0.45), 0 0 120px 40px rgb(249 115 22 / 0.25);
+  opacity: 0.9;
+}
+
+/* Lit headings on the night theme, like the flyer's lettering. */
+.halloween.dark h1,
+.halloween.dark h2 {
+  text-shadow: 0 0 28px rgb(249 115 22 / 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hw-spider,
+  .hw-bat,
+  .hw-bat-wings,
+  .hw-glow {
+    animation: none;
+  }
+
+  /* Bats only make sense moving. */
+  .hw-bat {
+    display: none;
+  }
+}
