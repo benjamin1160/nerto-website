@@ -214,6 +214,14 @@ export const company: Company = {
       ],
     },
     {
+      name: "Bobby Miller",
+      role: "Co-owner · Vice President, NERTO Homes",
+      body: [
+        "Bobby Miller is a seasoned entrepreneur and accomplished business leader with decades of experience in real estate development, residential construction, investment, and business management. Throughout his career, he has contributed to the development and construction of thousands of homes across New England, building a reputation for successful ventures, strategic leadership, and lasting industry relationships.",
+        "As Vice President and Co-Owner of NERTO Homes, Bobby works alongside longtime business partner Jeremy Turner, combining their extensive experience and shared vision to create opportunities for homeownership throughout New England. Bobby's entrepreneurial drive, commitment to excellence, and proven track record continue to be the foundation of his longstanding success.",
+      ],
+    },
+    {
       name: "Jonathan Henderson",
       role: "General Manager",
       since: "2018",
